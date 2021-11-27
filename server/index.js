@@ -3,7 +3,7 @@ import cors from "cors"
 import helmet from "helmet"
 import userController from "./controllers/userController.js";
 
-const PORT = 3000;
+const PORT = 5000;
 
 const app = express();
 app.use(cors(), helmet())
