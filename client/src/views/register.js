@@ -7,7 +7,7 @@ const registerTemplate = () => html`
 <p>Hello World!</p>`;
 
 
-export function registerPage(render) {
+export function registerPage(ctx) {
     login();
-    render(registerTemplate());
+    ctx.render(registerTemplate());
 }   

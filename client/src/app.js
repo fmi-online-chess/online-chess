@@ -7,10 +7,18 @@ import { registerPage } from './views/register.js';
 
 
 const main = document.querySelector('main');
-const decoratedRender = (content) => render(content, main);
+function decoratedRender(content) {
+    render(content, main);
+}
+
+page((ctx, next) => {
+    ctx.render = decoratedRender;
+
+    next();
+});
 
 
-page('/', () => homePage(decoratedRender));
+page('/', homePage);
 page('/register', () => registerPage(decoratedRender));
 
 page.start();
