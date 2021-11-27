@@ -2,8 +2,8 @@ import { html } from 'https://unpkg.com/lit-html?module';
 import { login } from '../data/user.js';
 
 
-const registerTemplate = (submitForm) => html`
-<h1>Register Page</h1>
+const loginTemplate = (submitForm) => html`
+<h1>Login Page</h1>
 <p>Hello World!</p>
 <form @submit=${submitForm}>
     <input name="username" type="text" />
@@ -12,16 +12,17 @@ const registerTemplate = (submitForm) => html`
 </form>`;
 
 
-export function registerPage(ctx) {
+export function loginPage(ctx) {
     // login();
-    ctx.render(registerTemplate(submitForm));
+    ctx.render(loginTemplate(submitForm));
 
     async function submitForm(event) {
         event.preventDefault();
         const formData = new FormData(event.target);
 
-        console.log(...formData.entries());
-
+        const username = formData.get("username");
+        const password = formData.get("password");
+        await login(username, password);
         ctx.page.redirect("/");
     }
-}   
+}  

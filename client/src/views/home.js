@@ -7,6 +7,8 @@ const pageTemplate = (count, onClick) => html`
 <div>
     <button @click=${onClick}>Click Me!</button>
     <p>${count}</p>
+    <a href="/login">Login</a>
+    <a href="/register">Register</a>
 </div>`;
 
 

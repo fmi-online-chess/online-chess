@@ -4,6 +4,7 @@ import page from "//unpkg.com/page/page.mjs";
 
 import { homePage } from './views/home.js';
 import { registerPage } from './views/register.js';
+import { loginPage } from './views/login.js';
 
 
 const main = document.querySelector('main');
@@ -19,6 +20,7 @@ page((ctx, next) => {
 
 
 page('/', homePage);
-page('/register', () => registerPage(decoratedRender));
+page('/register', registerPage);
+page('/login', loginPage);
 
 page.start();

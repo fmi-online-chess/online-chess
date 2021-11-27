@@ -7,8 +7,9 @@ const PORT = 5000;
 
 const app = express();
 app.use(cors(), helmet())
+app.use(express.json());
 
-app.use("/", userController)
+app.use("/users", userController)
 app.listen(PORT, () => {
     console.log(`Server listening on ${PORT}`)
 })

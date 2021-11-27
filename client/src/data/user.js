@@ -1,7 +1,9 @@
-import { request } from "./api.js";
+import { post } from "./api.js";
 
 export async function login(username, password) {
-    const result = await request('/');
+    const result = await post('/users/login', { username, password });
 
-    console.log(result);
+    localStorage.setItem("user-data", JSON.stringify(result));
+
+    return result;
 }
