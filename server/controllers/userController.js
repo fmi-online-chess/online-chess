@@ -1,7 +1,7 @@
-import express from "express"
+import express from "express";
 
 
-const userController = express.Router()
+const userController = express.Router();
 
 
 userController.post("/login", (req, res) => {
@@ -20,4 +20,4 @@ userController.post("/login", (req, res) => {
     }
 });
 
-export default userController
+export default userController;

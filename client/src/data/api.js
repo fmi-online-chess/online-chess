@@ -1,4 +1,4 @@
-const hostname = 'http://localhost:5000';
+const hostname = "http://localhost:5000";
 
 export async function request(url, options) {
     try {
@@ -24,7 +24,7 @@ export async function post(url, data) {
     return request(url, {
         method: "post",
         headers: {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json"
         },
         body: JSON.stringify(data)
     });

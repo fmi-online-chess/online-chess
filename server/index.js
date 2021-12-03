@@ -1,15 +1,15 @@
-import express from "express"
-import cors from "cors"
-import helmet from "helmet"
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
 import userController from "./controllers/userController.js";
 
 const PORT = 5000;
 
 const app = express();
-app.use(cors(), helmet())
+app.use(cors(), helmet());
 app.use(express.json());
 
-app.use("/users", userController)
+app.use("/users", userController);
 app.listen(PORT, () => {
-    console.log(`Server listening on ${PORT}`)
-})
+    console.log(`Server listening on ${PORT}`);
+});

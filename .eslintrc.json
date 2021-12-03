@@ -1,0 +1,19 @@
+{
+    "extends": "eslint:recommended",
+    "env": {
+        "browser": true
+    },
+    "parserOptions": {
+        "ecmaVersion": 10,
+        "sourceType": "module"
+    },
+    "rules": {
+        "semi": "error",
+        "curly": "error",
+        "quotes": [
+            "warn",
+            "double"
+        ],
+        "no-undef": "error"
+    }
+}

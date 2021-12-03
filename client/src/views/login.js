@@ -1,5 +1,5 @@
-import { html } from 'https://unpkg.com/lit-html?module';
-import { login } from '../data/user.js';
+import { html } from "https://unpkg.com/lit-html?module";
+import { login } from "../data/user.js";
 
 
 const loginTemplate = (submitForm) => html`

@@ -1,5 +1,5 @@
-import passportJwt from 'passport-jwt';
-import dotenv from 'dotenv';
+import passportJwt from "passport-jwt";
+import dotenv from "dotenv";
 
 const {
   SECRET_KEY
