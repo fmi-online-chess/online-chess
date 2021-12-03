@@ -3,14 +3,18 @@ const hostname = "http://localhost:5000";
 export async function request(url, options) {
     try {
         const response = await fetch(hostname + url, options);
-        if (response.ok === true) {
-            return response.json();
+        if (response.ok != true) {
+            const err = await response.json();
+            throw err;
         }
 
-        const err = await response.json();
-        throw err;
+        if (response.status == 204) {
+            return response;
+        } else {
+            return response.json();
+        }
     }
-    catch(err) {
+    catch (err) {
         alert(err.message);
         throw err;
     }

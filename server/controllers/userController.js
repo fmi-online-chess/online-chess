@@ -1,8 +1,7 @@
-import express from "express";
+import { Router } from "express";
 
 
-const userController = express.Router();
-
+const userController = Router();
 
 userController.post("/login", (req, res) => {
     const { username, password } = req.body;

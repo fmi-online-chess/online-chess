@@ -1,5 +1,8 @@
 import { Server } from "socket.io";
 
+import { ioWrap } from "./util.js";
+import mockGameData from "../middlewares/mockGameData.js";
+
 
 // TODO this will be stored in the database;
 // rooms will be initialized by the game controller;
@@ -14,7 +17,8 @@ export default function setupEngine(server) {
         }
     });
 
-    // TODO add auth and storage middlewares
+    // TODO add REAL auth and storage middlewares
+    io.use(ioWrap(mockGameData()));
 
     io.on("connection", onConnect);
 
@@ -39,9 +43,33 @@ function onConnect(socket) {
     registerMessageHandlers(socket);
 }
 
+/**
+ * @param {import('../node_modules/socket.io/dist/socket').Socket} socket Connection socket
+ */
 function registerMessageHandlers(socket) {
-    socket.on("message", (data) => {
-        console.log(data);
-        socket.emit("message", data);
+    const games = socket.request.games;
+    let player = null;
+    let room = null;
+
+
+    socket.on("auth", ({ roomId, token }) => {
+        console.log(roomId, token);
+        const players = games.players[roomId] || {};
+        room = games.rooms.find(r => r.id == roomId);
+        console.log(players, room);
+
+        const foundPlayer = Object.entries(players).find(([seat, p]) => p.playerId == token);
+        if (foundPlayer) {
+            player = foundPlayer[1];
+            socket.join(room.name);
+            socket.emit("auth", true);
+        } else {
+            socket.emit("auth", false);
+        }
+    });
+
+    socket.on("message", (message) => {
+        console.log(message);
+        socket.to(room.name).emit("message", `${player.username}: ${message}`);
     });
 }

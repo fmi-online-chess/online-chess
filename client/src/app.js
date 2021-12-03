@@ -38,7 +38,7 @@ export function createApp(initialState) {
         return function (...params) {
             currentView.handler = handler;
             currentView.params = params;
-            update();
+            requestAnimationFrame(update);
         };
     }
 
