@@ -1,27 +1,16 @@
-import { html } from "https://unpkg.com/lit-html?module";
+import { html } from "../lib.js";
 
 
-const pageTemplate = (count, onClick) => html`
-<h1>Home Page</h1>
-<p>Hello World!</p>
-<div>
-    <button @click=${onClick}>Click Me!</button>
-    <p>${count}</p>
+const homeTemplate = () => html`
+<nav>
+    <a href="/rooms">Rooms</a>
     <a href="/login">Login</a>
     <a href="/register">Register</a>
-</div>`;
+</nav>
+<h1>Home Page</h1>
+<p>Hello World!</p>`;
 
 
 export async function homePage(ctx) {
-    let counter = 0;
-    update();
-
-    function update() {
-        ctx.render(pageTemplate(counter, onClick));
-    }
-
-    function onClick() {
-        counter++;
-        update();
-    }
+    ctx.render(homeTemplate());
 }

@@ -1,4 +1,4 @@
-import { html } from "https://unpkg.com/lit-html?module";
+import { html } from "../lib.js";
 import { login } from "../data/user.js";
 
 

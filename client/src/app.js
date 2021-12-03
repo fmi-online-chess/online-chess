@@ -1,10 +1,10 @@
-import { render } from "https://unpkg.com/lit-html?module";
-// import { until } from "https://unpkg.com/lit-html/directives/until?module";
-import page from "//unpkg.com/page/page.mjs";
+import { render } from "./lib.js";
+import { page } from "./lib.js";
 
 import { homePage } from "./views/home.js";
 import { registerPage } from "./views/register.js";
 import { loginPage } from "./views/login.js";
+import { roomsPage } from "./views/engine.js";
 
 
 const main = document.querySelector("main");
@@ -22,5 +22,6 @@ page((ctx, next) => {
 page("/", homePage);
 page("/register", registerPage);
 page("/login", loginPage);
+page("/rooms", roomsPage);
 
 page.start();

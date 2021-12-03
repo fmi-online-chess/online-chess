@@ -1,4 +1,4 @@
-import { html } from "https://unpkg.com/lit-html?module";
+import { html } from "../lib.js";
 
 
 const registerTemplate = (submitForm) => html`
