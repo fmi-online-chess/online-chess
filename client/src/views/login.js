@@ -13,8 +13,7 @@ const loginTemplate = (submitForm) => html`
 
 
 export function loginPage(ctx) {
-    // login();
-    ctx.render(loginTemplate(submitForm));
+    return loginTemplate(submitForm);
 
     async function submitForm(event) {
         event.preventDefault();

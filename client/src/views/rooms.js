@@ -10,7 +10,7 @@ const roomsTemplate = (rooms, onConnectionRequest) => html`
 <button @click=${onConnectionRequest}>Test Connection</button>`;
 
 export function roomsPage(ctx) {
-    ctx.render(roomsTemplate([
+    return roomsTemplate([
         {
             id: 1,
             name: "Room 1"
@@ -23,7 +23,7 @@ export function roomsPage(ctx) {
             id: 3,
             name: "Room 3"
         }
-    ], onConnectionRequest));
+    ], onConnectionRequest);
 
 
     function onConnectionRequest() {

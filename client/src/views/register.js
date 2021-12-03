@@ -12,8 +12,7 @@ const registerTemplate = (submitForm) => html`
 
 
 export function registerPage(ctx) {
-    // login();
-    ctx.render(registerTemplate(submitForm));
+    return registerTemplate(submitForm);
 
     async function submitForm(event) {
         event.preventDefault();
