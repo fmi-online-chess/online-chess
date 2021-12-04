@@ -31,7 +31,11 @@ function createOptions(method = "get", data) {
         options.body = JSON.stringify(data);
     }
 
-    // TODO add JWT header
+    const user = JSON.parse(localStorage.getItem("user-data"));
+
+    if (user) {
+        options.headers["Authorization"] = user.accessToken;
+    }
 
     return options;
 }

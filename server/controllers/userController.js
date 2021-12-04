@@ -6,15 +6,35 @@ const userController = Router();
 userController.post("/login", (req, res) => {
     const { username, password } = req.body;
 
-    if (password === "123456") {
-        res.status(200).json({
-            username,
-            id: "123ID",
-            token: "token123"
+    try {
+        const result = req.auth.login(username, password);
+
+        res.json(result);
+    } catch(err) {
+        res.status(err.status).json({
+            message: err.message
         });
-    } else {
-        res.status(401).json({
-            message: "Passwords do not match!"
+    }
+});
+
+userController.get("/logout", (req, res) => {
+    const token = req.headers["authorization"];
+
+    req.auth.logout(token);
+
+    res.status(204).end();
+});
+
+userController.post("/register", (req, res) => {
+    const {username, password} = req.body;
+
+    try {
+        const result = req.auth.register(username, password);
+
+        res.json(result);
+    } catch(err) {
+        res.status(err.status).json({
+            message: err.message
         });
     }
 });

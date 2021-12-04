@@ -1,11 +1,21 @@
+import { logout } from "./data/user.js";
 import { page, render } from "./lib.js";
 import { createObservableState } from "./util/state.js";
 import { layoutTemplate } from "./views/layout.js";
 
-
-export function createApp(initialState) {
+export  function createApp(initialState) {
     const container = document.getElementById("container");
-    const state = createObservableState(initialState, update);
+    const state = initialState;
+    state.onLogout = async () => {
+        await logout();
+        delete state.user;
+        update();
+    };
+    const user = JSON.parse(localStorage.getItem("user-data"));
+    if (user) {
+        state.user = user;
+    }
+
     const currentView = {
         handler: null,
         params: []

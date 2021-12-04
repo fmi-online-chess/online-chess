@@ -1,13 +1,17 @@
 import { html } from "../lib.js";
 import { login } from "../data/user.js";
 
-
 const loginTemplate = (submitForm) => html`
 <h1>Login Page</h1>
-<p>Hello World!</p>
 <form @submit=${submitForm}>
-    <input name="username" type="text" />
-    <input name="password" type="password" />
+    <label>
+        <span>Username:</span>
+        <input name="username" type="text" />
+    </label>
+    <label>
+        <span>Password:</span>
+        <input name="password" type="password" />
+    </label>
     <input value="Submit" type="submit" />
 </form>`;
 
@@ -21,7 +25,10 @@ export function loginPage(ctx) {
 
         const username = formData.get("username");
         const password = formData.get("password");
-        await login(username, password);
+        const result = await login(username, password);
+
+        ctx.appState.user = result;
+
         ctx.page.redirect("/");
     }
 }  
