@@ -1,5 +1,7 @@
 import express from "express";
-import { createServer } from "http";
+import {
+    createServer
+} from "http";
 import cors from "cors";
 import helmet from "helmet";
 
@@ -9,7 +11,6 @@ import mockSession from "./middlewares/mockSession.js";
 import userController from "./controllers/userController.js";
 import roomController from "./controllers/roomController.js";
 import setupEngine from "./engine/index.js";
-import { authMiddleware } from "./auth/auth.middleware.js";
 
 const PORT = 5000;
 
