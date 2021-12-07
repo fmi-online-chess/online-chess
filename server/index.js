@@ -4,7 +4,8 @@ import {
 } from "http";
 import cors from "cors";
 import helmet from "helmet";
-
+import passport from "passport";
+import jwtStrategy from "./auth/strategy.js";
 import mockGameData from "./middlewares/mockGameData.js";
 import mockAuth from "./middlewares/mockAuth.js";
 import mockSession from "./middlewares/mockSession.js";
@@ -15,8 +16,12 @@ import setupEngine from "./engine/index.js";
 const PORT = 5000;
 
 const app = express();
+
+passport.use(jwtStrategy);
+
 const server = createServer(app);
 
+app.use(passport.initialize());
 app.use(cors(), helmet());
 app.use(mockGameData());
 app.use(express.json());

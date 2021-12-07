@@ -1,5 +1,5 @@
-import bcrypt from 'bcryptjs';
-import errors from './errors.js';
+import bcrypt from "bcryptjs";
+import errors from "./errors.js";
 export const validateUser = (usersData) => async (
     username,
     password
@@ -7,7 +7,7 @@ export const validateUser = (usersData) => async (
     const user = await getUserByUserName(usersData)(username);
 
     if (user.error) {
-        throw new Error('Username does not exist!');
+        throw new Error("Username does not exist!");
     }
 
     if (await bcrypt.compare(password, user.data.password)) {
