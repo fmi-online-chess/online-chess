@@ -1,19 +1,16 @@
-import {
-    Router
-} from "express";
-import * as usersData from "../data/userData.js";
+import { Router } from "express";
 
 
 const userController = Router();
 
-userController.post("/login", (req, res) => {
+userController.post("/login", async (req, res) => {
     const {
         username,
         password
     } = req.body;
 
     try {
-        const result = req.auth.login(username, password);
+        const result = await req.auth.login(username, password);
 
         res.json(result);
     } catch (err) {
@@ -21,6 +18,7 @@ userController.post("/login", (req, res) => {
             message: err.message
         });
     }
+    res.end();
 });
 
 userController.get("/logout", (req, res) => {
@@ -31,14 +29,14 @@ userController.get("/logout", (req, res) => {
     res.status(204).end();
 });
 
-userController.post("/register", (req, res) => {
+userController.post("/register", async (req, res) => {
     const {
         username,
         password
     } = req.body;
 
     try {
-        const result = req.auth.register(username, password);
+        const result = await req.auth.register(username, password);
 
         res.json(result);
     } catch (err) {

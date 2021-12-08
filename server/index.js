@@ -1,37 +1,41 @@
 import express from "express";
-import {
-    createServer
-} from "http";
+import { createServer } from "http";
 import cors from "cors";
 import helmet from "helmet";
-import passport from "passport";
-import jwtStrategy from "./auth/strategy.js";
+
 import mockGameData from "./middlewares/mockGameData.js";
-import mockAuth from "./middlewares/mockAuth.js";
-import mockSession from "./middlewares/mockSession.js";
+
+import auth from "./middlewares/auth.js";
 import userController from "./controllers/userController.js";
 import roomController from "./controllers/roomController.js";
+
+import setupDatabase from "./data/database.js";
 import setupEngine from "./engine/index.js";
 
 const PORT = 5000;
 
-const app = express();
+start();
 
-passport.use(jwtStrategy);
+async function start() {
+    const app = express();
 
-const server = createServer(app);
+    const server = createServer(app);
 
-app.use(passport.initialize());
-app.use(cors(), helmet());
-app.use(mockGameData());
-app.use(express.json());
-app.use(mockAuth());
-app.use(mockSession());
-app.use("/users", userController);
-app.use("/rooms", roomController);
+    app.use(cors(), helmet());
+    app.use(express.json());
 
-setupEngine(server);
+    await setupDatabase(app);
 
-server.listen(PORT, () => {
-    console.log(`Server listening on ${PORT}`);
-});
+    app.use(auth());
+
+    app.use(mockGameData());
+
+    app.use("/users", userController);
+    app.use("/rooms", roomController);
+
+    setupEngine(server);
+
+    server.listen(PORT, () => {
+        console.log(`Server listening on ${PORT}`);
+    });
+}

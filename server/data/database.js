@@ -1,13 +1,21 @@
 import mongoose from "mongoose";
 
 
-var mongoDB = "mongodb://127.0.0.1/my_database";
-mongoose.connect(mongoDB, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-});
+export default async function initialize(app) {
+    return new Promise((resolve, reject) => {
+        mongoose.connect("mongodb://localhost:27017/online-chess", {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
 
-
-var db = mongoose.connection;
-
-db.on("error", console.error.bind(console, "MongoDB connection error:"));
+        const db = mongoose.connection;
+        db.on("error", err => {
+            console.error("Database error: ", err.message);
+            reject(err.message);
+        });
+        db.on("open", () => {
+            console.log("Database connected");
+            resolve();
+        });
+    });
+}
