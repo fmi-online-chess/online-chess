@@ -1,3 +1,8 @@
+import { page } from "../lib.js";
+import { clearUserData, getUserData } from "../util.js";
+import { INVALID_TOKEN } from "./errors.js";
+
+
 const hostname = "http://localhost:5000";
 
 export async function request(url, options) {
@@ -5,6 +10,10 @@ export async function request(url, options) {
         const response = await fetch(hostname + url, options);
         if (response.ok != true) {
             const err = await response.json();
+            if (err.code == INVALID_TOKEN) {
+                clearUserData();
+                page.redirect("/login");
+            }
             throw err;
         }
 
@@ -31,7 +40,7 @@ function createOptions(method = "get", data) {
         options.body = JSON.stringify(data);
     }
 
-    const user = JSON.parse(localStorage.getItem("user-data"));
+    const user = getUserData();
 
     if (user) {
         options.headers["Authorization"] = user.accessToken;

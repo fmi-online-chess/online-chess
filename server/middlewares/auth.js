@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import * as userService from "../services/userService.js";
+import { INVALID_TOKEN } from "../services/errors.js";
 
 
 const {
@@ -19,6 +20,7 @@ export default function initialize() {
             next();
         } else {
             res.status(401).json({
+                code: INVALID_TOKEN,
                 message: "Invalid authorization token!"
             });
         }
@@ -73,9 +75,9 @@ async function register(username = "", password = "") {
 
 function createToken(user) {
     const userViewModel = { _id: user._id, username: user.username };
-    const token = jwt.sign(userViewModel, SECRET_KEY, { expiresIn: "24h" });
+    const accessToken = jwt.sign(userViewModel, SECRET_KEY, { expiresIn: "24h" });
 
-    return token;
+    return Object.assign({}, userViewModel, { accessToken });
 }
 
 function readToken(req) {
