@@ -9,3 +9,37 @@ body {
     width: 980px;
     margin: auto;
 }
+
+.r {
+    width: 400px;
+    float: left;
+}
+
+.r::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.c {
+    width: 50px;
+    height: 50px;
+    float: left;
+    text-align: center;
+}
+
+.p {
+    vertical-align: middle;
+    font-size: 50px;
+    line-height: 50px;
+}
+
+.b {
+    background-color: black;
+    color: white;
+}
+
+.w {
+    background-color: white;
+    color: black;
+}

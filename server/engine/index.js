@@ -58,7 +58,7 @@ function registerMessageHandlers(socket) {
         const foundPlayer = room.players.find(p => p._id == userData._id);
         if (foundPlayer) {
             player = foundPlayer;
-            socket.join(room.name);
+            socket.join(room._id);
             socket.emit("auth", true);
             socket.emit("history", room.chatHistory);
         } else {
@@ -69,7 +69,12 @@ function registerMessageHandlers(socket) {
     socket.on("message", (message) => {
         const data = { username: player.username, message };
         room.chatHistory.push(data);
-        socket.to(room.name).emit("message", data);
+        socket.to(room._id).emit("message", data);
         room.save();
+    });
+
+    socket.on("action", (action) => {
+        console.log(action);
+        socket.to(room._id).emit("action", action);
     });
 }

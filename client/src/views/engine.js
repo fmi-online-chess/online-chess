@@ -1,12 +1,15 @@
 import { io } from "http://localhost:5000/socket.io/socket.io.esm.min.js";
+import { createGame } from "../engine/game.js";
 import { html, until } from "../lib.js";
 import spinner from "./common/spinner.js";
 
 
 let game = null;
+let scene = null;
 
-const boardTemplate = (readyPromise) => html`
+const pageTemplate = (readyPromise, board) => html`
 <h1>Chessboard</h1>
+${board}
 ${until(readyPromise, spinner())}`;
 
 export function chessBoard(ctx) {
@@ -18,12 +21,20 @@ export function chessBoard(ctx) {
     if (!game) {
         game = connect(ctx, roomId);
     }
+    if (!scene) {
+        scene = createGame();
+        window.action = (action) => {
+            scene.move(action);
+            ctx.update();
+        };
+    }
 
-    return boardTemplate(loadGame(game));
+    return pageTemplate(loadGame(game), scene.render());
 }
 
 async function loadGame(game) {
     game.onChat = onChat;
+    game.initGame = initGame;
     await game.ready;
 
     return html`
@@ -32,9 +43,19 @@ async function loadGame(game) {
         <input type="text" name="message"><input type="submit" value="Send">
     </form>`;
 
+    function initGame() {
+        const ta = document.querySelector("textarea");
+        if (ta) {
+            ta.value = "";
+        }
+    }
+
     function onChat({ username, message }) {
-        document.querySelector("textarea").value += `${username == game.user.username ? "You" : username}: ${message}`;
-        document.querySelector("textarea").value += "\n";
+        const ta = document.querySelector("textarea");
+        if (ta) {
+            ta.value += `${username == game.user.username ? "You" : username}: ${message}`;
+            ta.value += "\n";
+        }
     }
 
     function onSubmit(event) {
@@ -44,9 +65,12 @@ async function loadGame(game) {
 
         if (message) {
             game.sendMessage(message);
-            document.querySelector("textarea").value += "You: ";
-            document.querySelector("textarea").value += message;
-            document.querySelector("textarea").value += "\n";
+            const ta = document.querySelector("textarea");
+            if (ta) {
+                ta.value += "You: ";
+                ta.value += message;
+                ta.value += "\n";
+            }
             event.target.reset();
         }
     }
@@ -66,6 +90,7 @@ function connect(ctx, roomId) {
             onError = rej;
         }),
         onChat: null,
+        initGame: null,
         sendMessage(data) {
             socket.emit("message", data);
         }
@@ -102,6 +127,10 @@ function connect(ctx, roomId) {
     });
 
     socket.on("history", (data) => {
+        if (typeof game.initGame == "function") {
+            game.initGame();
+        }
+
         if (typeof game.onChat == "function") {
             for (let message of data) {
                 game.onChat(message);
