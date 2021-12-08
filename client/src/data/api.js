@@ -1,5 +1,5 @@
 import { page } from "../lib.js";
-import { clearUserData, getUserData } from "../util.js";
+import { clearUserData, getUserData } from "../util/userData.js";
 import { INVALID_TOKEN } from "./errors.js";
 
 

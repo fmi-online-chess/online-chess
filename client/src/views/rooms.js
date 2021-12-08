@@ -1,10 +1,15 @@
 import { html, until } from "../lib.js";
 import spinner from "./common/spinner.js";
-import { getLobby, getRooms, joinRoom } from "../data/rooms.js";
+import { createRoom, getLobby, getRooms, joinRoom } from "../data/rooms.js";
+import { createSubmitHandler } from "../util/handlers.js";
 
 
-const roomsTemplate = (roomsPromise) => html`
-<h1>Available Rooms</h1>
+const roomsTemplate = (roomsPromise, onCreateSubmit) => html`
+<h1>Game Rooms</h1>
+<form @submit=${onCreateSubmit}>
+    <label><span>Room name</span><input type="text" name="name"></label>
+    <input type="submit" value="Create room">
+</form>
 <ul>
     ${until(roomsPromise, spinner())}
 </ul>`;
@@ -14,7 +19,16 @@ const lobbyTemplate = (roomDataPromise) => html`
 ${until(roomDataPromise, spinner())}`;
 
 export function roomsPage(ctx) {
-    return roomsTemplate(loadRooms());
+    return roomsTemplate(loadRooms(), createSubmitHandler(onCreateSubmit));
+
+    async function onCreateSubmit({ name }) {
+        if (!name) {
+            return alert("Name cannot be empty");
+        }
+
+        const result = await createRoom(name);
+        ctx.page.redirect(`/rooms/${result._id}`);
+    }
 }
 
 async function loadRooms() {
@@ -23,7 +37,7 @@ async function loadRooms() {
     if (rooms.length == 0) {
         return html`<p>No available rooms.</p>`;
     } else {
-        return rooms.map(r => html`<li><a href="/room/${r.id}">${r.name}</a></li>`);
+        return rooms.map(r => html`<li><a href="/rooms/${r._id}">${r.name}</a></li>`);
     }
 }
 
@@ -35,29 +49,20 @@ export function lobbyPage(ctx) {
 
 async function loadLobby(ctx, roomId) {
     const roomData = await getLobby(roomId);
-    let username = "";
+
+    const canResume = roomData.players.find(p => p._id == ctx.appState.user._id) != undefined;
+    const canJoin = roomData.players.length < 2 && !canResume;
 
     return html`
     <h2>${roomData.name}</h2>
-    <input @input=${onInput} type="text" name="username" placeholder="Enter your display name">
     <ul>
-        <li>${roomData.players.player1 || html`<button @click=${() => onJoin("player1")} ?disabled=${true}>Join Room</button>`}</li>
-        <li>${roomData.players.player2 || html`<button @click=${() => onJoin("player2")} ?disabled=${true}>Join Room</button>`}</li>
-    </ul>`;
+        ${roomData.players.map(p => html`<li>${p.username}</li>`)}
+    </ul>
+    ${canJoin ? html`<button @click=${onJoin}>Join Room</button>` : null}
+    ${canResume ? html`<a href="/rooms/${roomId}/board">Resume</button>` : null}`;
 
-    async function onJoin(seat) {
-        const result = await joinRoom(roomId, seat, username);
-        localStorage.setItem("gameToken", result.playerId);
-        ctx.page.redirect(`/room/${roomId}/board`);
-    }
-
-    function onInput(ev) {
-        username = ev.target.value || "";
-
-        if (username) {
-            [...document.querySelectorAll("button")].forEach(b => b.disabled = false);
-        } else {
-            [...document.querySelectorAll("button")].forEach(b => b.disabled = true);
-        }
+    async function onJoin() {
+        await joinRoom(roomId);
+        ctx.page.redirect(`/rooms/${roomId}/board`);
     }
 }

@@ -1,4 +1,4 @@
-import { clearUserData, setUserData } from "../util.js";
+import { clearUserData, setUserData } from "../util/userData.js";
 import { post } from "./api.js";
 
 export async function login(username, password) {

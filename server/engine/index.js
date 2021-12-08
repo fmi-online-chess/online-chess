@@ -1,13 +1,9 @@
 import { Server } from "socket.io";
 
 import { ioWrap } from "./util.js";
-import mockGameData from "../middlewares/mockGameData.js";
+import auth from "../middlewares/auth.js";
+import { getRoomDetails } from "../services/roomService.js";
 
-
-// TODO this will be stored in the database;
-// rooms will be initialized by the game controller;
-// users connecting without and asisgned room will be booted
-const rooms = {};
 
 export default function setupEngine(server) {
     const io = new Server(server, {
@@ -17,8 +13,7 @@ export default function setupEngine(server) {
         }
     });
 
-    // TODO add REAL auth and storage middlewares
-    io.use(ioWrap(mockGameData()));
+    io.use(ioWrap(auth()));
 
     io.on("connection", onConnect);
 
@@ -47,29 +42,34 @@ function onConnect(socket) {
  * @param {import('../node_modules/socket.io/dist/socket').Socket} socket Connection socket
  */
 function registerMessageHandlers(socket) {
-    const games = socket.request.games;
     let player = null;
     let room = null;
 
 
-    socket.on("auth", ({ roomId, token }) => {
-        console.log(roomId, token);
-        const players = games.players[roomId] || {};
-        room = games.rooms.find(r => r.id == roomId);
-        console.log(players, room);
+    socket.on("auth", async ({ roomId, token }) => {
+        let userData = null;
+        try {
+            userData = socket.request.auth.parseToken(token);
+        } catch (err) {
+            socket.emit("auth", false);
+        }
+        room = await getRoomDetails(roomId);
 
-        const foundPlayer = Object.entries(players).find(([seat, p]) => p.playerId == token);
+        const foundPlayer = room.players.find(p => p._id == userData._id);
         if (foundPlayer) {
-            player = foundPlayer[1];
+            player = foundPlayer;
             socket.join(room.name);
             socket.emit("auth", true);
+            socket.emit("history", room.chatHistory);
         } else {
             socket.emit("auth", false);
         }
     });
 
     socket.on("message", (message) => {
-        console.log(message);
-        socket.to(room.name).emit("message", `${player.username}: ${message}`);
+        const data = { username: player.username, message };
+        room.chatHistory.push(data);
+        socket.to(room.name).emit("message", data);
+        room.save();
     });
 }

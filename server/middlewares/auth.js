@@ -13,7 +13,8 @@ export default function initialize() {
     return (req, res, next) => {
         req.auth = {
             login,
-            register
+            register,
+            parseToken
         };
 
         if (readToken(req)) {
@@ -23,6 +24,18 @@ export default function initialize() {
                 code: INVALID_TOKEN,
                 message: "Invalid authorization token!"
             });
+        }
+    };
+}
+
+export function authCheck() {
+    return (req, res, next) => {
+        if (!req.user) {
+            res.status(401).json({
+                message: "You must be authenticated to access this function"
+            });
+        } else {
+            next();
         }
     };
 }
@@ -84,7 +97,7 @@ function readToken(req) {
     const token = req.headers["authorization"];
     if (token) {
         try {
-            const userData = jwt.verify(token, SECRET_KEY);
+            const userData = parseToken(token);
             req.user = userData;
             console.log("Authorized user", userData.username);
         } catch (err) {
@@ -92,4 +105,8 @@ function readToken(req) {
         }
     }
     return true;
+}
+
+function parseToken(token) {
+    return jwt.verify(token, SECRET_KEY);
 }

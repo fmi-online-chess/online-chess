@@ -15,6 +15,10 @@ export async function getLobby(roomId) {
     return api.get(endpoints.roomById(roomId));
 }
 
-export async function joinRoom(roomId, seat, username) {
-    return api.post(endpoints.joinRoomById(roomId), { seat, username });
+export async function joinRoom(roomId) {
+    return api.post(endpoints.joinRoomById(roomId));
+}
+
+export async function createRoom(name) {
+    return api.post(endpoints.allRooms, { name });
 }

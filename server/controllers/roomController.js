@@ -1,47 +1,55 @@
 import { Router } from "express";
+import { authCheck } from "../middlewares/auth.js";
+import { createRoom, getRoomById, getRooms, joinRoom } from "../services/roomService.js";
 
 
 const roomController = Router();
 
-roomController.get("/", (req, res) => {
-    console.log(req.user);
-    res.json(req.games.rooms);
+roomController.get("/", async (req, res) => {
+    const rooms = await getRooms();
+    res.json(rooms);
 });
 
-roomController.get("/:id", (req, res) => {
+roomController.post("/", authCheck(), async (req, res) => {
+    const { name } = req.body;
+
+    if (!name) {
+        return res.status(400).json({
+            message: "Room name cannot be empty"
+        });
+    }
+
+    try {
+        const room = await createRoom(name);
+        await joinRoom(room._id, req.user._id);
+
+        res.json(room);
+    } catch (err) {
+        res.status(err.status || 400).json({
+            message: err.message
+        });
+    }
+});
+
+roomController.get("/:id", async (req, res) => {
     const roomId = req.params.id;
-    const room = req.games.rooms.find(r => r.id == roomId);
-    const players = req.games.players[roomId] || {};
-    console.log(players);
+    const room = await getRoomById(roomId);
 
     if (room == undefined) {
         res.status(400).json({
             message: "Room not found"
         });
     } else {
-        res.json(Object.assign({}, room, {
-            players: {
-                player1: players.player1 && players.player1.username,
-                player2: players.player2 && players.player2.username
-            }
-        }));
+        res.json(room);
     }
 });
 
-roomController.post("/:id/players", (req, res) => {
+roomController.post("/:id/players", authCheck(), async (req, res) => {
     const roomId = req.params.id;
-    const { seat, username } = req.body;
-    if (req.games.players[roomId] == undefined) {
-        req.games.players[roomId] = {
-            player1: null,
-            player2: null
-        };
-    }
-    const players = req.games.players[roomId];
 
     try {
-        const playerId = joinRoom(players, seat, username);
-        res.status(201).json({ playerId });
+        const result = await joinRoom(roomId, req.user._id);
+        res.status(201).json(result);
     } catch (err) {
         res.status(400).json({
             message: "Invalid seat allocation"
@@ -49,6 +57,7 @@ roomController.post("/:id/players", (req, res) => {
     }
 });
 
+/*
 roomController.delete("/:id/players/:seat", (req, res) => {
     const { roomId, seat } = req.params.id;
     const players = req.games.players[roomId];
@@ -68,37 +77,6 @@ roomController.delete("/:id/players/:seat", (req, res) => {
         }
     }
 });
-
-function joinRoom(players, seat, username) {
-    if (players[seat] != null) {
-        throw new Error("Seat already occupied");
-    } else {
-        const playerId = fauxUuid();
-
-        players[seat] = {
-            playerId,
-            username
-        };
-
-        return playerId;
-    }
-}
-
-function leaveRoom(players, seat) {
-    // TODO must determine if target seat is occupied by the requesting player
-    if (players[seat] == null) {
-        throw new Error("Seat is empty");
-    } else {
-        players[seat] = null;
-    }
-}
-
-function fauxUuid() {
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-        let r = Math.random() * 16 | 0,
-            v = c == "x" ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-}
+*/
 
 export default roomController;

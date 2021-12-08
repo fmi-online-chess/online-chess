@@ -17,7 +17,7 @@ app.view("/", homePage);
 app.view("/register", registerPage);
 app.view("/login", loginPage);
 app.view("/rooms", roomsPage);
-app.view("/room/:id", lobbyPage);
-app.view("/room/:id/board", chessBoard);
+app.view("/rooms/:id", lobbyPage);
+app.view("/rooms/:id/board", chessBoard);
 
 app.start();

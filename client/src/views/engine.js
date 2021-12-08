@@ -10,9 +10,13 @@ const boardTemplate = (readyPromise) => html`
 ${until(readyPromise, spinner())}`;
 
 export function chessBoard(ctx) {
+    if (!ctx.appState.user) {
+        // TODO this should either include a return address or appear as a modal
+        return ctx.page.redirect("/login");
+    }
     const roomId = ctx.params.id;
     if (!game) {
-        game = connect(roomId);
+        game = connect(ctx, roomId);
     }
 
     return boardTemplate(loadGame(game));
@@ -28,8 +32,8 @@ async function loadGame(game) {
         <input type="text" name="message"><input type="submit" value="Send">
     </form>`;
 
-    function onChat(message) {
-        document.querySelector("textarea").value += message;
+    function onChat({ username, message }) {
+        document.querySelector("textarea").value += `${username == game.user.username ? "You" : username}: ${message}`;
         document.querySelector("textarea").value += "\n";
     }
 
@@ -40,7 +44,6 @@ async function loadGame(game) {
 
         if (message) {
             game.sendMessage(message);
-            game.chat.push(message);
             document.querySelector("textarea").value += "You: ";
             document.querySelector("textarea").value += message;
             document.querySelector("textarea").value += "\n";
@@ -49,12 +52,13 @@ async function loadGame(game) {
     }
 }
 
-function connect(roomId) {
-    const token = localStorage.getItem("gameToken");
+function connect(ctx, roomId) {
+    const token = ctx.appState.user.accessToken;
     let onReady = null;
     let onError = null;
 
     const game = {
+        user: ctx.appState.user,
         connected: false,
         chat: [],
         ready: new Promise((res, rej) => {
@@ -92,10 +96,16 @@ function connect(roomId) {
     });
 
     socket.on("message", (data) => {
-        game.chat.push(data);
-
         if (typeof game.onChat == "function") {
             game.onChat(data);
+        }
+    });
+
+    socket.on("history", (data) => {
+        if (typeof game.onChat == "function") {
+            for (let message of data) {
+                game.onChat(message);
+            }
         }
     });
 

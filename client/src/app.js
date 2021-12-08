@@ -1,6 +1,7 @@
 import { logout } from "./data/user.js";
 import { page, render } from "./lib.js";
 import { createObservableState } from "./util/state.js";
+import { getUserData } from "./util/userData.js";
 import { layoutTemplate } from "./views/layout.js";
 
 export  function createApp(initialState) {
@@ -11,7 +12,7 @@ export  function createApp(initialState) {
         delete state.user;
         update();
     };
-    const user = JSON.parse(localStorage.getItem("user-data"));
+    const user = getUserData();
     if (user) {
         state.user = user;
     }
