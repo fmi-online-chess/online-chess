@@ -75,8 +75,8 @@ export function createGame(initialState) {
             // TODO validate move, player turn, time
 
             const piece = board[fromRank][fromFile];
-            board[toRank][toFile] = piece;
             board[fromRank][fromFile] = "";
+            board[toRank][toFile] = piece;
 
             return true;
         }

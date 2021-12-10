@@ -25,34 +25,17 @@ export function chessBoard(ctx) {
         scene = createGame();
     }
 
-    return pageTemplate(loadGame(game), scene.render());
+    return pageTemplate(loadGame(ctx, game), scene.render(game));
 }
 
-async function loadGame(game) {
-    game.onChat = onChat;
-    game.initGame = initGame;
+async function loadGame(ctx, game) {
     await game.ready;
 
     return html`
-    <textarea disabled></textarea>
+    <textarea disabled .value=${game.chat.map(toText).join("\n")}></textarea>
     <form @submit=${onSubmit}>
         <input type="text" name="message"><input type="submit" value="Send">
     </form>`;
-
-    function initGame() {
-        const ta = document.querySelector("textarea");
-        if (ta) {
-            ta.value = "";
-        }
-    }
-
-    function onChat({ username, message }) {
-        const ta = document.querySelector("textarea");
-        if (ta) {
-            ta.value += `${username == game.user.username ? "You" : username}: ${message}`;
-            ta.value += "\n";
-        }
-    }
 
     function onSubmit(event) {
         event.preventDefault();
@@ -61,15 +44,18 @@ async function loadGame(game) {
 
         if (message) {
             game.sendMessage(message);
-            const ta = document.querySelector("textarea");
-            if (ta) {
-                ta.value += "You: ";
-                ta.value += message;
-                ta.value += "\n";
-            }
+            game.chat.push({
+                username: game.user.username,
+                message
+            });
             event.target.reset();
+            ctx.update();
         }
     }
+}
+
+function toText({ username, message }) {
+    return `${username == game.user.username ? "You" : username}: ${message}`;
 }
 
 function connect(ctx, roomId) {
@@ -85,17 +71,17 @@ function connect(ctx, roomId) {
             onReady = res;
             onError = rej;
         }),
-        onChat: null,
-        initGame: null,
         sendMessage(data) {
             socket.emit("message", data);
         },
         action(move) {
-            socket.emit("action", move);
+            if (move) {
+                socket.emit("action", move);
+            } else {
+                ctx.update();
+            }
         }
     };
-    window.action = game.action;
-
 
     const socket = io("http://localhost:5000");
 
@@ -124,9 +110,8 @@ function connect(ctx, roomId) {
     });
 
     socket.on("message", (data) => {
-        if (typeof game.onChat == "function") {
-            game.onChat(data);
-        }
+        game.chat.push(data);
+        ctx.update();
     });
 
     socket.on("history", (data) => {
@@ -134,11 +119,8 @@ function connect(ctx, roomId) {
             game.initGame();
         }
 
-        if (typeof game.onChat == "function") {
-            for (let message of data) {
-                game.onChat(message);
-            }
-        }
+        game.chat = data;
+        ctx.update();
     });
 
     return game;

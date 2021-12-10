@@ -32,6 +32,11 @@ body {
     vertical-align: middle;
     font-size: 50px;
     line-height: 50px;
+    cursor: pointer;
+}
+
+.p:hover {
+    background-color: rgba(0, 206, 17, 0.5);
 }
 
 .b {
@@ -42,4 +47,8 @@ body {
 .w {
     background-color: white;
     color: black;
+}
+
+.selected {
+    background-color: rgba(0, 206, 17, 0.25);
 }

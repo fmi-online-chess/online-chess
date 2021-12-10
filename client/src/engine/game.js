@@ -20,6 +20,9 @@ const index = {
     "8": 7,
 };
 
+const ranks = ["1", "2", "3", "4", "5", "6", "7", "8"];
+const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
+
 function createBoard() {
     return [
         ["WR", "WN", "WB", "WQ", "WK", "WB", "WN", "WR"],
@@ -50,11 +53,23 @@ export function createGame() {
     const board = createBoard();
 
     return {
-        render() {
-            return boardTemplate(board);
+        render(game) {
+            return boardTemplate(board, (indexes) => onAction(indexes, game));
         },
         setState(state) {
             deserializeBoard(board, state);
         }
     };
+
+    function onAction(indexes, game) {
+        if (indexes) {
+            const fromFile = files[indexes[0]];
+            const fromRank = ranks[indexes[1]];
+            const toFile = files[indexes[2]];
+            const toRank = ranks[indexes[3]];
+            game.action(fromFile + fromRank + toFile + toRank);
+        } else {
+            game.action();
+        }
+    }
 }

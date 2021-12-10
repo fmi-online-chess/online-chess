@@ -48,7 +48,6 @@ function onConnect(socket) {
         const room = await getRoomDetails(roomId);
         const player = room.players.find(p => p._id == userData._id);
         if (player) {
-            socket.join(room._id);
             registerMessageHandlers(socket, player, room);
             socket.emit("auth", true);
             socket.emit("history", room.chatHistory);
@@ -68,11 +67,14 @@ function registerMessageHandlers(socket, player, room) {
         activeGames[room._id] = createGame(room.state);
     }
     const game = activeGames[room._id];
+    const roomId = room._id.toString();
+    socket.join(roomId);
 
     socket.on("message", (message) => {
+        console.log(message);
         const data = { username: player.username, message };
         room.chatHistory.push(data);
-        socket.to(room._id).emit("message", data);
+        socket.to(roomId).emit("message", data);
         room.save();
     });
 
@@ -83,7 +85,7 @@ function registerMessageHandlers(socket, player, room) {
             room.state = newState;
             await room.save();
             socket.emit("state", newState);
-            socket.to(room._id).emit("state", newState);
+            socket.to(roomId).emit("state", newState);
         }
     });
 }
