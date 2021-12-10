@@ -3,7 +3,10 @@ import { Server } from "socket.io";
 import { ioWrap } from "./util.js";
 import auth from "../middlewares/auth.js";
 import { getRoomDetails } from "../services/roomService.js";
+import { createGame } from "./game.js";
 
+
+const activeGames = {};
 
 export default function setupEngine(server) {
     const io = new Server(server, {
@@ -35,17 +38,6 @@ function onConnect(socket) {
     // - if no, respond with error
 
     console.log("a user connected");
-    registerMessageHandlers(socket);
-}
-
-/**
- * @param {import('../node_modules/socket.io/dist/socket').Socket} socket Connection socket
- */
-function registerMessageHandlers(socket) {
-    let player = null;
-    let room = null;
-
-
     socket.on("auth", async ({ roomId, token }) => {
         let userData = null;
         try {
@@ -53,18 +45,29 @@ function registerMessageHandlers(socket) {
         } catch (err) {
             socket.emit("auth", false);
         }
-        room = await getRoomDetails(roomId);
-
-        const foundPlayer = room.players.find(p => p._id == userData._id);
-        if (foundPlayer) {
-            player = foundPlayer;
+        const room = await getRoomDetails(roomId);
+        const player = room.players.find(p => p._id == userData._id);
+        if (player) {
             socket.join(room._id);
+            registerMessageHandlers(socket, player, room);
             socket.emit("auth", true);
             socket.emit("history", room.chatHistory);
+            socket.emit("state", room.state);
         } else {
             socket.emit("auth", false);
+            socket.disconnect();
         }
     });
+}
+
+/**
+ * @param {import('../node_modules/socket.io/dist/socket').Socket} socket Connection socket
+ */
+function registerMessageHandlers(socket, player, room) {
+    if (activeGames[room._id] == undefined) {
+        activeGames[room._id] = createGame(room.state);
+    }
+    const game = activeGames[room._id];
 
     socket.on("message", (message) => {
         const data = { username: player.username, message };
@@ -73,8 +76,14 @@ function registerMessageHandlers(socket) {
         room.save();
     });
 
-    socket.on("action", (action) => {
+    socket.on("action", async (action) => {
         console.log(action);
-        socket.to(room._id).emit("action", action);
+        if (game.move(action)) {
+            const newState = game.serialize();
+            room.state = newState;
+            await room.save();
+            socket.emit("state", newState);
+            socket.to(room._id).emit("state", newState);
+        }
     });
 }

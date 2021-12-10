@@ -21,8 +21,8 @@ const index = {
 const ranks = ["1", "2", "3", "4", "5", "6", "7", "8"];
 const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
-function createBoard() {
-    return [
+function createBoard(state) {
+    const board = [
         ["WR", "WN", "WB", "WQ", "WK", "WB", "WN", "WR"],
         ["WP", "WP", "WP", "WP", "WP", "WP", "WP", "WP"],
         ["", "", "", "", "", "", "", ""],
@@ -32,10 +32,27 @@ function createBoard() {
         ["BP", "BP", "BP", "BP", "BP", "BP", "BP", "BP"],
         ["BR", "BN", "BB", "BQ", "BK", "BB", "BN", "BR"]
     ];
+    if (state) {
+        deserializeBoard(board, state);
+    }
+    return board;
 }
 
-export function createGame() {
-    const board = createBoard();
+function deserializeBoard(board, state) {
+    for (let rank of board) {
+        rank.fill("");
+    }
+    for (let c = 0; c < state.length; c += 4) {
+        const token = state.slice(c, c + 4);
+        const file = index[token[0]];
+        const rank = index[token[1]];
+        const piece = token.slice(2);
+        board[rank][file] = piece;
+    }
+}
+
+export function createGame(initialState) {
+    const board = createBoard(initialState);
 
     return {
         serialize() {

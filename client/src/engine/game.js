@@ -33,6 +33,19 @@ function createBoard() {
     ];
 }
 
+function deserializeBoard(board, state) {
+    for (let rank of board) {
+        rank.fill("");
+    }
+    for (let c = 0; c < state.length; c += 4) {
+        const token = state.slice(c, c + 4);
+        const file = index[token[0]];
+        const rank = index[token[1]];
+        const piece = token.slice(2);
+        board[rank][file] = piece;
+    }
+}
+
 export function createGame() {
     const board = createBoard();
 
@@ -40,15 +53,8 @@ export function createGame() {
         render() {
             return boardTemplate(board);
         },
-        move(action) {
-            const fromCol = index[action[0]];
-            const fromRow = index[action[1]];
-            const toCol = index[action[2]];
-            const toRow = index[action[3]];
-
-            const piece = board[fromRow][fromCol];
-            board[toRow][toCol] = piece;
-            board[fromRow][fromCol] = "";
+        setState(state) {
+            deserializeBoard(board, state);
         }
     };
 }

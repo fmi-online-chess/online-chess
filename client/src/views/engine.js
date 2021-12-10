@@ -23,10 +23,6 @@ export function chessBoard(ctx) {
     }
     if (!scene) {
         scene = createGame();
-        window.action = (action) => {
-            scene.move(action);
-            ctx.update();
-        };
     }
 
     return pageTemplate(loadGame(game), scene.render());
@@ -93,8 +89,13 @@ function connect(ctx, roomId) {
         initGame: null,
         sendMessage(data) {
             socket.emit("message", data);
+        },
+        action(move) {
+            socket.emit("action", move);
         }
     };
+    window.action = game.action;
+
 
     const socket = io("http://localhost:5000");
 
@@ -116,8 +117,10 @@ function connect(ctx, roomId) {
         }
     });
 
-    socket.on("action", (data) => {
+    socket.on("state", (data) => {
         console.log(data);
+        scene.setState(data);
+        ctx.update();
     });
 
     socket.on("message", (data) => {
