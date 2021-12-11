@@ -1,4 +1,4 @@
-import { io } from "http://localhost:5000/socket.io/socket.io.esm.min.js";
+import { connect } from "../data/socket.js";
 import { createGame } from "../engine/game.js";
 import { html, until } from "../lib.js";
 import spinner from "./common/spinner.js";
@@ -19,7 +19,7 @@ export function chessBoard(ctx) {
     }
     const roomId = ctx.params.id;
     if (!game) {
-        game = connect(ctx, roomId);
+        game = bindConnection(ctx, roomId);
     }
     if (!scene) {
         scene = createGame();
@@ -28,8 +28,8 @@ export function chessBoard(ctx) {
     return pageTemplate(loadGame(ctx, game), scene.render(game));
 }
 
-async function loadGame(ctx, game) {
-    await game.ready;
+async function loadGame(ctx, gamePromise) {
+    game = await gamePromise;
 
     return html`
     <textarea disabled .value=${game.chat.map(toText).join("\n")}></textarea>
@@ -45,83 +45,51 @@ async function loadGame(ctx, game) {
         if (message) {
             game.sendMessage(message);
             game.chat.push({
-                username: game.user.username,
+                username: ctx.appState.user.username,
                 message
             });
             event.target.reset();
             ctx.update();
         }
     }
+
+    function toText({ username, message }) {
+        return `${username == ctx.appState.user.username ? "You" : username}: ${message}`;
+    }
 }
 
-function toText({ username, message }) {
-    return `${username == game.user.username ? "You" : username}: ${message}`;
-}
-
-function connect(ctx, roomId) {
-    const token = ctx.appState.user.accessToken;
-    let onReady = null;
-    let onError = null;
+async function bindConnection(ctx, roomId) {
+    const userData = ctx.appState.user;
 
     const game = {
-        user: ctx.appState.user,
-        connected: false,
         chat: [],
-        ready: new Promise((res, rej) => {
-            onReady = res;
-            onError = rej;
-        }),
         sendMessage(data) {
-            socket.emit("message", data);
+            connection.sendMessage(data);
         },
         action(move) {
             if (move) {
-                socket.emit("action", move);
+                connection.action(move);
             } else {
                 ctx.update();
             }
         }
     };
 
-    const socket = io("http://localhost:5000");
+    const connection = await connect(roomId, userData);
 
-    socket.on("connect", () => {
-        console.log("Connected");
-        socket.emit("auth", {
-            roomId,
-            token
-        });
-    });
-
-    socket.on("auth", (success) => {
-        if (success) {
-            console.log("Authorized with server");
-            game.connected = true;
-            onReady();
-        } else {
-            onError("Authorization failed");
-        }
-    });
-
-    socket.on("state", (data) => {
-        console.log(data);
+    connection.onState = (data) => {
         scene.setState(data);
         ctx.update();
-    });
-
-    socket.on("message", (data) => {
+    };
+    connection.onMessage = (data) => {
         game.chat.push(data);
         ctx.update();
-    });
-
-    socket.on("history", (data) => {
-        if (typeof game.initGame == "function") {
-            game.initGame();
-        }
-
+    };
+    connection.onHistory = (data) => {
         game.chat = data;
         ctx.update();
-    });
+    };
+
 
     return game;
 }
