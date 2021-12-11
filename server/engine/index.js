@@ -44,6 +44,7 @@ function onConnect(socket) {
             userData = socket.request.auth.parseToken(token);
         } catch (err) {
             socket.emit("auth", false);
+            socket.disconnect();
         }
         const room = await getRoomDetails(roomId);
         const player = room.players.find(p => p._id == userData._id);
