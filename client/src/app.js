@@ -1,12 +1,11 @@
 import { logout } from "./data/user.js";
 import { page, render } from "./lib.js";
-import { createObservableState } from "./util/state.js";
+import { createState } from "./util/state.js";
 import { getUserData } from "./util/userData.js";
 import { layoutTemplate } from "./views/layout.js";
 
-export  function createApp(initialState) {
-    const container = document.getElementById("container");
-    const state = initialState;
+export  function createApp(container, initialState = {}) {
+    const state = JSON.parse(JSON.stringify(initialState));
     state.onLogout = async () => {
         await logout();
         delete state.user;
@@ -21,8 +20,10 @@ export  function createApp(initialState) {
         handler: null,
         params: []
     };
+
     page.redirect("index.html", "/");
-    page(addState);
+    page(createState(state));
+    page(addUpdate);
 
     const app = {
         view(path, handler) {
@@ -35,7 +36,6 @@ export  function createApp(initialState) {
             page.start();
         }
     };
-
 
     return app;
 
@@ -53,8 +53,7 @@ export  function createApp(initialState) {
         };
     }
 
-    function addState(ctx, next) {
-        ctx.appState = state;
+    function addUpdate(ctx, next) {
         ctx.update = update;
         next();
     }

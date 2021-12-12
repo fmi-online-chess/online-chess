@@ -1,3 +1,10 @@
+export function createState(state = {}) {
+    return function addState(ctx, next) {
+        ctx.appState = state;
+        next();
+    };
+}
+
 export function createObservableState(target, onChangeListener) {
     const result = {};
 

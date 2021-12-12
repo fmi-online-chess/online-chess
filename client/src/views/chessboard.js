@@ -12,7 +12,7 @@ const pageTemplate = (readyPromise, board) => html`
 ${board}
 ${until(readyPromise, spinner())}`;
 
-export function chessBoard(ctx) {
+export function chessboard(ctx) {
     if (!ctx.appState.user) {
         // TODO this should either include a return address or appear as a modal
         return ctx.page.redirect("/login");
