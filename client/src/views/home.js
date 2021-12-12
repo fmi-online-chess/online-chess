@@ -1,16 +1,11 @@
 import { html } from "../lib.js";
 
 
-const homeTemplate = (onUpdate, counter) => html`
+const homeTemplate = () => html`
 <h1>Home Page</h1>
-<p>Hello World! ${counter}</p>
-<button @click=${onUpdate}>Trigger update</button>`;
+<p>Hello World!</p>`;
 
 
 export function homePage(ctx) {
-    return homeTemplate(onClick, ctx.appState.nestedObject.value);
-
-    function onClick() {
-        ctx.appState.nestedObject.value++;
-    }
+    return homeTemplate();
 }

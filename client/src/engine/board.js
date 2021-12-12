@@ -49,8 +49,8 @@ function deserializeBoard(board, state) {
     }
 }
 
-export function createGame(canvas, initialState) {
-    const board = createBoard(initialState);
+export function createController(canvas) {
+    const board = createBoard();
 
     const game = {
         render(connection) {
@@ -60,6 +60,7 @@ export function createGame(canvas, initialState) {
             // Move single piece
         },
         setState(state) {
+            console.log("new state");
             deserializeBoard(board, state);
         }
     };

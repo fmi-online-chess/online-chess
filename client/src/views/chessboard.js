@@ -1,94 +1,105 @@
-import { connect } from "../data/socket.js";
-import { createGame } from "../engine/game.js";
+import { createGame } from "../engine/index.js";
 import { html, until } from "../lib.js";
 import spinner from "./common/spinner.js";
 
 
-let game = null;
-let scene = null;
+// NOTE: This is intentionally a static template - canvas control relies on unchanging reference
+const canvas = html`<canvas id="canvas" width="450" height="450"></canvas>`;
 
-const pageTemplate = (readyPromise, board) => html`
+const pageTemplate = (board, history, onSubmit) => html`
 <h1>Chessboard</h1>
 ${board}
-${until(readyPromise, spinner())}`;
+${chatTemplate(history, onSubmit)}`;
+
+const chatTemplate = (history, onSubmit) => html`
+<textarea disabled .value=${history}></textarea>
+<form @submit=${onSubmit}>
+    <input type="text" name="message"><input type="submit" value="Send">
+</form>`;
+
+
+let view = null;
 
 export function chessboard(ctx) {
     const roomId = ctx.params.id;
     if (!ctx.appState.user) {
         return ctx.page.redirect(`/login?origin=/rooms/${roomId}/board`);
     }
-    if (!game) {
-        game = bindConnection(ctx, roomId);
-    }
-    if (!scene) {
-        scene = createGame();
-    }
+    validateGame(ctx, roomId);
 
-    return pageTemplate(loadGame(ctx, game), scene.render(game));
+    return view;
 }
 
-async function loadGame(ctx, gamePromise) {
-    game = await gamePromise;
+function validateGame(ctx, roomId) {
+    console.log("validating ...");
+    if ((view == null) || !ctx.appState.game) {
+        console.log("- no view or game not initialized");
+        view = createView(ctx);
+    } else if (ctx.appState.game.roomId != roomId) {
+        console.log("- game ID mismatch");
+        const oldGame = ctx.appState.game;
+        // Wait for this promise to ensure a connection was established in the first place
+        oldGame.contentReady.then(() => {
+            oldGame.disconnect();
+        });
+        view = createView(ctx);
+    }
+}
 
-    return html`
-    <textarea disabled .value=${game.chat.map(toText).join("\n")}></textarea>
-    <form @submit=${onSubmit}>
-        <input type="text" name="message"><input type="submit" value="Send">
-    </form>`;
+function createView(ctx) {
+    const roomId = ctx.params.id;
+    let gameElement = null;
+    ctx.appState.game = createGame(ctx.appState.user, roomId, update);
 
-    function onSubmit(event) {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-        const message = formData.get("message").trim();
+    // Redraw chat on every update - new messages are displayed via update
+    // Cache game screen indefinetly - its contents are controlled via Canvas
 
-        if (message) {
-            game.sendMessage(message);
-            game.chat.push({
-                username: ctx.appState.user.username,
-                message
-            });
-            event.target.reset();
-            ctx.update();
-        }
+    return render();
+
+    function render() {
+        view = pageTemplate(canvasPlaceholder(ctx.appState.game), ctx.appState.game.chat.map(toText).join("\n"), onMessageSubmit);
+        return view;
+    }
+
+    function update() {
+        render();
+        ctx.update();
     }
 
     function toText({ username, message }) {
         return `${username == ctx.appState.user.username ? "You" : username}: ${message}`;
     }
-}
 
-async function bindConnection(ctx, roomId) {
-    const userData = ctx.appState.user;
-
-    const game = {
-        chat: [],
-        sendMessage(data) {
-            connection.sendMessage(data);
-        },
-        action(move) {
-            if (move) {
-                connection.action(move);
-            } else {
-                ctx.update();
-            }
+    function canvasPlaceholder(game) {
+        if (!game.ready) {
+            return until(initGame(game), spinner());
+        } else {
+            // return gameElement;
+            // BEGIN TEMP Redraw board each update - TODO remove when canvas is plugged in
+            gameElement = game.render();
+            return gameElement;
+            // END TEMP
         }
-    };
+    }
 
-    const connection = await connect(roomId, userData);
+    async function initGame(game) {
+        await game.contentReady;
+        gameElement = game.render();
+        return gameElement;
+    }
 
-    connection.onState = (data) => {
-        scene.setState(data);
-        ctx.update();
-    };
-    connection.onMessage = (data) => {
-        game.chat.push(data);
-        ctx.update();
-    };
-    connection.onHistory = (data) => {
-        game.chat = data;
-        ctx.update();
-    };
+    function onMessageSubmit(event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const message = formData.get("message").trim();
 
-
-    return game;
+        if (message) {
+            ctx.appState.game.sendMessage({
+                username: ctx.appState.user.username,
+                message
+            });
+            event.target.reset();
+            update();
+        }
+    }
 }
