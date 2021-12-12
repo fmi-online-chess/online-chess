@@ -57,10 +57,16 @@ export function createController(canvas) {
             return boardTemplate(board, (indexes) => onAction(indexes, connection));
         },
         onAction(move) {
-            // Move single piece
+            const fromFile = index[move[0]];
+            const fromRank = index[move[1]];
+            const toFile = index[move[2]];
+            const toRank = index[move[3]];
+
+            const piece = board[fromRank][fromFile];
+            board[fromRank][fromFile] = "";
+            board[toRank][toFile] = piece;
         },
         setState(state) {
-            console.log("new state");
             deserializeBoard(board, state);
         }
     };

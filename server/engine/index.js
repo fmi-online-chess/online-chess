@@ -85,8 +85,8 @@ function registerMessageHandlers(socket, player, room) {
             const newState = game.serialize();
             room.state = newState;
             await room.save();
-            socket.emit("state", newState);
-            socket.to(roomId).emit("state", newState);
+            socket.emit("action", action);
+            socket.to(roomId).emit("action", action);
         }
     });
 }
