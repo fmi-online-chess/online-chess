@@ -1,4 +1,4 @@
-import { boardTemplate } from "./view.js";
+import { boardTemplate } from "./gfx.js";
 
 
 const index = {
@@ -49,17 +49,22 @@ function deserializeBoard(board, state) {
     }
 }
 
-export function createGame() {
-    const board = createBoard();
+export function createGame(canvas, initialState) {
+    const board = createBoard(initialState);
 
-    return {
-        render(game) {
-            return boardTemplate(board, (indexes) => onAction(indexes, game));
+    const game = {
+        render(connection) {
+            return boardTemplate(board, (indexes) => onAction(indexes, connection));
+        },
+        onAction(move) {
+            // Move single piece
         },
         setState(state) {
             deserializeBoard(board, state);
         }
     };
+
+    return game;
 
     function onAction(indexes, game) {
         if (indexes) {

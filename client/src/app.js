@@ -1,6 +1,6 @@
 import { logout } from "./data/user.js";
 import { page, render } from "./lib.js";
-import { createState } from "./util/state.js";
+import { addQuery, createState } from "./util/middleware.js";
 import { getUserData } from "./util/userData.js";
 import { layoutTemplate } from "./views/layout.js";
 
@@ -23,6 +23,7 @@ export  function createApp(container, initialState = {}) {
 
     page.redirect("index.html", "/");
     page(createState(state));
+    page(addQuery);
     page(addUpdate);
 
     const app = {

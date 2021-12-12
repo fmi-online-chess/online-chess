@@ -1,5 +1,6 @@
 import { register } from "../data/user.js";
 import { html } from "../lib.js";
+import { createSubmitHandler } from "../util/handlers.js";
 
 
 const registerTemplate = (submitForm) => html`
@@ -15,23 +16,16 @@ const registerTemplate = (submitForm) => html`
     </label>
     <label>
         <span>Confirm Password:</span>
-        <input name="confirm-password" type="password" />
+        <input name="confirmPassword" type="password" />
     </label>
     <input value="Submit" type="submit" />
 </form>`;
 
 
 export function registerPage(ctx) {
-    return registerTemplate(submitForm);
+    return registerTemplate(createSubmitHandler(onSubmit));
 
-    async function submitForm(event) {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-
-        const username = formData.get("username");
-        const password = formData.get("password");
-        const confirmPassword = formData.get("confirm-password");
-
+    async function onSubmit({username, password, confirmPassword}) {
         if (password !== confirmPassword) {
             return alert("Passwords do not match!");
         }

@@ -13,11 +13,10 @@ ${board}
 ${until(readyPromise, spinner())}`;
 
 export function chessboard(ctx) {
-    if (!ctx.appState.user) {
-        // TODO this should either include a return address or appear as a modal
-        return ctx.page.redirect("/login");
-    }
     const roomId = ctx.params.id;
+    if (!ctx.appState.user) {
+        return ctx.page.redirect(`/login?origin=/rooms/${roomId}/board`);
+    }
     if (!game) {
         game = bindConnection(ctx, roomId);
     }

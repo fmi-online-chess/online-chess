@@ -1,3 +1,13 @@
+export function addQuery(ctx, next) {
+    const query = ctx.querystring
+        .split("&")
+        .map(p => p.split("="))
+        .reduce((a, [k, v]) => Object.assign(a, {[k]: v}), {});
+    ctx.query = query;
+
+    next();
+}
+
 export function createState(state = {}) {
     return function addState(ctx, next) {
         ctx.appState = state;

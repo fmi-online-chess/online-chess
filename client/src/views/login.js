@@ -1,5 +1,6 @@
 import { html } from "../lib.js";
 import { login } from "../data/user.js";
+import { createSubmitHandler } from "../util/handlers.js";
 
 const loginTemplate = (submitForm) => html`
 <h1>Login Page</h1>
@@ -17,18 +18,17 @@ const loginTemplate = (submitForm) => html`
 
 
 export function loginPage(ctx) {
-    return loginTemplate(submitForm);
+    return loginTemplate(createSubmitHandler(onSubmit));
 
-    async function submitForm(event) {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-
-        const username = formData.get("username");
-        const password = formData.get("password");
+    async function onSubmit({username, password}) {
         const result = await login(username, password);
 
         ctx.appState.user = result;
 
-        ctx.page.redirect("/");
+        if (ctx.query.origin) {
+            ctx.page.redirect(ctx.query.origin);
+        } else {
+            ctx.page.redirect("/");
+        }
     }
 }  
