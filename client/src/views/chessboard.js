@@ -1,21 +1,21 @@
 import { createGame } from "../engine/index.js";
-import { html, until } from "../lib.js";
-import spinner from "./common/spinner.js";
+import { html } from "../lib.js";
 
-
-// NOTE: This is intentionally a static template - canvas control relies on unchanging reference
-const canvas = html`<canvas id="canvas" width="450" height="450"></canvas>`;
 
 const pageTemplate = (board, history, onSubmit) => html`
-<h1>Chessboard</h1>
-${board}
-${chatTemplate(history, onSubmit)}`;
+<div>
+    <h1>Chessboard</h1>
+    ${board}
+    ${chatTemplate(history, onSubmit)}
+</div>`;
 
 const chatTemplate = (history, onSubmit) => html`
-<textarea disabled .value=${history}></textarea>
-<form @submit=${onSubmit}>
-    <input type="text" name="message"><input type="submit" value="Send">
-</form>`;
+<div>
+    <textarea disabled .value=${history}></textarea>
+    <form @submit=${onSubmit}>
+        <input type="text" name="message"><input type="submit" value="Send">
+    </form>
+</div>`;
 
 
 let view = null;
@@ -31,7 +31,6 @@ export function chessboard(ctx) {
 }
 
 function validateGame(ctx, roomId) {
-    console.log("validating ...");
     if ((view == null) || !ctx.appState.game) {
         console.log("- no view or game not initialized");
         view = createView(ctx);
@@ -48,7 +47,6 @@ function validateGame(ctx, roomId) {
 
 function createView(ctx) {
     const roomId = ctx.params.id;
-    let gameElement = null;
     ctx.appState.game = createGame(ctx.appState.user, roomId, update);
 
     // Redraw chat on every update - new messages are displayed via update
@@ -57,7 +55,7 @@ function createView(ctx) {
     return render();
 
     function render() {
-        view = pageTemplate(canvasPlaceholder(ctx.appState.game), ctx.appState.game.chat.map(toText).join("\n"), onMessageSubmit);
+        view = pageTemplate(ctx.appState.game.canvas, ctx.appState.game.chat.map(toText).join("\n"), onMessageSubmit);
         return view;
     }
 
@@ -68,24 +66,6 @@ function createView(ctx) {
 
     function toText({ username, message }) {
         return `${username == ctx.appState.user.username ? "You" : username}: ${message}`;
-    }
-
-    function canvasPlaceholder(game) {
-        if (!game.ready) {
-            return until(initGame(game), spinner());
-        } else {
-            // return gameElement;
-            // BEGIN TEMP Redraw board each update - TODO remove when canvas is plugged in
-            gameElement = game.render();
-            return gameElement;
-            // END TEMP
-        }
-    }
-
-    async function initGame(game) {
-        await game.contentReady;
-        gameElement = game.render();
-        return gameElement;
     }
 
     function onMessageSubmit(event) {

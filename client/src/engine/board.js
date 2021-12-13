@@ -1,4 +1,4 @@
-import { boardTemplate } from "./gfx.js";
+import { createCanvas, initRenderer } from "./canvas.js";
 
 
 const index = {
@@ -49,13 +49,14 @@ function deserializeBoard(board, state) {
     }
 }
 
-export function createController(canvas) {
+export function createController(onAction) {
+    const canvas = createCanvas();
+    const gfx = initRenderer(canvas, false, onAction);
+    gfx.render();
+    
     const board = createBoard();
 
     const game = {
-        render(connection) {
-            return boardTemplate(board, (indexes) => onAction(indexes, connection));
-        },
         onAction(move) {
             const fromFile = index[move[0]];
             const fromRank = index[move[1]];
@@ -65,23 +66,14 @@ export function createController(canvas) {
             const piece = board[fromRank][fromFile];
             board[fromRank][fromFile] = "";
             board[toRank][toFile] = piece;
+            gfx.setState(board);
         },
         setState(state) {
             deserializeBoard(board, state);
-        }
+            gfx.setState(board);
+        },
+        canvas: gfx.canvas
     };
 
     return game;
-
-    function onAction(indexes, game) {
-        if (indexes) {
-            const fromFile = files[indexes[0]];
-            const fromRank = ranks[indexes[1]];
-            const toFile = files[indexes[2]];
-            const toRank = ranks[indexes[3]];
-            game.action(fromFile + fromRank + toFile + toRank);
-        } else {
-            game.action();
-        }
-    }
 }

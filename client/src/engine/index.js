@@ -14,7 +14,8 @@ export function createGame(userData, roomId, onUpdate) {
             readyState.reject = reject;
         }),
         chat: [],
-        update: onUpdate
+        update: onUpdate,
+        canvas: null
     };
 
     initGame(game, userData, roomId, readyState);
@@ -24,15 +25,13 @@ export function createGame(userData, roomId, onUpdate) {
 async function initGame(game, userData, roomId, readyState) {
     try {
         const connection = await connect(roomId, userData);
-        const board = createController();
+        const board = createController(connection.action);
 
         connection.onAction = (data) => {
             board.onAction(data);
-            game.update();
         };
         connection.onState = (data) => {
             board.setState(data);
-            game.update();
         };
         connection.onMessage = (data) => {
             game.chat.push(data);
@@ -47,11 +46,12 @@ async function initGame(game, userData, roomId, readyState) {
             game.chat.push(message);
             connection.sendMessage(message.message);
         };
-        game.render = () => board.render(connection);
         game.disconnect = connection.disconnect;
+        game.canvas = board.canvas;
 
         game.ready = true;
         readyState.resolve();
+        game.update();
     } catch (err) {
         alert(err.message);
         readyState.reject(err);
