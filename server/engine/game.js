@@ -1,4 +1,3 @@
-
 const index = {
     "a": 0,
     "b": 1,
@@ -37,6 +36,8 @@ function createBoard(state) {
     }
     return board;
 }
+const impossibleBlackMoves = ["", "BR", "BN", "BB", "BQ", "BK", "BP", "WK"];
+const impossibleWhiteMoves = ["", "WR", "WN", "WB", "WQ", "WK", "WP", "BK"];
 
 function deserializeBoard(board, state) {
     for (let rank of board) {
@@ -71,10 +72,52 @@ export function createGame(initialState) {
             const fromRank = index[action[1]];
             const toFile = index[action[2]];
             const toRank = index[action[3]];
-
-            // TODO validate move, player turn, time
-
+            if (board[fromRank][fromFile] === "") {
+                return false;
+            }
             const piece = board[fromRank][fromFile];
+            switch (piece) {
+                case "BP":
+                    if (fromFile !== toFile) {
+                        if (!(fromRank - toRank == 1 && Math.abs(fromFile - toFile) == 1 &&
+                                impossibleBlackMoves.indexOf(board[toRank][toFile]) == -1 &&
+                                fromRank > toRank)) {
+                            return false;
+                        }
+                    } else {
+                        if (fromRank == 6) {
+                            if (!((toRank === 4 || toRank === 5) && board[toRank][toFile] == "")) {
+                                return false;
+                            }
+                        } else {
+                            if (!(fromRank - toRank == 1 && toRank <= 7 && board[toRank][toFile] == "")) {
+                                return false;
+                            }
+                        }
+                    }
+                    break;
+                case "WP":
+                    if (fromFile !== toFile) {
+                        if (!(toRank - fromRank == 1 && Math.abs(fromFile - toFile) == 1 &&
+                                impossibleWhiteMoves.indexOf(board[toRank][toFile]) == -1 &&
+                                toRank > fromRank)) {
+                            return false;
+                        }
+                    } else {
+                        if (fromRank == 1) {
+                            if (!((toRank === 2 || toRank === 3) && board[toRank][toFile] == "")) {
+                                return false;
+                            }
+                        } else {
+                            if (!(toRank - fromRank == 1 && toRank <= 7 && board[toRank][toFile] == "")) {
+                                return false;
+                            }
+                        }
+                    }
+                    break;
+                case "BN":
+                    break;
+            }
             board[fromRank][fromFile] = "";
             board[toRank][toFile] = piece;
 
