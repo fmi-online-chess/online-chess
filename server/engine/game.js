@@ -80,14 +80,20 @@ const isAtacked = (board, color, slotJ, slotI) => {
 
 const clearMoveHV = (fromRank, fromFile, toRank, toFile, board) => {
     if (fromRank == toRank) {
-        for (let i = Math.min(fromFile + 1, toFile); i < Math.max(fromFile, toFile); i++) {
+        if (Math.abs(fromFile - toFile) == 1) {
+            return true;
+        }
+        for (let i = Math.min(fromFile + 1, toFile + 1); i < Math.max(fromFile, toFile); i++) {
             if (board[fromRank][i] != '') {
-                console.log(board[fromRank][i + 1]);
+                console.log(i);
                 return false;
             }
         }
         return true;
     } else {
+        if (Math.abs(fromRank - toRank) == 1) {
+            return true;
+        }
         for (let i = Math.min(fromRank + 1, toRank); i < Math.max(fromRank, toRank); i++) {
             if (board[i][fromFile] != '') {
                 return false;
