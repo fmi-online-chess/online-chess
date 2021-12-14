@@ -52,7 +52,7 @@ function deserializeBoard(board, state) {
     }
 }
 
-const isAtacked = (board, color, slotJ, slotI) => {
+const isAttacked = (board, color, slotJ, slotI) => {
     if (color === 'black') {
         for (let i = 0; i <= 7; i++) {
             for (let j = 0; j <= 7; j++) {
@@ -102,6 +102,36 @@ const clearMoveHV = (fromRank, fromFile, toRank, toFile, board) => {
         return true;
     }
 
+};
+
+const clearMoveDg = (fromRank, fromFile, toRank, toFile, board) => {
+    const difference = Math.abs(fromRank - toRank);
+    for (let i = 1; i < difference; i++) {
+        if (fromRank < toRank && fromFile > toFile) {
+            if (board[fromRank + i][fromFile - i] != '') {
+                console.log(board[fromRank + i][fromFile - i]);
+                return false;
+            }
+        }
+        if (fromRank < toRank && fromFile < toFile) {
+            if (board[fromRank + i][fromFile + i] != '') {
+                console.log(board[fromRank + i][fromFile - i]);
+                return false;
+            }
+        }
+        if (fromRank > toRank && fromFile < toFile) {
+            if (board[fromRank - i][fromFile + i] != '') {
+                return false;
+            }
+        }
+        if (fromRank > toRank && fromFile > toFile) {
+            if (board[fromRank - i][fromFile - i] != '') {
+                console.log(board[fromRank + i][fromFile - i]);
+                return false;
+            }
+        }
+    }
+    return true;
 };
 
 
@@ -155,13 +185,13 @@ const ableMove = (action, board) => {
             break;
         case "BK":
             if (!(Math.abs(fromRank - toRank) <= 1 && Math.abs(fromFile - toFile) <= 1 &&
-                    impossibleBlackMoves.indexOf(board[toRank][toFile]) == -1 && !isAtacked(board, 'black', toFile, toRank))) {
+                    impossibleBlackMoves.indexOf(board[toRank][toFile]) == -1 && !isAttacked(board, 'black', toFile, toRank))) {
                 return false;
             }
             break;
         case "WK":
             if (!(Math.abs(fromRank - toRank) <= 1 && Math.abs(fromFile - toFile) <= 1 &&
-                    impossibleWhiteMoves.indexOf(board[toRank][toFile]) == -1 && !isAtacked(board, 'white', toFile, toRank))) {
+                    impossibleWhiteMoves.indexOf(board[toRank][toFile]) == -1 && !isAttacked(board, 'white', toFile, toRank))) {
                 return false;
             }
             break;
@@ -191,6 +221,33 @@ const ableMove = (action, board) => {
                 return false;
             }
             break;
+        case "BB":
+            if (!(Math.abs(fromRank - toRank) == Math.abs(fromFile - toFile) && clearMoveDg(fromRank, fromFile, toRank, toFile, board) &&
+                    impossibleBlackMoves.indexOf(board[toRank][toFile]) == -1)) {
+                return false;
+            }
+            break;
+        case "WB":
+            if (!(Math.abs(fromRank - toRank) == Math.abs(fromFile - toFile) && clearMoveDg(fromRank, fromFile, toRank, toFile, board) &&
+                    impossibleWhiteMoves.indexOf(board[toRank][toFile]) == -1)) {
+                return false;
+            }
+            break;
+        case "BQ":
+            if (!((Math.abs(fromRank - toRank) == Math.abs(fromFile - toFile) || (fromRank == toRank || fromFile == toFile)) &&
+                    impossibleBlackMoves.indexOf(board[toRank][toFile]) == -1 &&
+                    (clearMoveDg(fromRank, fromFile, toRank, toFile, board) || clearMoveHV(fromRank, fromFile, toRank, toFile, board)))) {
+                return false;
+            }
+            break;
+        case "WQ":
+            if (!((Math.abs(fromRank - toRank) == Math.abs(fromFile - toFile) || (fromRank == toRank || fromFile == toFile)) &&
+                    impossibleWhiteMoves.indexOf(board[toRank][toFile]) == -1 &&
+                    (clearMoveDg(fromRank, fromFile, toRank, toFile, board) || clearMoveHV(fromRank, fromFile, toRank, toFile, board)))) {
+                return false;
+            }
+            break;
+
     }
     board[fromRank][fromFile] = "";
     board[toRank][toFile] = piece;
