@@ -77,6 +77,30 @@ const isAtacked = (board, color, slotJ, slotI) => {
         return false;
     }
 };
+
+const clearMoveHV = (fromRank, fromFile, toRank, toFile, board) => {
+    if (fromRank == toRank) {
+        for (let i = Math.min(fromFile + 1, toFile); i < Math.max(fromFile, toFile); i++) {
+            if (board[fromRank][i] != '') {
+                console.log(board[fromRank][i + 1]);
+                return false;
+            }
+        }
+        return true;
+    } else {
+        for (let i = Math.min(fromRank + 1, toRank); i < Math.max(fromRank, toRank); i++) {
+            if (board[i][fromFile] != '') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+};
+
+
+
+
 const ableMove = (action, board) => {
     const fromFile = index[action[0]];
     const fromRank = index[action[1]];
@@ -146,6 +170,18 @@ const ableMove = (action, board) => {
             if (!(Math.abs(fromFile - toFile) != Math.abs(fromRank - toRank) && Math.abs(fromFile - toFile) <= 2 &&
                     Math.abs(fromFile - toFile) > 0 && Math.abs(fromRank - toRank) <= 2 &&
                     Math.abs(fromRank - toRank) > 0 && impossibleWhiteMoves.indexOf(board[toRank][toFile]) == -1)) {
+                return false;
+            }
+            break;
+        case "BR":
+            if (!((fromRank == toRank || fromFile == toFile) && clearMoveHV(fromRank, fromFile, toRank, toFile, board) &&
+                    impossibleBlackMoves.indexOf(board[toRank][toFile]) == -1)) {
+                return false;
+            }
+            break;
+        case "WR":
+            if (!((fromRank == toRank || fromFile == toFile) && clearMoveHV(fromRank, fromFile, toRank, toFile, board) &&
+                    impossibleWhiteMoves.indexOf(board[toRank][toFile]) == -1)) {
                 return false;
             }
             break;
