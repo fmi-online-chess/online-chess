@@ -77,6 +77,38 @@ const isAttacked = (board, color, slotJ, slotI) => {
         return false;
     }
 };
+const isChecked = () => {
+    //TODO
+    return true;
+};
+
+const CastlingMoveL = (color, fromRank, fromFile, toRank, toFile, board) => {
+    if (color === 'black') {
+        if (fromRank == 7 && fromFile == 4 && toRank == 7 && toFile == 2 && board[7][0] == 'BR' &&
+            board[7][1] == '' && board[7][2] == '' && board[7][3] == '' && isChecked()) {
+            return true;
+        }
+        return false;
+    } else {
+        if (fromRank == 0 && fromFile == 4 && toRank == 0 && toFile == 2 && board[0][0] == 'WR' &&
+            board[0][1] == '' && board[7][2] == '' && board[0][3] == '' && isChecked()) {
+            return true;
+        }
+        return false;
+    }
+};
+const CastlingMoveS = (color, fromRank, fromFile, toRank, toFile, board) => {
+    if (color === 'black' && fromRank == 7 && fromFile == 4 && toRank == 7 && toFile == 6 && board[7][7] == 'BR' &&
+        board[7][6] == '' && board[7][5] == '' && isChecked()) {
+        return true;
+    }
+    if (fromRank == 0 && fromFile == 4 && toRank == 0 && toFile == 6 && board[0][7] == 'WR' &&
+        board[0][6] == '' && board[0][5] == '' && isChecked()) {
+        return true;
+    }
+    return false;
+
+};
 
 const clearMoveHV = (fromRank, fromFile, toRank, toFile, board) => {
     if (fromRank == toRank) {
@@ -85,7 +117,6 @@ const clearMoveHV = (fromRank, fromFile, toRank, toFile, board) => {
         }
         for (let i = Math.min(fromFile + 1, toFile + 1); i < Math.max(fromFile, toFile); i++) {
             if (board[fromRank][i] != '') {
-                console.log(i);
                 return false;
             }
         }
@@ -109,13 +140,11 @@ const clearMoveDg = (fromRank, fromFile, toRank, toFile, board) => {
     for (let i = 1; i < difference; i++) {
         if (fromRank < toRank && fromFile > toFile) {
             if (board[fromRank + i][fromFile - i] != '') {
-                console.log(board[fromRank + i][fromFile - i]);
                 return false;
             }
         }
         if (fromRank < toRank && fromFile < toFile) {
             if (board[fromRank + i][fromFile + i] != '') {
-                console.log(board[fromRank + i][fromFile - i]);
                 return false;
             }
         }
@@ -184,12 +213,32 @@ const ableMove = (action, board) => {
             }
             break;
         case "BK":
+            if (CastlingMoveL('black', fromRank, fromFile, toRank, toFile, board)) {
+                board[7][0] = '';
+                board[7][3] = 'BR';
+                break;
+            }
+            if (CastlingMoveS('black', fromRank, fromFile, toRank, toFile, board)) {
+                board[7][7] = '';
+                board[7][5] = 'BR';
+                break;
+            }
             if (!(Math.abs(fromRank - toRank) <= 1 && Math.abs(fromFile - toFile) <= 1 &&
                     impossibleBlackMoves.indexOf(board[toRank][toFile]) == -1 && !isAttacked(board, 'black', toFile, toRank))) {
                 return false;
             }
             break;
         case "WK":
+            if (CastlingMoveL('white', fromRank, fromFile, toRank, toFile, board)) {
+                board[0][0] = '';
+                board[0][3] = 'WR';
+                break;
+            }
+            if (CastlingMoveS('white', fromRank, fromFile, toRank, toFile, board)) {
+                board[0][7] = '';
+                board[0][5] = 'WR';
+                break;
+            }
             if (!(Math.abs(fromRank - toRank) <= 1 && Math.abs(fromFile - toFile) <= 1 &&
                     impossibleWhiteMoves.indexOf(board[toRank][toFile]) == -1 && !isAttacked(board, 'white', toFile, toRank))) {
                 return false;
