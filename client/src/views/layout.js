@@ -28,7 +28,9 @@ export const layoutTemplate = (state, view) => html`
         </nav>
     </div>
 </header>
-${view}
+<main class="site-main">
+    ${view}
+</main>
 <footer class="site-footer">
     <div class="wrapper">
         <section class="about-team">

@@ -1,8 +1,18 @@
+@import url('https://fonts.googleapis.com/css?family=Fira+Sans|Merriweather:400,400i,700&display=swap');
+
 * {
     padding: 0;
     margin: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+html {
+    font-family: "Fira Sans";
+}
+
+.site-title,
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Merriweather";
 }
 
 /* body {
@@ -61,15 +71,17 @@ a {
 .wrapper {
     max-width: 70rem;
     margin: 0 auto;
-    /* padding: 0.5em 2em; */
-    display: flex;
-    align-items: center;
 }
 
 .site-header {
     background-color: rgb(207, 115, 35);
     padding-bottom: 0.5em;
     color: #FFF;
+}
+
+.site-header .wrapper {
+    display: flex;
+    align-items: center;
 }
 
 .site-header a {
@@ -147,6 +159,8 @@ a {
 
 .site-footer .wrapper {
     justify-content: space-between;
+    display: flex;
+    align-items: center;
 }
 
 .site-footer section {
@@ -194,4 +208,85 @@ a {
 
 .site-footer .rights-reserved>p {
     padding-bottom: 0;
+}
+
+.entry-content {
+    background: linear-gradient(to bottom, rgba(173, 216, 230, 0.1), rgba(253, 229, 198, 0.4)), url('../static/chess-background.jpg');
+    background-position: center center;
+    background-size: cover;
+}
+
+.entry-content .wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.entry-content p.entry-header {
+    text-shadow: 2px 2px 7px rgba(0, 0, 0, 0.9);
+    font-size: 4.5em;
+    text-align: center;
+    color: #FFF;
+    padding: 1.2em 0.3em 0.6em 0.3em;
+    font-style: italic;
+    letter-spacing: 2px;
+}
+
+.entry-content a {
+    padding: 0.8em 1em;
+    border: 1px solid rgb(207, 115, 35);
+    border-radius: 0.4em;
+    background-color: rgb(207, 115, 35);
+    color: #FFF;
+    font-size: 1.6em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 9em;
+    margin-bottom: 3em;
+}
+
+.entry-content a i.fas {
+    font-weight: 900;
+    font-size: 1.4em;
+    margin-right: 0.4em;
+}
+
+.entry-content a:hover {
+    border: 1px solid #FFF;
+}
+
+.site-main .wrapper header>h2 {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    font-size: 1.8em;
+    margin-bottom: 1em;
+}
+
+.site-main .wrapper header>h2::before,
+.site-main .wrapper header>h2::after {
+    display: block;
+    content: '';
+    flex-grow: 1;
+    height: 2px;
+    background-color: #000;
+    opacity: 0.5;
+}
+
+.site-main .wrapper header>h2::before {
+    margin-right: 1em;
+}
+
+.site-main .wrapper header>h2::after {
+    margin-left: 1em;
+}
+
+.site-main .chess-rules {
+    padding: 2em 0;
+    background-color: rgb(255, 239, 226);
+}
+
+.site-main .chess-rules p {
+    padding-bottom: 1.4em;
 }
