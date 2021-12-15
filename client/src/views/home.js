@@ -15,7 +15,7 @@ const homeTemplate = () => html`
         </header>
 
         <p>
-            The rules of chess (also known as the laws of chess) govern the play of the game of chess. There are variations of the rules for fast chess, correspondence chess, online chess, and Chess960.
+            The rules of chess govern the play of the game of chess. There are variations of the rules for fast chess, correspondence chess, online chess, and Chess960.
         </p>
 
         <p>

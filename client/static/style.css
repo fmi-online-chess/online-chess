@@ -152,8 +152,6 @@ a {
 .site-footer {
     background-color: rgb(207, 115, 35);
     color: #FFF;
-    position: absolute;
-    bottom: 0;
     width: 100%;
 }
 
@@ -224,7 +222,7 @@ a {
 
 .entry-content p.entry-header {
     text-shadow: 2px 2px 7px rgba(0, 0, 0, 0.9);
-    font-size: 4.5em;
+    font-size: 4.6em;
     text-align: center;
     color: #FFF;
     padding: 1.2em 0.3em 0.6em 0.3em;
@@ -243,7 +241,8 @@ a {
     align-items: center;
     justify-content: center;
     width: 9em;
-    margin-bottom: 3em;
+    margin-bottom: 3.2em;
+    transition: transform 0.2s ease-in;
 }
 
 .entry-content a i.fas {
@@ -254,6 +253,7 @@ a {
 
 .entry-content a:hover {
     border: 1px solid #FFF;
+    transform: scale(1.2);
 }
 
 .site-main .wrapper header>h2 {
@@ -287,6 +287,6 @@ a {
     background-color: rgb(255, 239, 226);
 }
 
-.site-main .chess-rules p {
-    padding-bottom: 1.4em;
+.site-main .chess-rules p:not(:last-child) {
+    padding-bottom: 1.2em;
 }
