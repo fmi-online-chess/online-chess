@@ -133,12 +133,65 @@ a {
     margin-right: 0.4em;
 }
 
-.site-nav li a:hover,
-.site-nav li a:focus {
+.site-nav li a:hover {
     border: 1px solid #FFF;
 }
 
+.site-footer {
+    background-color: rgb(207, 115, 35);
+    color: #FFF;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
 
-.site-nav li.selected>a {
-    border: 1px solid #FFF;
+.site-footer .wrapper {
+    justify-content: space-between;
+}
+
+.site-footer section {
+    padding: 1.2em 0;
+}
+
+.site-footer header {
+    padding-left: 4.5em;
+    margin-bottom: 0.8em;
+}
+
+.site-footer .about-team {
+    flex-basis: 50%;
+}
+
+.site-footer h5 {
+    color: #FFF;
+    text-transform: uppercase;
+    font-size: 1.4em;
+}
+
+.site-footer ul {
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.site-footer li {
+    list-style: none outside;
+    flex-basis: 50%;
+}
+
+.site-footer li a {
+    color: #FFF;
+}
+
+.site-footer li a:hover {
+    text-decoration: underline;
+}
+
+.site-footer .rights-reserved {
+    opacity: 0.7;
+    text-align: center;
+}
+
+.site-footer .rights-reserved>p {
+    padding-bottom: 0;
 }

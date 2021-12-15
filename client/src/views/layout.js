@@ -29,4 +29,44 @@ export const layoutTemplate = (state, view) => html`
     </div>
 </header>
 ${view}
-<footer>&copy; 2021</footer>`;
+<footer class="site-footer">
+    <div class="wrapper">
+        <section class="about-team">
+            <header>
+                <h5>Team Repositories</h5>
+            </header>
+
+            <ul class="social-links">
+                <li>
+                    <a href="https://github.com/fmi-online-chess/online-chess" target="_blank">
+                        <i class="fab fa-github"></i> Project Repo
+                    </a>
+                </li>
+                <li>
+                    <a href="https://github.com/viktorpts" target="_blank">
+                        <i class="fab fa-github"></i> Viktor Kostadinov
+                    </a>
+                </li>
+                <li>
+                    <a href="https://github.com/MihalevD" target="_blank">
+                        <i class="fab fa-github"></i> Denislav Mihalev
+                    </a>
+                </li>
+                <li>
+                    <a href="https://github.com/alexdimitrov2000" target="_blank">
+                        <i class="fab fa-github"></i> Alex Dimitrov
+                    </a>
+                </li>
+            </ul>
+        </section>
+
+        <section class="rights-reserved">
+            <p>
+                JavaScript Advanced @ FMI
+            </p>
+            <p>
+                All rights reserved &copy; 2021
+            </p>
+        </section>
+    </div>
+</footer>`;
