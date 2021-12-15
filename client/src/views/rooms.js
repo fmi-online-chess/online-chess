@@ -5,14 +5,33 @@ import { createSubmitHandler } from "../util/handlers.js";
 
 
 const roomsTemplate = (roomsPromise, onCreateSubmit) => html`
-<h1>Game Rooms</h1>
-<form @submit=${onCreateSubmit}>
-    <label><span>Room name</span><input type="text" name="name"></label>
-    <input type="submit" value="Create room">
-</form>
-<ul>
-    ${until(roomsPromise, spinner())}
-</ul>`;
+<div class="wrapper game-room">
+    <header>
+        <h1 class="section-title">Game Rooms</h1>
+    </header>
+    <div class="room-actions">
+        <section class="create">
+            <h2>Create Room</h2>
+            <form @submit=${onCreateSubmit}>
+                <p class="icon-field">
+                    <label for="name" class="required-field">Room Name:</label>
+                    <input name="name" id="name" type="text" required placeholder="Room 1" />
+                    <i class="fas fa-chess-board"></i>
+                </p>
+                <p class="submit-input">
+                    <input value="Create room" type="submit" />
+                </p>
+            </form>
+        </section>
+
+        <section class="join">
+            <h2>Join Room</h2>
+            <ul>
+                ${until(roomsPromise, spinner())}
+            </ul>
+        </section>
+    </div>
+</div>`;
 
 const lobbyTemplate = (roomDataPromise) => html`
 <h1>Lobby</h1>
@@ -37,7 +56,7 @@ async function loadRooms() {
     if (rooms.length == 0) {
         return html`<p>No available rooms.</p>`;
     } else {
-        return rooms.map(r => html`<li><a href="/rooms/${r._id}">${r.name}</a></li>`);
+        return rooms.map(r => html`<li><a href="/rooms/${r._id}"><i class="fas fa-greater-than"></i> <span>${r.name}<span></a></li>`);
     }
 }
 

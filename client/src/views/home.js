@@ -11,7 +11,7 @@ const homeTemplate = () => html`
 <section class="chess-rules">
     <div class="wrapper">
         <header>
-            <h2>Basic Rules</h2>
+            <h2 class="section-title">Basic Rules</h2>
         </header>
 
         <p>
