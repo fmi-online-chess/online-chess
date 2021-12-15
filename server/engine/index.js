@@ -49,10 +49,10 @@ function onConnect(socket) {
         const room = await getRoomDetails(roomId);
         const player = room.players.find(p => p._id == userData._id);
         if (player) {
-            registerMessageHandlers(socket, player, room);
+            const state = initGameAndHandlers(socket, player, room);
             socket.emit("auth", true);
             socket.emit("history", room.chatHistory);
-            socket.emit("state", room.state);
+            socket.emit("state", state);
         } else {
             socket.emit("auth", false);
             socket.disconnect();
@@ -63,13 +63,15 @@ function onConnect(socket) {
 /**
  * @param {import('../node_modules/socket.io/dist/socket').Socket} socket Connection socket
  */
-function registerMessageHandlers(socket, player, room) {
+function initGameAndHandlers(socket, player, room) {
     if (activeGames[room._id] == undefined) {
         activeGames[room._id] = createGame(room.state);
     }
     const game = activeGames[room._id];
     const roomId = room._id.toString();
     socket.join(roomId);
+
+    return game.serialize();
 
     socket.on("message", (message) => {
         console.log(message);
