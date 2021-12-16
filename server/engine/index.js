@@ -71,8 +71,6 @@ function initGameAndHandlers(socket, player, room) {
     const roomId = room._id.toString();
     socket.join(roomId);
 
-    return game.serialize();
-
     socket.on("message", (message) => {
         console.log(message);
         const data = { username: player.username, message };
@@ -91,4 +89,6 @@ function initGameAndHandlers(socket, player, room) {
             socket.to(roomId).emit("action", action);
         }
     });
+
+    return game.serialize();
 }
