@@ -1,21 +1,56 @@
-import { createGame } from "../engine/index.js";
-import { html } from "../lib.js";
+import {
+    createGame
+} from "../engine/index.js";
+import {
+    html
+} from "../lib.js";
 
 
-const pageTemplate = (board, history, onSubmit) => html`
-<div>
-    <h1>Chessboard</h1>
+const pageTemplate = (board, history, onSubmit) => html `
+<div id="board-page">
+    <div id="board-id">
     ${board}
+    </div>
     ${chatTemplate(history, onSubmit)}
 </div>`;
 
-const chatTemplate = (history, onSubmit) => html`
-<div>
-    <textarea disabled .value=${history}></textarea>
-    <form @submit=${onSubmit}>
-        <input type="text" name="message"><input type="submit" value="Send">
-    </form>
+const chatTemplate = (history, onSubmit) => html `
+<div id="side-menu">
+    <div id="timer-wrapper">
+    ${timerTemplate()}
+    </div>
+    <div id="chat-menu">
+        <textarea disabled .value=${history} id="chat-area"></textarea>
+        <form @submit=${onSubmit} id="chat-form">
+            <input type="text" name="message" id="chat-message" ><input type="submit" value="Send" id="chat-button">
+        </form>
+    </div>
 </div>`;
+
+
+const timerTemplate = () => html `
+<div id="timer-wrap">
+    <div id="clock-wrap">
+        <div id="name-box">
+            name1
+        </div>
+        <div id="clock-box">
+        15:00
+        </div>
+    </div>
+    <div id="two-point">
+    :
+    </div>
+    <div id="clock-wrap">
+        <div id="name-box">
+            name2
+        </div>
+        <div id="clock-box">
+        15:00
+        </div>
+    </div>
+</div>
+`;
 
 
 let view = null;
@@ -64,7 +99,10 @@ function createView(ctx) {
         ctx.update();
     }
 
-    function toText({ username, message }) {
+    function toText({
+        username,
+        message
+    }) {
         return `${username == ctx.appState.user.username ? "You" : username}: ${message}`;
     }
 

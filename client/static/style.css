@@ -6,12 +6,24 @@
     box-sizing: border-box;
 }
 
+#container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
 html {
     font-family: "Fira Sans";
+    height: 100%;
 }
 
 .site-title,
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-family: "Merriweather";
 }
 
@@ -19,6 +31,10 @@ h1, h2, h3, h4, h5, h6 {
     width: 980px;
     margin: auto;
 } */
+
+body {
+    height: 100%;
+}
 
 .r {
     width: 400px;
@@ -259,6 +275,7 @@ a {
 
 .site-main {
     background-color: rgb(255, 239, 226);
+    height: 100%;
 }
 
 .site-main .wrapper header>.section-title {
@@ -374,14 +391,12 @@ a {
 }
 
 .site-main form input[type="submit"] {
-    width: 50%;
     background-color: rgb(207, 115, 35);
     border: 3px solid rgb(207, 115, 35);
     border-radius: 0.2em;
     color: #FFF;
     padding: 0.6em;
     font-size: 1.4em;
-    margin-top: 1.4em;
     cursor: pointer;
     outline: none;
 }
@@ -449,4 +464,108 @@ a {
 
 .site-main .room-actions .join a:hover span::after {
     transform: scaleX(1);
+}
+
+#board-page {
+    display: flex;
+    height: 100%;
+    background: rgb(243, 219, 191);
+}
+
+#side-menu {
+    margin: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+    border-radius: 10px;
+    font-size: 18px;
+}
+
+#board-id {
+    margin: 40px;
+}
+
+canvas {
+    width: 640px;
+}
+
+#chat-form {
+    width: 100%;
+    display: flex;
+    height: 40px;
+    border-radius: 10px;
+    background: rgb(241, 206, 165);
+}
+
+#chat-menu {
+    border-radius: 10px;
+    background: rgb(241, 206, 165);
+    padding: 10px;
+}
+
+#chat-message {
+    width: 100%;
+    border: 0;
+    border-radius: 10px;
+    background: rgb(231, 178, 117);
+    font-size: 18px;
+    padding: 10px;
+}
+
+#chat-button {
+    padding: 0;
+    margin-left: -58px;
+    border-radius: 10px;
+}
+
+#chat-area {
+    width: 100%;
+    height: 300px;
+    resize: none;
+    border: none;
+    background: rgb(241, 206, 165);
+    border-radius: 10px;
+    font-size: 18px;
+    margin: 10px
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+}
+
+#timer-wrap {
+    display: flex;
+}
+
+#clock-wrap {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#name-box {
+    padding-bottom: 20px;
+    padding-top: 30px;
+    font-size: 18px;
+}
+
+#two-point {
+    font-size: 30px;
+    display: flex;
+    align-items: center;
+}
+
+#clock-box {
+    width: 200px;
+    height: 60px;
+    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
 }
