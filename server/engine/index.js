@@ -90,5 +90,10 @@ function initGameAndHandlers(socket, player, room) {
         }
     });
 
+    socket.on("select", async (position) => {
+        console.log(position);
+        socket.emit("moves", game.validMoves(position));
+    });
+
     return game.serialize();
 }
