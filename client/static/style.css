@@ -486,9 +486,11 @@ a {
     margin: 40px;
 }
 
+/*
 canvas {
     width: 640px;
 }
+*/
 
 #chat-form {
     width: 100%;
