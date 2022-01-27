@@ -393,6 +393,8 @@ a {
     font-size: 1.4em;
     cursor: pointer;
     outline: none;
+    width: 50%;
+    margin-top: 1.4em;
 }
 
 .site-main form input[type="submit"]:focus,
@@ -490,6 +492,7 @@ canvas {
     height: 40px;
     border-radius: 10px;
     background: rgb(241, 206, 165);
+    position: relative;
 }
 
 #chat-menu {
@@ -503,14 +506,19 @@ canvas {
     border: 0;
     border-radius: 10px;
     background: rgb(231, 178, 117);
-    font-size: 18px;
     padding: 10px;
+    font-size: 1em;
 }
 
 #chat-button {
     padding: 0;
-    margin-left: -58px;
-    border-radius: 10px;
+    border-radius: 0 10px 10px 0;
+    position: absolute;
+    right: 0;
+    height: 100%;
+    margin-top: 0;
+    width: 17%;
+    font-size: 1em;
 }
 
 #chat-area {
@@ -520,8 +528,8 @@ canvas {
     border: none;
     background: rgb(241, 206, 165);
     border-radius: 10px;
-    font-size: 18px;
-    margin: 10px
+    margin: 10px;
+    font-size: 1em;
 }
 
 input:focus,
@@ -545,7 +553,6 @@ select:focus {
 #name-box {
     padding-bottom: 20px;
     padding-top: 30px;
-    font-size: 18px;
 }
 
 #two-point {
@@ -561,5 +568,4 @@ select:focus {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 18px;
 }
