@@ -7,23 +7,17 @@
 }
 
 #container {
-    height: 100%;
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
 }
 
 html {
     font-family: "Fira Sans";
-    height: 100%;
 }
 
 .site-title,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
     font-family: "Merriweather";
 }
 
@@ -31,10 +25,6 @@ h6 {
     width: 980px;
     margin: auto;
 } */
-
-body {
-    height: 100%;
-}
 
 .r {
     width: 400px;
@@ -275,7 +265,7 @@ a {
 
 .site-main {
     background-color: rgb(255, 239, 226);
-    height: 100%;
+    flex: 1;
 }
 
 .site-main .wrapper header>.section-title {
@@ -468,7 +458,6 @@ a {
 
 #board-page {
     display: flex;
-    height: 100%;
     background: rgb(243, 219, 191);
 }
 
