@@ -34,8 +34,10 @@ const roomsTemplate = (roomsPromise, onCreateSubmit) => html`
 </div>`;
 
 const lobbyTemplate = (roomDataPromise) => html`
-<h1>Lobby</h1>
-${until(roomDataPromise, spinner())}`;
+<div class="wrapper form">
+    <h1 class="form-title">Lobby</h1>
+    ${until(roomDataPromise, spinner())}        
+</div>`;
 
 export function roomsPage(ctx) {
     return roomsTemplate(loadRooms(), createSubmitHandler(onCreateSubmit));
@@ -73,12 +75,17 @@ async function loadLobby(ctx, roomId) {
     const canJoin = roomData.players.length < 2 && !canResume;
 
     return html`
-    <h2>${roomData.name}</h2>
-    <ul>
-        ${roomData.players.map(p => html`<li>${p.username}</li>`)}
-    </ul>
-    ${canJoin ? html`<button @click=${onJoin}>Join Room</button>` : null}
-    ${canResume ? html`<a href="/rooms/${roomId}/board">Resume</button>` : null}`;
+    <div class="room-box">
+        <section class="room-data">
+            <h2>${roomData.name}</h2>
+            <ul>
+                ${roomData.players.map(p => html`<li><i class="fas fa-user"></i> ${p.username}</li>`)}
+            </ul>
+            ${canJoin ? html`<button @click=${onJoin} class="room-entrance-btn">Join Room</button>` : null}
+            ${canResume ? html`<a href="/rooms/${roomId}/board" class="room-entrance-btn" >Resume</button>` : null}
+        </section>
+        <section class="media"></section>
+    </div>`;
 
     async function onJoin() {
         await joinRoom(roomId);
