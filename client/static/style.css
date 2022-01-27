@@ -128,6 +128,10 @@ a {
     grid-column-gap: 0.4em;
 }
 
+.site-nav ul.logged {
+    grid-template-columns: repeat(2, 1fr);
+}
+
 .site-nav li {
     list-style: none outside;
     text-transform: uppercase;
