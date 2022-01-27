@@ -70,7 +70,7 @@ export const layoutTemplate = (state, view) => html`
                 JavaScript Advanced @ FMI
             </p>
             <p>
-                All rights reserved &copy; 2021
+                All rights reserved &copy; 2021/2022
             </p>
         </section>
     </div>

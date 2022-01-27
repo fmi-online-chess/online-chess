@@ -146,6 +146,7 @@ a {
     min-width: 80px;
     font-size: 14px;
     font-weight: 500;
+    transition: border 0.1s ease-in;
 }
 
 .site-nav li a i.fas {
@@ -396,6 +397,7 @@ a {
     outline: none;
     width: 50%;
     margin-top: 1.4em;
+    transition: background-color 0.2s, color 0.2s ease-in;
 }
 
 .site-main form input[type="submit"]:not(#chat-button):focus,
