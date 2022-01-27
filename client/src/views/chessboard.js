@@ -1,38 +1,36 @@
-import {
-    createGame
-} from "../engine/index.js";
-import {
-    html
-} from "../lib.js";
+import { createGame } from "../engine/index.js";
+import { getLobby } from "../data/rooms.js";
+import { html } from "../lib.js";
 
 
-const pageTemplate = (board, history, onSubmit) => html `
+const pageTemplate = (board, players, history, onSubmit) => html `
 <div id="board-page">
     <div id="board-id">
     ${board}
     </div>
-    ${chatTemplate(history, onSubmit)}
+    ${chatTemplate(history, players, onSubmit)}
 </div>`;
 
-const chatTemplate = (history, onSubmit) => html `
+const chatTemplate = (history, players, onSubmit) => html `
 <div id="side-menu">
     <div id="timer-wrapper">
-    ${timerTemplate()}
+    ${timerTemplate(players)}
     </div>
     <div id="chat-menu">
         <textarea disabled .value=${history} id="chat-area"></textarea>
         <form @submit=${onSubmit} id="chat-form">
-            <input type="text" name="message" id="chat-message" ><input type="submit" value="Send" id="chat-button">
+            <input type="text" name="message" id="chat-message" placeholder="Aa" autocomplete="off" />
+            <input type="submit" value="Send" id="chat-button" />
         </form>
     </div>
 </div>`;
 
 
-const timerTemplate = () => html `
+const timerTemplate = (players) => html `
 <div id="timer-wrap">
     <div id="clock-wrap">
         <div id="name-box">
-            name1
+            ${players[0]}
         </div>
         <div id="clock-box">
         15:00
@@ -43,7 +41,7 @@ const timerTemplate = () => html `
     </div>
     <div id="clock-wrap">
         <div id="name-box">
-            name2
+            ${players[1]}
         </div>
         <div id="clock-box">
         15:00
@@ -80,9 +78,11 @@ function validateGame(ctx, roomId) {
     }
 }
 
-function createView(ctx) {
+async function createView(ctx) {
     const roomId = ctx.params.id;
-    ctx.appState.game = createGame(ctx.appState.user, roomId, update);
+    const roomData = await getLobby(roomId);
+    const secondPlayer = roomData.players.filter(p => p.username !== ctx.appState.user.username)[0];
+    ctx.appState.game = createGame(ctx.appState.user, secondPlayer, roomId, update);
 
     // Redraw chat on every update - new messages are displayed via update
     // Cache game screen indefinetly - its contents are controlled via Canvas
@@ -90,7 +90,10 @@ function createView(ctx) {
     return render();
 
     function render() {
-        view = pageTemplate(ctx.appState.game.canvas, ctx.appState.game.chat.map(toText).join("\n"), onMessageSubmit);
+        view = pageTemplate(ctx.appState.game.canvas, 
+                            ctx.appState.game.players,
+                            ctx.appState.game.chat.map(toText).join("\n"), 
+                            onMessageSubmit);
         return view;
     }
 

@@ -397,8 +397,8 @@ a {
     margin-top: 1.4em;
 }
 
-.site-main form input[type="submit"]:focus,
-.site-main form input[type="submit"]:hover {
+.site-main form input[type="submit"]:not(#chat-button):focus,
+.site-main form input[type="submit"]:not(#chat-button):hover {
     background-color: transparent;
     color: rgb(207, 115, 35);
 }
@@ -467,6 +467,10 @@ a {
     justify-content: center;
 }
 
+#board-page > div {
+    flex-basis: 28rem;
+}
+
 #side-menu {
     margin: 40px;
     display: flex;
@@ -480,11 +484,9 @@ a {
     margin: 100px;
 }
 
-
 canvas {
     box-shadow: 0px 0px 15px 1px #000000;
 }
-
 
 #chat-form {
     width: 100%;
@@ -510,6 +512,10 @@ canvas {
     font-size: 1em;
 }
 
+#chat-message::placeholder {
+    opacity: 0.7;
+}
+
 #chat-button {
     padding: 0;
     border-radius: 0 10px 10px 0;
@@ -528,7 +534,7 @@ canvas {
     border: none;
     background: rgb(241, 206, 165);
     border-radius: 10px;
-    margin: 10px;
+    padding: 10px;
     font-size: 1em;
 }
 

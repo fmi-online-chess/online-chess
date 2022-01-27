@@ -2,12 +2,12 @@ import { connect } from "../data/socket.js";
 import { createController } from "./board.js";
 
 
-export function createGame(userData, roomId, onUpdate) {
+export function createGame(userData, secondPlayer, roomId, onUpdate) {
     const readyState = {};
 
     const game = {
         roomId,
-        username: userData.username,
+        players: [ userData.username, secondPlayer.username ],
         ready: false,
         contentReady: new Promise((resolve, reject) => {
             readyState.resolve = resolve;
