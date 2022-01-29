@@ -141,7 +141,7 @@ const clearMoveSliding = ({ fromRank, fromFile, toRank, toFile }, board) => {
         return true;
     } else if (fromFile == toFile) { // Same column, vertical sliding move
         // Check if any of the tiles _between_ the starting and ending (exclusive) is occupied
-        for (let i = Math.min(fromRank + 1, toRank); i < Math.max(fromRank, toRank); i++) {
+        for (let i = Math.min(fromRank + 1, toRank + 1); i < Math.max(fromRank, toRank); i++) {
             if (board[i][fromFile] != "") {
                 return false;
             }
