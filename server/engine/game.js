@@ -1,4 +1,4 @@
-import { ableMove, CastlingMoveL, CastlingMoveS } from "./moves.js";
+import { ableMove, inCheck, castlingMove } from "./moves.js";
 
 const index = {
     "a": 0,
@@ -39,6 +39,10 @@ function createBoard(state) {
     return board;
 }
 
+function copyBoard(board) {
+    return JSON.parse(JSON.stringify(board));
+}
+
 
 function deserializeBoard(board, state) {
     for (let rank of board) {
@@ -66,28 +70,13 @@ const confirmMove = (action, board) => {
     };
 
     if (ableMove(move, board)) {
-
-
         const piece = board[fromRank][fromFile];
 
-        if (piece == "BK") {
-            if (CastlingMoveL("black", fromRank, fromFile, toRank, toFile, board)) {
-                board[7][0] = "";
-                board[7][3] = "BR";
-            }
-            if (CastlingMoveS("black", fromRank, fromFile, toRank, toFile, board)) {
-                board[7][7] = "";
-                board[7][5] = "BR";
-            }
-        } else if (piece == "WK") {
-            if (CastlingMoveL("white", fromRank, fromFile, toRank, toFile, board)) {
-                board[0][0] = "";
-                board[0][3] = "WR";
-            }
-            if (CastlingMoveS("white", fromRank, fromFile, toRank, toFile, board)) {
-                board[0][7] = "";
-                board[0][5] = "WR";
-            }
+        if (piece[1] == "K" && castlingMove(piece[0], move, board)) {
+            const rookFile = (toFile == 2) ? 0 : 7;
+            const rookTo = (toFile == 2) ? 3 : 5;
+            board[fromRank][rookFile] = "";
+            board[fromRank][rookTo] = piece[0] + "R";
         }
 
         board[fromRank][fromFile] = "";
@@ -115,7 +104,16 @@ export function createGame(initialState) {
             return state.join("");
         },
         move(action) {
-            return confirmMove(action, board);
+            const fromFile = index[action[0]];
+            const fromRank = index[action[1]];
+            const color = board[fromRank][fromFile][0];
+            const propagated = copyBoard(board);
+            confirmMove(action, propagated);
+            if (inCheck(color, propagated)) {
+                return false;
+            } else {
+                return confirmMove(action, board);
+            }
         },
         validMoves(position) {
             // TODO generate list of valid moves for starting position
@@ -127,10 +125,12 @@ export function createGame(initialState) {
             for (let file of files) {
                 for (let rank of ranks) {
                     const targetMove = position + file + rank;
+
                     const fromFile = index[targetMove[0]];
                     const fromRank = index[targetMove[1]];
                     const toFile = index[targetMove[2]];
                     const toRank = index[targetMove[3]];
+                    const color = board[fromRank][fromFile][0];
                     const move = {
                         fromFile,
                         fromRank,
@@ -139,7 +139,11 @@ export function createGame(initialState) {
                     };
 
                     if (ableMove(move, board)) {
-                        valid.push(targetMove);
+                        const propagated = copyBoard(board);
+                        confirmMove(targetMove, propagated);
+                        if (inCheck(color, propagated) == false) {
+                            valid.push(targetMove);
+                        }
                     }
                 }
             }

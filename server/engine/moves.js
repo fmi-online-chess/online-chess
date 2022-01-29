@@ -1,6 +1,6 @@
 const impossibleMoves = {
-    "B": ["BR", "BN", "BB", "BQ", "BK", "BP", "WK"],
-    "W": ["WR", "WN", "WB", "WQ", "WK", "WP", "BK"]
+    "B": ["BR", "BN", "BB", "BQ", "BK", "BP"],
+    "W": ["WR", "WN", "WB", "WQ", "WK", "WP"]
 };
 
 
@@ -26,12 +26,10 @@ const moveset = {
         return true;
     },
     "K": (color, move, board, target) => {
-        if (CastlingMoveL(color, move.fromRank, move.fromFile, move.toRank, move.toFile, board) ||
-            CastlingMoveS(color, move.fromRank, move.fromFile, move.toRank, move.toFile, board)) {
+        if (castlingMove(color, move, board)) {
             return true;
         }
-        if (!(Math.abs(move.fromRank - move.toRank) <= 1 && Math.abs(move.fromFile - move.toFile) <= 1 &&
-            !isAttacked(board, color, move.toFile, move.toRank))) {
+        if (Math.abs(move.fromRank - move.toRank) > 1 || Math.abs(move.fromFile - move.toFile) > 1) {
             return false;
         }
         return true;
@@ -68,66 +66,52 @@ const moveset = {
 };
 
 
-const isAttacked = (board, color, slotJ, slotI) => {
-    if (color === "black") {
-        for (let i = 0; i <= 7; i++) {
-            for (let j = 0; j <= 7; j++) {
-                if (board[i][j].startsWith("W")) {
-                    if (ableMove([j + 1, i + 1, slotJ, slotI], board)) {
-                        return true;
-                    }
-                }
+function isAttacked(color, board, toFile, toRank) {
+    for (let rank = 0; rank <= 7; rank++) {
+        for (let file = 0; file <= 7; file++) {
+            const piece = board[rank][file];
+            if (piece[0] && piece[0] != color && ableMove({ fromRank: rank, fromFile: file, toRank, toFile }, board)) {
+                return true;
             }
         }
-        return false;
-    } else {
-        for (let i = 0; i <= 7; i++) {
-            for (let j = 0; j <= 7; j++) {
-                if (board[i][j].startsWith("B")) {
-                    if (ableMove([j + 1, i + 1, slotJ, slotI], board)) {
-                        return true;
-                    }
-                }
+    }
+    return false;
+}
+
+function inCheck(color, board) {
+    const target = findKing(color, board);
+    return isAttacked(color, board, target.file, target.rank);
+}
+
+function findKing(color, board) {
+    for (let rank = 0; rank <= 7; rank++) {
+        for (let file = 0; file <= 7; file++) {
+            if (board[rank][file] == (color + "K")) {
+                return { rank, file };
             }
         }
-        return false;
     }
-};
+}
 
-const notInCheck = () => {
-    //TODO
-    return true;
-};
-
-const CastlingMoveL = (color, fromRank, fromFile, toRank, toFile, board) => {
-    if (color === "B") {
-        if (fromRank == 7 && fromFile == 4 && toRank == 7 && toFile == 2 && board[7][0] == "BR" &&
-            board[7][1] == "" && board[7][2] == "" && board[7][3] == "" && notInCheck()) {
-            return true;
-        }
-        return false;
+function castlingMove(color, { fromRank, fromFile, toRank, toFile }, board) {
+    const rank = (color == "B") ? 7 : 0;
+    let path = [];
+    if (toFile == 2) {
+        path = [0, 1, 2, 3, 4];
+    } else if (toFile == 6) {
+        path = [7, 6, 5, 4];
     } else {
-        if (fromRank == 0 && fromFile == 4 && toRank == 0 && toFile == 2 && board[0][0] == "WR" &&
-            board[0][1] == "" && board[7][2] == "" && board[0][3] == "" && notInCheck()) {
-            return true;
-        }
         return false;
     }
-};
-const CastlingMoveS = (color, fromRank, fromFile, toRank, toFile, board) => {
-    if (color === "B" && fromRank == 7 && fromFile == 4 && toRank == 7 && toFile == 6 && board[7][7] == "BR" &&
-        board[7][6] == "" && board[7][5] == "" && notInCheck()) {
-        return true;
-    }
-    if (fromRank == 0 && fromFile == 4 && toRank == 0 && toFile == 6 && board[0][7] == "WR" &&
-        board[0][6] == "" && board[0][5] == "" && notInCheck()) {
+    if (fromRank == rank && fromFile == 4 && toRank == rank && board[rank][path[0]] == (color + "R") &&
+        !path.slice(1, -1).some(file => board[rank][file] != "") &&
+        !path.some(file => isAttacked(color, board, file, rank))) {
         return true;
     }
     return false;
+}
 
-};
-
-const clearMoveSliding = ({ fromRank, fromFile, toRank, toFile }, board) => {
+function clearMoveSliding({ fromRank, fromFile, toRank, toFile }, board) {
     if (isSliding({ fromRank, fromFile, toRank, toFile }) == false) {
         return false;
     }
@@ -148,9 +132,9 @@ const clearMoveSliding = ({ fromRank, fromFile, toRank, toFile }, board) => {
         }
         return true;
     }
-};
+}
 
-const clearMoveDiagonal = ({ fromRank, fromFile, toRank, toFile }, board) => {
+function clearMoveDiagonal({ fromRank, fromFile, toRank, toFile }, board) {
     if (isDiagonal({ fromRank, fromFile, toRank, toFile }) == false) {
         return false;
     }
@@ -173,16 +157,15 @@ const clearMoveDiagonal = ({ fromRank, fromFile, toRank, toFile }, board) => {
         }
         if (fromRank > toRank && fromFile > toFile) {
             if (board[fromRank - i][fromFile - i] != "") {
-                // console.log(board[fromRank + i][fromFile - i]);
                 return false;
             }
         }
     }
     return true;
-};
+}
 
 
-const ableMove = (move, board) => {
+function ableMove(move, board) {
     const piece = board[move.fromRank][move.fromFile];
     const color = piece[0];
     const target = board[move.toRank][move.toFile];
@@ -192,7 +175,7 @@ const ableMove = (move, board) => {
     }
 
     return moveset[piece[1]](color, move, board, target);
-};
+}
 
 function possibleMove(color, target) {
     return impossibleMoves[color].indexOf(target) == -1;
@@ -212,6 +195,6 @@ function isSliding({ fromRank, fromFile, toRank, toFile }) {
 
 export {
     ableMove,
-    CastlingMoveL,
-    CastlingMoveS
+    inCheck,
+    castlingMove
 };
