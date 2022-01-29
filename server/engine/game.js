@@ -111,20 +111,24 @@ const CastlingMoveS = (color, fromRank, fromFile, toRank, toFile, board) => {
 };
 
 const clearMoveHV = (fromRank, fromFile, toRank, toFile, board) => {
-    if (fromRank == toRank) {
+    if (fromRank == toRank) { // Same row, horizontal sliding move
+        // Single step
         if (Math.abs(fromFile - toFile) == 1) {
             return true;
         }
+        // Check if any of the tiles _between_ the starting and ending (exclusive) is occupied
         for (let i = Math.min(fromFile + 1, toFile + 1); i < Math.max(fromFile, toFile); i++) {
             if (board[fromRank][i] != '') {
                 return false;
             }
         }
         return true;
-    } else {
+    } else if (fromFile == toFile) { // Same column, vertical sliding move
+        // Single step
         if (Math.abs(fromRank - toRank) == 1) {
             return true;
         }
+        // 
         for (let i = Math.min(fromRank + 1, toRank); i < Math.max(fromRank, toRank); i++) {
             if (board[i][fromFile] != '') {
                 return false;
@@ -278,7 +282,7 @@ const ableMove = (action, board) => {
         case "WQ":
             if (!((Math.abs(fromRank - toRank) == Math.abs(fromFile - toFile) || (fromRank == toRank || fromFile == toFile)) &&
                 impossibleWhiteMoves.indexOf(board[toRank][toFile]) == -1 &&
-                (clearMoveDg(fromRank, fromFile, toRank, toFile, board) || clearMoveHV(fromRank, fromFile, toRank, toFile, board)))) {
+                (clearMoveDg(fromRank, fromFile, toRank, toFile, board) /*|| clearMoveHV(fromRank, fromFile, toRank, toFile, board)*/))) {
                 return false;
             }
             break;
