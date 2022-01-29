@@ -1,3 +1,4 @@
+import { log } from "../util/logger.js";
 import { createCanvas, initRenderer } from "./canvas.js";
 
 
@@ -49,9 +50,9 @@ function deserializeBoard(board, state) {
     }
 }
 
-export function createController(onAction) {
+export function createController(onAction, onSelect) {
     const canvas = createCanvas();
-    const gfx = initRenderer(canvas, false, onAction);
+    const gfx = initRenderer(canvas, false, onAction, onSelect);
     gfx.render();
     
     const board = createBoard();
@@ -67,6 +68,9 @@ export function createController(onAction) {
             board[fromRank][fromFile] = "";
             board[toRank][toFile] = piece;
             gfx.setState(board);
+        },
+        onMoves(moves) {
+            gfx.showMoves(moves);
         },
         setState(state) {
             deserializeBoard(board, state);

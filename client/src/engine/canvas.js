@@ -1,3 +1,5 @@
+import { log } from "../util/logger.js";
+
 const pieceSprites = {
     "WK": { sx: 0, sy: 0, sw: 100, sh: 100, },
     "WQ": { sx: 100, sy: 0, sw: 100, sh: 100, },
@@ -20,10 +22,10 @@ export function createCanvas() {
     return canvas;
 }
 
-export function initRenderer(canvas, reversed, onAction) {
+export function initRenderer(canvas, reversed, onAction, onSelect) {
     const sprites = new Image();
     sprites.onload = () => {
-        console.log("Assets ready");
+        log("Assets ready");
         render();
     };
     sprites.src = "/static/spritesheet.png";
@@ -40,6 +42,7 @@ export function initRenderer(canvas, reversed, onAction) {
         const rank = ranks[y];
         if (file && rank) {
             if (selected == "") {
+                onSelect(file + rank);
                 selected = file + rank;
             } else {
                 onAction(selected + file + rank);
@@ -84,6 +87,9 @@ export function initRenderer(canvas, reversed, onAction) {
                 }
             }
             render();
+        },
+        showMoves(moves) {
+            moves.forEach(m => drawHighlight(m.slice(2)));
         },
         render
     };

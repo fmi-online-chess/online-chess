@@ -1,6 +1,7 @@
 import { createGame } from "../engine/index.js";
 import { getLobby } from "../data/rooms.js";
 import { html } from "../lib.js";
+import { log } from "../util/logger.js";
 
 
 const pageTemplate = (board, players, history, onSubmit) => html `
@@ -65,10 +66,10 @@ export function chessboard(ctx) {
 
 function validateGame(ctx, roomId) {
     if ((view == null) || !ctx.appState.game) {
-        console.log("- no view or game not initialized");
+        log("- no view or game not initialized");
         view = createView(ctx);
     } else if (ctx.appState.game.roomId != roomId) {
-        console.log("- game ID mismatch");
+        log("- game ID mismatch");
         const oldGame = ctx.appState.game;
         // Wait for this promise to ensure a connection was established in the first place
         oldGame.contentReady.then(() => {

@@ -351,6 +351,16 @@ export function createGame(initialState) {
             // dumb way - iterate entire board
             // less dumb way - limit moves to directions
             // return ableMove(position, board);
+            const valid = [];
+            for (let file of files) {
+                for (let rank of ranks) {
+                    const move = position + file + rank;
+                    if (ableMove(move, board)) {
+                        valid.push(move);
+                    }
+                }
+            }
+            return valid;
         }
     };
 }
