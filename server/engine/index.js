@@ -72,7 +72,7 @@ function initGameAndHandlers(socket, player, room) {
     socket.join(roomId);
 
     socket.on("message", (message) => {
-        console.log(message);
+        console.log(player.username, ">>>", message);
         const data = { username: player.username, message };
         room.chatHistory.push(data);
         socket.to(roomId).emit("message", data);
@@ -80,7 +80,7 @@ function initGameAndHandlers(socket, player, room) {
     });
 
     socket.on("action", async (action) => {
-        console.log(action);
+        console.log(player.username, ">>>", action);
         if (game.move(action)) {
             const newState = game.serialize();
             room.state = newState;
@@ -91,7 +91,7 @@ function initGameAndHandlers(socket, player, room) {
     });
 
     socket.on("select", async (position) => {
-        console.log(position);
+        console.log(player.username, ">>>", position);
         socket.emit("moves", game.validMoves(position));
     });
 

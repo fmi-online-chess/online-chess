@@ -52,7 +52,7 @@ function deserializeBoard(board, state) {
 
 export function createController(onAction, onSelect) {
     const canvas = createCanvas();
-    const gfx = initRenderer(canvas, false, onAction, onSelect);
+    const gfx = initRenderer(canvas, false, onAction, onSelectProxy);
     gfx.render();
     
     const board = createBoard();
@@ -67,6 +67,16 @@ export function createController(onAction, onSelect) {
             const piece = board[fromRank][fromFile];
             board[fromRank][fromFile] = "";
             board[toRank][toFile] = piece;
+
+            // Castling move
+            if (move[4] == "O") {
+                board[fromRank][0] = "";
+                board[fromRank][3] = piece[0] + "R";
+            } else if (move[4] == "o") {
+                board[fromRank][7] = "";
+                board[fromRank][5] = piece[0] + "R";
+            }
+
             gfx.setState(board);
         },
         onMoves(moves) {
@@ -80,4 +90,13 @@ export function createController(onAction, onSelect) {
     };
 
     return game;
+
+    function onSelectProxy(position) {
+        if (board[index[position[1]]][index[position[0]]] != "") {
+            onSelect(position);
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

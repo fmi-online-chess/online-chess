@@ -57,7 +57,7 @@ function deserializeBoard(board, state) {
     }
 }
 
-const confirmMove = (action, board) => {
+function confirmMove(action, board) {
     const fromFile = index[action[0]];
     const fromRank = index[action[1]];
     const toFile = index[action[2]];
@@ -86,7 +86,7 @@ const confirmMove = (action, board) => {
     } else {
         return false;
     }
-};
+}
 
 export function createGame(initialState) {
     const board = createBoard(initialState);
@@ -130,7 +130,8 @@ export function createGame(initialState) {
                     const fromRank = index[targetMove[1]];
                     const toFile = index[targetMove[2]];
                     const toRank = index[targetMove[3]];
-                    const color = board[fromRank][fromFile][0];
+                    const piece = board[fromRank][fromFile];
+                    const color = piece[0];
                     const move = {
                         fromFile,
                         fromRank,
@@ -142,7 +143,13 @@ export function createGame(initialState) {
                         const propagated = copyBoard(board);
                         confirmMove(targetMove, propagated);
                         if (inCheck(color, propagated) == false) {
-                            valid.push(targetMove);
+                            let special = "";
+                            if (board[toRank][toFile] != "") {
+                                special = "x";
+                            } else if (piece[1] == "K" && castlingMove(color, move, board)) {
+                                special = (toFile == 2) ? "O" : "o";
+                            }
+                            valid.push(targetMove + special);
                         }
                     }
                 }

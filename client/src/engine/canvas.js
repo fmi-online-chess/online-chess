@@ -42,10 +42,15 @@ export function initRenderer(canvas, reversed, onAction, onSelect) {
         const rank = ranks[y];
         if (file && rank) {
             if (selected == "") {
-                onSelect(file + rank);
-                selected = file + rank;
+                if (onSelect(file + rank)) {
+                    selected = file + rank;
+                }
             } else {
-                onAction(selected + file + rank);
+                const move = validMoves.find(m => m.slice(0, 4) == (selected + file + rank));
+                if (move) {
+                    onAction(move);
+                }
+                validMoves = [];
                 selected = "";
             }
         }
@@ -68,6 +73,7 @@ export function initRenderer(canvas, reversed, onAction, onSelect) {
     }
 
     let selected = "";
+    let validMoves = [];
     let state = [];
 
     let lastTime = 0;
@@ -89,7 +95,18 @@ export function initRenderer(canvas, reversed, onAction, onSelect) {
             render();
         },
         showMoves(moves) {
-            moves.forEach(m => drawHighlight(m.slice(2)));
+            validMoves = moves;
+            for (let move of moves) {
+                let tint = drawSemi;
+                if (move[4] == "x") {
+                    tint = drawAttack;
+                } else if (move[4] == "o") {
+                    tint = drawCastle;
+                } else if (move[4] == "O") {
+                    tint = drawCastle;
+                }
+                tint(move.slice(2));
+            }
         },
         render
     };
@@ -209,9 +226,9 @@ export function initRenderer(canvas, reversed, onAction, onSelect) {
         ctx.restore();
     }
 
-    function drawHighlight(selected) {
+    function drawTint(selected, color) {
         ctx.save();
-        ctx.fillStyle = "rgba(128, 255, 128, 0.5)";
+        ctx.fillStyle = color;
 
         const file = files.indexOf(selected[0]) + 1;
         const rank = ranks.indexOf(selected[1]) + 1;
@@ -221,6 +238,22 @@ export function initRenderer(canvas, reversed, onAction, onSelect) {
         ctx.fillRect(x, y, gridSize, gridSize);
 
         ctx.restore();
+    }
+
+    function drawHighlight(selected) {
+        drawTint(selected, "rgba(128, 255, 128, 0.75)");
+    }
+
+    function drawSemi(selected) {
+        drawTint(selected, "rgba(128, 255, 128, 0.25)");
+    }
+
+    function drawAttack(selected) {
+        drawTint(selected, "rgba(255, 64, 64, 0.5)");
+    }
+
+    function drawCastle(selected) {
+        drawTint(selected, "rgba(64, 64, 255, 0.5)");
     }
 }
 
