@@ -110,12 +110,11 @@ const CastlingMoveS = (color, fromRank, fromFile, toRank, toFile, board) => {
 
 };
 
-const clearMoveHV = (fromRank, fromFile, toRank, toFile, board) => {
+const clearMoveSliding = ({ fromRank, fromFile, toRank, toFile }, board) => {
+    if (isSliding({ fromRank, fromFile, toRank, toFile }) == false) {
+        return false;
+    }
     if (fromRank == toRank) { // Same row, horizontal sliding move
-        // Single step
-        if (Math.abs(fromFile - toFile) == 1) {
-            return true;
-        }
         // Check if any of the tiles _between_ the starting and ending (exclusive) is occupied
         for (let i = Math.min(fromFile + 1, toFile + 1); i < Math.max(fromFile, toFile); i++) {
             if (board[fromRank][i] != '') {
@@ -124,11 +123,7 @@ const clearMoveHV = (fromRank, fromFile, toRank, toFile, board) => {
         }
         return true;
     } else if (fromFile == toFile) { // Same column, vertical sliding move
-        // Single step
-        if (Math.abs(fromRank - toRank) == 1) {
-            return true;
-        }
-        // 
+        // Check if any of the tiles _between_ the starting and ending (exclusive) is occupied
         for (let i = Math.min(fromRank + 1, toRank); i < Math.max(fromRank, toRank); i++) {
             if (board[i][fromFile] != '') {
                 return false;
@@ -136,10 +131,12 @@ const clearMoveHV = (fromRank, fromFile, toRank, toFile, board) => {
         }
         return true;
     }
-
 };
 
-const clearMoveDg = (fromRank, fromFile, toRank, toFile, board) => {
+const clearMoveDiagonal = ({ fromRank, fromFile, toRank, toFile }, board) => {
+    if (isDiagonal({ fromRank, fromFile, toRank, toFile }) == false) {
+        return false;
+    }
     const difference = Math.abs(fromRank - toRank);
     for (let i = 1; i < difference; i++) {
         if (fromRank < toRank && fromFile > toFile) {
@@ -159,7 +156,7 @@ const clearMoveDg = (fromRank, fromFile, toRank, toFile, board) => {
         }
         if (fromRank > toRank && fromFile > toFile) {
             if (board[fromRank - i][fromFile - i] != '') {
-                console.log(board[fromRank + i][fromFile - i]);
+                // console.log(board[fromRank + i][fromFile - i]);
                 return false;
             }
         }
@@ -173,24 +170,33 @@ const ableMove = (action, board) => {
     const fromRank = index[action[1]];
     const toFile = index[action[2]];
     const toRank = index[action[3]];
-    if (board[fromRank][fromFile] === "") {
+
+    const piece = board[fromRank][fromFile];
+    const target = board[toRank][toFile];
+    const move = {
+        fromFile,
+        fromRank,
+        toFile,
+        toRank
+    };
+
+    if (piece === "" || possibleMove(piece[0], target) == false) {
         return false;
     }
-    const piece = board[fromRank][fromFile];
     switch (piece) {
         case "BP":
             if (fromFile !== toFile) {
-                if (!(fromRank - toRank == 1 && Math.abs(fromFile - toFile) == 1 && [...impossibleBlackMoves, ''].indexOf(board[toRank][toFile]) == -1 &&
+                if (!(fromRank - toRank == 1 && Math.abs(fromFile - toFile) == 1 && [...impossibleBlackMoves, ''].indexOf(target) == -1 &&
                     fromRank > toRank)) {
                     return false;
                 }
             } else {
                 if (fromRank == 6) {
-                    if (!((toRank === 4 || toRank === 5) && board[toRank][toFile] == "")) {
+                    if (!((toRank === 4 || toRank === 5) && target == "")) {
                         return false;
                     }
                 } else {
-                    if (!(fromRank - toRank == 1 && toRank <= 7 && board[toRank][toFile] == "")) {
+                    if (!(fromRank - toRank == 1 && toRank <= 7 && target == "")) {
                         return false;
                     }
                 }
@@ -198,17 +204,17 @@ const ableMove = (action, board) => {
             break;
         case "WP":
             if (fromFile !== toFile) {
-                if (!(toRank - fromRank == 1 && Math.abs(fromFile - toFile) == 1 && [...impossibleWhiteMoves, ''].indexOf(board[toRank][toFile]) == -1 &&
+                if (!(toRank - fromRank == 1 && Math.abs(fromFile - toFile) == 1 && [...impossibleWhiteMoves, ''].indexOf(target) == -1 &&
                     toRank > fromRank)) {
                     return false;
                 }
             } else {
                 if (fromRank == 1) {
-                    if (!((toRank === 2 || toRank === 3) && board[toRank][toFile] == "")) {
+                    if (!((toRank === 2 || toRank === 3) && target == "")) {
                         return false;
                     }
                 } else {
-                    if (!(toRank - fromRank == 1 && toRank <= 7 && board[toRank][toFile] == "")) {
+                    if (!(toRank - fromRank == 1 && toRank <= 7 && target == "")) {
                         return false;
                     }
                 }
@@ -220,7 +226,7 @@ const ableMove = (action, board) => {
                 break;
             }
             if (!(Math.abs(fromRank - toRank) <= 1 && Math.abs(fromFile - toFile) <= 1 &&
-                impossibleBlackMoves.indexOf(board[toRank][toFile]) == -1 && !isAttacked(board, 'black', toFile, toRank))) {
+                !isAttacked(board, 'black', toFile, toRank))) {
                 return false;
             }
             break;
@@ -230,71 +236,90 @@ const ableMove = (action, board) => {
                 break;
             }
             if (!(Math.abs(fromRank - toRank) <= 1 && Math.abs(fromFile - toFile) <= 1 &&
-                impossibleWhiteMoves.indexOf(board[toRank][toFile]) == -1 && !isAttacked(board, 'white', toFile, toRank))) {
+                !isAttacked(board, 'white', toFile, toRank))) {
                 return false;
             }
             break;
         case "BN":
             if (!(Math.abs(fromFile - toFile) != Math.abs(fromRank - toRank) && Math.abs(fromFile - toFile) <= 2 &&
                 Math.abs(fromFile - toFile) > 0 && Math.abs(fromRank - toRank) <= 2 &&
-                Math.abs(fromRank - toRank) > 0 && impossibleBlackMoves.indexOf(board[toRank][toFile]) == -1)) {
+                Math.abs(fromRank - toRank) > 0)) {
                 return false;
             }
             break;
         case "WN":
             if (!(Math.abs(fromFile - toFile) != Math.abs(fromRank - toRank) && Math.abs(fromFile - toFile) <= 2 &&
                 Math.abs(fromFile - toFile) > 0 && Math.abs(fromRank - toRank) <= 2 &&
-                Math.abs(fromRank - toRank) > 0 && impossibleWhiteMoves.indexOf(board[toRank][toFile]) == -1)) {
+                Math.abs(fromRank - toRank) > 0)) {
                 return false;
             }
             break;
         case "BR":
-            if (!((fromRank == toRank || fromFile == toFile) && clearMoveHV(fromRank, fromFile, toRank, toFile, board) &&
-                impossibleBlackMoves.indexOf(board[toRank][toFile]) == -1)) {
+            if (!clearMoveSliding(move, board)) {
                 return false;
             }
             break;
         case "WR":
-            if (!((fromRank == toRank || fromFile == toFile) && clearMoveHV(fromRank, fromFile, toRank, toFile, board) &&
-                impossibleWhiteMoves.indexOf(board[toRank][toFile]) == -1)) {
+            if (!clearMoveSliding(move, board)) {
                 return false;
             }
             break;
         case "BB":
-            if (!(Math.abs(fromRank - toRank) == Math.abs(fromFile - toFile) && clearMoveDg(fromRank, fromFile, toRank, toFile, board) &&
-                impossibleBlackMoves.indexOf(board[toRank][toFile]) == -1)) {
+            if (!clearMoveDiagonal(move, board)) {
                 return false;
             }
             break;
         case "WB":
-            if (!(Math.abs(fromRank - toRank) == Math.abs(fromFile - toFile) && clearMoveDg(fromRank, fromFile, toRank, toFile, board) &&
-                impossibleWhiteMoves.indexOf(board[toRank][toFile]) == -1)) {
+            if (!clearMoveDiagonal(move, board)) {
                 return false;
             }
             break;
         case "BQ":
-            if (!((Math.abs(fromRank - toRank) == Math.abs(fromFile - toFile) || (fromRank == toRank || fromFile == toFile)) &&
-                impossibleBlackMoves.indexOf(board[toRank][toFile]) == -1 &&
-                (clearMoveDg(fromRank, fromFile, toRank, toFile, board) || clearMoveHV(fromRank, fromFile, toRank, toFile, board)))) {
+            if (!(
+                clearMoveDiagonal(move, board) ||
+                clearMoveSliding(move, board)
+            )) {
                 return false;
             }
             break;
         case "WQ":
-            if (!((Math.abs(fromRank - toRank) == Math.abs(fromFile - toFile) || (fromRank == toRank || fromFile == toFile)) &&
-                impossibleWhiteMoves.indexOf(board[toRank][toFile]) == -1 &&
-                (clearMoveDg(fromRank, fromFile, toRank, toFile, board) /*|| clearMoveHV(fromRank, fromFile, toRank, toFile, board)*/))) {
+            if (!(
+                clearMoveDiagonal(move, board) ||
+                clearMoveSliding(move, board)
+            )) {
                 return false;
             }
             break;
 
     }
-    // board[fromRank][fromFile] = "";
-    // board[toRank][toFile] = piece;
 
     return true;
 };
 
+function possibleMove(color, target) {
+    const possible = {
+        'W': impossibleWhiteMoves,
+        'B': impossibleBlackMoves
+    }[color].indexOf(target) == -1;
+
+    if (!possible) {
+        log('Impossible move', color, target);
+    }
+
+    return possible;
+}
+
+function isDiagonal({ fromRank, fromFile, toRank, toFile }) {
+    return Math.abs(fromRank - toRank) == Math.abs(fromFile - toFile);
+}
+
+function isSliding({ fromRank, fromFile, toRank, toFile }) {
+    return (fromRank == toRank) || (fromFile == toFile);
+}
+
 const confirmMove = (action, board) => {
+    logNext = true;
+
     if (ableMove(action, board)) {
         const fromFile = index[action[0]];
         const fromRank = index[action[1]];
@@ -354,7 +379,8 @@ export function createGame(initialState) {
             // TODO generate list of valid moves for starting position
             // dumb way - iterate entire board
             // less dumb way - limit moves to directions
-            // return ableMove(position, board);
+            // 200 IQ way - use an expanding mask to only generate valid moves
+
             const valid = [];
             for (let file of files) {
                 for (let rank of ranks) {
@@ -367,4 +393,17 @@ export function createGame(initialState) {
             return valid;
         }
     };
+}
+
+
+/*
+    DEBUG
+*/
+let logNext = false;
+
+function log(...strings) {
+    if (logNext) {
+        logNext = false;
+        console.log(...strings);
+    }
 }
