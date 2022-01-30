@@ -64,6 +64,7 @@ export function initRenderer(canvas, reversed, onAction, onSelect) {
     ctx.font = "20px Tahoma";
     const light = "rgb(255, 206, 158)";
     const dark = "rgb(209, 139, 71)";
+    const moveFrames = 30;
 
     const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
     const ranks = ["8", "7", "6", "5", "4", "3", "2", "1"];
@@ -74,24 +75,22 @@ export function initRenderer(canvas, reversed, onAction, onSelect) {
 
     let selected = "";
     let validMoves = [];
+    let lastMoves = [];
+    let oldSerializedState = null;
     let state = [];
 
-    let lastTime = 0;
-    let delta = 0;
-
-    // requestAnimationFrame(animate);
 
     return {
         canvas,
-        setState(newState) {
-            state = [];
-            for (let rank = 0; rank < 8; rank++) {
-                for (let file = 0; file < 8; file++) {
-                    if (newState[rank][file] != "") {
-                        state.push(stateToPiece(newState[rank][file], rank, file, reversed));
-                    }
-                }
-            }
+        setState(serializedState) {
+            // Ensure the state is not empty during the diff-check
+            oldSerializedState = oldSerializedState || JSON.parse(JSON.stringify(serializedState));
+
+            [state, lastMoves] = deserializeState(oldSerializedState, serializedState, reversed);
+
+            // There is unexpected behaviour when assigning a reference from the function parameter to a variable in the scope
+            // It appears the parsing engine maintains the same address in memory and will place the paramter data inside the local variable
+            oldSerializedState = JSON.parse(JSON.stringify(serializedState));
             render();
         },
         showMoves(moves) {
@@ -112,46 +111,38 @@ export function initRenderer(canvas, reversed, onAction, onSelect) {
     };
 
     function render() {
+        let isMoving = false;
+
         clear();
         drawBoard();
         if (selected != "") {
             drawHighlight(selected);
+        } else {
+            for (let move of lastMoves) {
+                let {oldFile, oldRank, newFile, newRank} = move;
+                if (reversed) {
+                    oldFile = 7 - oldFile;
+                    newFile = 7 - newFile;
+                } else {
+                    oldRank = 7 - oldRank;
+                    newRank = 7 - newRank;
+                }
+
+                drawSemi([files[oldFile], ranks[oldRank]]);
+                drawHighlight([files[newFile], ranks[newRank]]);
+            }
         }
+        
         for (let piece of state) {
             drawPiece(piece);
-        }
-    }
-
-    function animate(time) {
-        delta += time - lastTime;
-        lastTime = time;
-
-        /*
-        while (delta >= 20) {
-            c.x += c.xVel;
-            if ((c.x > 0 && c.x > 800)
-                || (c.x < 0 && c.x < 0)) {
-                c.xVel *= -1;
+            if (piece.isMoving) {
+                isMoving = true;
             }
-
-            c.y += c.yVel;
-            if ((c.y > 0 && c.y > 600)
-                || (c.y < 0 && c.y < 0)) {
-                c.yVel *= -1;
-            }
-
-            delta -= 20;
         }
-        */
 
-        clear();
-        drawBoard();
-
-        /*
-        if (alive) {
-            requestAnimationFrame(animate);
+        if (isMoving) {
+            requestAnimationFrame(render);
         }
-        */
     }
 
     function clear() {
@@ -162,15 +153,15 @@ export function initRenderer(canvas, reversed, onAction, onSelect) {
         let x = piece.x;
         let y = piece.y;
         if (piece.isMoving) {
-            if (piece.frame >= 100) {
+            if (piece.frame >= moveFrames) {
                 piece.isMoving = false;
                 piece.frame = 0;
                 piece.oldX = piece.x;
                 piece.oldY = piece.y;
             } else {
                 piece.frame++;
-                x = lerp(piece.oldX, piece.x, piece.frame / 100);
-                y = lerp(piece.oldY, piece.y, piece.frame / 100);
+                x = lerp(piece.oldX, piece.x, piece.frame / moveFrames);
+                y = lerp(piece.oldY, piece.y, piece.frame / moveFrames);
             }
         }
 
@@ -241,11 +232,11 @@ export function initRenderer(canvas, reversed, onAction, onSelect) {
     }
 
     function drawHighlight(selected) {
-        drawTint(selected, "rgba(128, 255, 128, 0.75)");
+        drawTint(selected, "rgba(64, 255, 64, 0.75)");
     }
 
     function drawSemi(selected) {
-        drawTint(selected, "rgba(128, 255, 128, 0.25)");
+        drawTint(selected, "rgba(128, 255, 128, 0.4)");
     }
 
     function drawAttack(selected) {
@@ -269,7 +260,16 @@ export function stateToPiece(type, rank, file, reversed) {
         frame: 0,
         x: file + 1,
         y: 8 - (rank),
-        isMoving: false
+        isMoving: false,
+        moveFrom(oldRank, oldFile) {
+            piece.oldX = oldFile + 1;
+            piece.oldY = 8 - (oldRank);
+            if (reversed) {
+                piece.oldX = 9 - piece.oldX;
+                piece.oldY = 9 - piece.oldY;
+            }
+            piece.isMoving = true;
+        }
     };
     if (reversed) {
         piece.x = 9 - piece.x;
@@ -278,4 +278,53 @@ export function stateToPiece(type, rank, file, reversed) {
         piece.oldY = 9 - piece.oldY;
     }
     return piece;
+}
+
+function deserializeState(oldState, newState, reversed) {
+    const state = [];
+    const moves = {};
+
+    for (let rank = 0; rank < 8; rank++) {
+        for (let file = 0; file < 8; file++) {
+
+            const isTarget = diffCheckState(oldState, newState, rank, file, moves);
+
+            if (newState[rank][file] != "") {
+                const piece = stateToPiece(newState[rank][file], rank, file, reversed);
+                if (isTarget) {
+                    const origin = moves[piece.type];
+                    if (origin) {
+                        piece.moveFrom(origin.oldRank, origin.oldFile);
+                        piece.oldRank = origin.oldRank;
+                        piece.oldFile = origin.oldFile;
+                    }
+                    moves[piece.type] = piece;
+                    piece.newRank = rank;
+                    piece.newFile = file;
+                }
+                state.push(piece);
+            }
+        }
+    }
+
+    return [state, Object.values(moves)];
+}
+
+function diffCheckState(oldState, newState, rank, file, moves) {
+    if (oldState[rank][file] != "" && newState[rank][file] == "") {
+        const piece = oldState[rank][file];
+
+        if (moves[piece] != undefined) {
+            moves[piece].moveFrom(rank, file);
+        } else {
+            moves[piece] = {};
+        }
+        moves[piece].oldRank = rank;
+        moves[piece].oldFile = file;
+
+        return false;
+    } else {
+        // Target discovered ?
+        return oldState[rank][file] != newState[rank][file];
+    }
 }
