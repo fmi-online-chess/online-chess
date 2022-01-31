@@ -48,6 +48,10 @@ export function roomsPage(ctx) {
             return void showError("Name cannot be empty!");
         }
 
+        if (!ctx.appState.user) {
+            return void showError("You have to login before creating a room.");
+        }
+
         const result = await createRoom(name);
 
         showInfo(`Room ${name} created successfully!`);
