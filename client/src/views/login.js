@@ -26,6 +26,10 @@ const loginTemplate = (submitForm) => html`
 
 
 export function loginPage(ctx) {
+    if (ctx.appState.user) {
+        ctx.page.redirect("/");
+    }
+
     return loginTemplate(createSubmitHandler(onSubmit));
 
     async function onSubmit({username, password}) {

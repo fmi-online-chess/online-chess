@@ -32,6 +32,10 @@ const registerTemplate = (submitForm) => html`
 
 
 export function registerPage(ctx) {
+    if (ctx.appState.user) {
+        ctx.page.redirect("/");
+    }
+    
     return registerTemplate(createSubmitHandler(onSubmit));
 
     async function onSubmit({username, password, confirmPassword}) {
