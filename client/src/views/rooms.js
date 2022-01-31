@@ -75,8 +75,10 @@ export function lobbyPage(ctx) {
 async function loadLobby(ctx, roomId) {
     const roomData = await getLobby(roomId);
 
-    const canResume = roomData.players.find(p => p._id == ctx.appState.user?._id) != undefined;
+    const hasLoggedUser = ctx.appState.user !== undefined;
+    const canResume = hasLoggedUser && roomData.players.find(p => p._id == ctx.appState.user?._id) != undefined;
     const canJoin = roomData.players.length < 2 && !canResume;
+    const canSpectate = roomData.players.length === 2 && !canResume;
 
     return html`
     <div class="room-box">
@@ -86,13 +88,22 @@ async function loadLobby(ctx, roomId) {
                 ${roomData.players.map(p => html`<li><i class="fas fa-user"></i> ${p.username}</li>`)}
             </ul>
             ${canJoin ? html`<button @click=${onJoin} class="room-entrance-btn">Join Room</button>` : null}
+            ${canSpectate ? html`<button @click=${onSpectate} class="room-entrance-btn">Spectate Game</button>` : null}
             ${canResume ? html`<a href="/rooms/${roomId}/board" class="room-entrance-btn" >Resume</button>` : null}
         </section>
         <section class="media"></section>
     </div>`;
 
     async function onJoin() {
-        await joinRoom(roomId);
-        ctx.page.redirect(`/rooms/${roomId}/board`);
+        if (hasLoggedUser) {
+            await joinRoom(roomId);
+            ctx.page.redirect(`/rooms/${roomId}/board`);
+        } else {
+            showError("You have to login before joining a room.");
+        }
+    }
+
+    async function onSpectate() {
+        showInfo("Spectator mode.");
     }
 }
