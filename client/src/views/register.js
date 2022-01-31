@@ -27,6 +27,7 @@ const registerTemplate = (submitForm) => html`
             <input value="Submit" type="submit" />
         </p>
     </form>
+    <h4>Already have an account? <a href="/login">Sign in</a></h4>
 </div>`;
 
 

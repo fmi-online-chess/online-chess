@@ -21,6 +21,7 @@ const loginTemplate = (submitForm) => html`
             <input value="Submit" type="submit" />
         </p>
     </form>
+    <h4><a href="/register">Register</a> if you don't have an account yet.</h4>
 </div>`;
 
 
