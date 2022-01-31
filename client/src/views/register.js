@@ -1,6 +1,7 @@
 import { register } from "../data/user.js";
 import { html } from "../lib.js";
 import { createSubmitHandler } from "../util/handlers.js";
+import { showInfo, showError } from "../util/notify.js";
 
 
 const registerTemplate = (submitForm) => html`
@@ -34,10 +35,12 @@ export function registerPage(ctx) {
 
     async function onSubmit({username, password, confirmPassword}) {
         if (password !== confirmPassword) {
-            return alert("Passwords do not match!");
+            return void showError("Passwords do not match!");
         }
 
         const result = await register(username, password);
+
+        showInfo(`User ${username} registered successfully!`);
 
         ctx.appState.user = result; 
 

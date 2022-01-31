@@ -271,6 +271,39 @@ a {
 .site-main {
     background-color: rgb(255, 239, 226);
     flex: 1;
+    position: relative;
+}
+
+.site-main #notifications {
+    position: absolute;
+    top: 0.5em;
+    right: 1em;
+    text-align: center;
+    margin: 1em;
+}
+
+.site-main .notification {
+    font-size: 1.5em;
+    color: #ffffff;
+    display: none;
+    opacity: 0;
+    text-align: right;
+    margin-bottom: 0.5em;
+    transition: opacity 0.4s;
+}
+
+.site-main .notification>span {
+    display: inline-block;
+    padding:  0.5em 2em 0.5em 2em;
+    border-radius: 10px;
+}
+
+.site-main #notifications #errorBox>span {
+    background-color: rgb(255, 8, 0);
+}
+
+.site-main #notifications #infoBox>span {
+    background-color: #393;
 }
 
 .site-main .wrapper header>.section-title {
@@ -400,9 +433,9 @@ a {
     transition: background-color 0.2s, color 0.2s ease-in;
 }
 
-.site-main form input[type="submit"]:not(#chat-button):focus,
+/* .site-main form input[type="submit"]:not(#chat-button):focus, */
 .site-main form input[type="submit"]:not(#chat-button):hover,
-.site-main .room-box .room-entrance-btn:focus,
+/* .site-main .room-box .room-entrance-btn:focus, */
 .site-main .room-box .room-entrance-btn:hover {
     background-color: transparent;
     color: rgb(207, 115, 35);

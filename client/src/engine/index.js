@@ -1,5 +1,6 @@
 import { connect } from "../data/socket.js";
 import { createController } from "./board.js";
+import { showError } from "../util/notify.js";
 
 
 export function createGame(userData, secondPlayer, roomId, onUpdate) {
@@ -56,7 +57,7 @@ async function initGame(game, userData, roomId, readyState) {
         readyState.resolve();
         game.update();
     } catch (err) {
-        alert(err.message);
+        showError(err.message);
         readyState.reject(err);
     }
 }

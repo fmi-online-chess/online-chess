@@ -2,6 +2,7 @@ import { html, until } from "../lib.js";
 import spinner from "./common/spinner.js";
 import { createRoom, getLobby, getRooms, joinRoom } from "../data/rooms.js";
 import { createSubmitHandler } from "../util/handlers.js";
+import { showError, showInfo } from "../util/notify.js";
 
 
 const roomsTemplate = (roomsPromise, onCreateSubmit) => html`
@@ -44,10 +45,13 @@ export function roomsPage(ctx) {
 
     async function onCreateSubmit({ name }) {
         if (!name) {
-            return alert("Name cannot be empty");
+            return void showError("Name cannot be empty!");
         }
 
         const result = await createRoom(name);
+
+        showInfo(`Room ${name} created successfully!`);
+
         ctx.page.redirect(`/rooms/${result._id}`);
     }
 }

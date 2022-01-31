@@ -1,6 +1,7 @@
 import { logout } from "./data/user.js";
 import { page, render } from "./lib.js";
 import { addQuery, createState } from "./util/middleware.js";
+import { showInfo } from "./util/notify.js";
 import { getUserData } from "./util/userData.js";
 import { layoutTemplate } from "./views/layout.js";
 
@@ -9,6 +10,8 @@ export  function createApp(container, initialState = {}) {
     state.onLogout = async () => {
         await logout();
         delete state.user;
+
+        showInfo("Logged out successfully.")
         update();
     };
     const user = getUserData();

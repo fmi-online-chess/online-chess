@@ -1,6 +1,7 @@
 import { html } from "../lib.js";
 import { login } from "../data/user.js";
 import { createSubmitHandler } from "../util/handlers.js";
+import { showInfo } from "../util/notify.js";
 
 const loginTemplate = (submitForm) => html`
 <div class="wrapper form">
@@ -28,6 +29,8 @@ export function loginPage(ctx) {
 
     async function onSubmit({username, password}) {
         const result = await login(username, password);
+
+        showInfo("Logged in successfully!")
 
         ctx.appState.user = result;
 

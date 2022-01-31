@@ -32,6 +32,14 @@ export const layoutTemplate = (state, view) => html`
     </div>
 </header>
 <main class="site-main">
+    <div id="notifications">
+        <div id="errorBox" class="notification">
+            <span>Error</span>
+        </div>
+        <div id="infoBox" class="notification">
+            <span>Info</span>
+        </div>
+    </div>
     ${view}
 </main>
 <footer class="site-footer">
