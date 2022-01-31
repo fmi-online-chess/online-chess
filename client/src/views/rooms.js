@@ -71,7 +71,7 @@ export function lobbyPage(ctx) {
 async function loadLobby(ctx, roomId) {
     const roomData = await getLobby(roomId);
 
-    const canResume = roomData.players.find(p => p._id == ctx.appState.user._id) != undefined;
+    const canResume = roomData.players.find(p => p._id == ctx.appState.user?._id) != undefined;
     const canJoin = roomData.players.length < 2 && !canResume;
 
     return html`
