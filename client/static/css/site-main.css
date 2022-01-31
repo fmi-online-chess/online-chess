@@ -222,6 +222,11 @@
     border-width: 2px;
 }
 
+.site-main .room-actions .join ul {
+    height: 40vh;
+    overflow-y: auto;
+}
+
 .site-main .room-actions .join li {
     list-style: none outside;
     font-size: 1.2em;
