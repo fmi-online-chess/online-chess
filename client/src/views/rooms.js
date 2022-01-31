@@ -93,7 +93,7 @@ async function loadLobby(ctx, roomId) {
             </ul>
             ${canJoin ? html`<button @click=${onJoin} class="room-entrance-btn">Join Room</button>` : null}
             ${canSpectate ? html`<button @click=${onSpectate} class="room-entrance-btn">Spectate Game</button>` : null}
-            ${canResume ? html`<a href="/rooms/${roomId}/board" class="room-entrance-btn" >Resume</button>` : null}
+            ${canResume ? html`<button @click=${onResume} class="room-entrance-btn">Resume</button>` : null}
         </section>
         <section class="media"></section>
     </div>`;
@@ -109,5 +109,13 @@ async function loadLobby(ctx, roomId) {
 
     async function onSpectate() {
         showInfo("Spectator mode.");
+    }
+
+    async function onResume() {
+        if (roomData.players.length === 2) {
+            ctx.page.redirect(`/rooms/${roomId}/board`);
+        } else {
+            showError("Waiting for an opponent to join.");
+        }
     }
 }
