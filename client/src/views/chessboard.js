@@ -2,6 +2,7 @@ import { createGame } from "../engine/index.js";
 import { getLobby } from "../data/rooms.js";
 import { html } from "../lib.js";
 import { log } from "../util/logger.js";
+import { showError } from "../util/notify.js";
 
 
 const pageTemplate = (board, players, history, onSubmit) => html `
@@ -82,6 +83,16 @@ function validateGame(ctx, roomId) {
 async function createView(ctx) {
     const roomId = ctx.params.id;
     const roomData = await getLobby(roomId);
+    const isUserPartOfRoom = roomData.players.filter(p => p.username === ctx.appState.user.username)[0] !== undefined;
+
+    if (roomData.players.length < 2) {
+        showError(`Room "${roomData.name}" has less than 2 players.`);
+        return ctx.page.redirect("/");
+    } else if (!isUserPartOfRoom) {
+        showError(`You are not joined to room "${roomData.name}".`);
+        return ctx.page.redirect("/");
+    }
+
     const secondPlayer = roomData.players.filter(p => p.username !== ctx.appState.user.username)[0];
     ctx.appState.game = createGame(ctx.appState.user, secondPlayer, roomId, update);
 
