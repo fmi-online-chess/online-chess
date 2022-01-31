@@ -1,0 +1,31 @@
+.site-main #notifications {
+    position: absolute;
+    top: 0.5em;
+    right: 1em;
+    text-align: center;
+    margin: 1em;
+}
+
+.site-main .notification {
+    font-size: 1.5em;
+    color: #ffffff;
+    display: none;
+    opacity: 0;
+    text-align: right;
+    margin-bottom: 0.5em;
+    transition: opacity 0.4s;
+}
+
+.site-main .notification>span {
+    display: inline-block;
+    padding:  0.5em 2em 0.5em 2em;
+    border-radius: 10px;
+}
+
+.site-main #notifications #errorBox>span {
+    background-color: rgb(255, 8, 0);
+}
+
+.site-main #notifications #infoBox>span {
+    background-color: #393;
+}

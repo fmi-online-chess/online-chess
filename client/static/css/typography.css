@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css?family=Fira+Sans|Merriweather:400,400i,700&display=swap');
+
+html {
+    font-family: "Fira Sans";
+}
+
+.site-title,
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Merriweather";
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+}
+
+a {
+    text-decoration: none;
+    color: #000;
+}

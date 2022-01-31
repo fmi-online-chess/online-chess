@@ -1,0 +1,59 @@
+.site-footer {
+    background-color: rgb(207, 115, 35);
+    color: #FFF;
+    width: 100%;
+}
+
+.site-footer .wrapper {
+    justify-content: space-between;
+    display: flex;
+    align-items: center;
+}
+
+.site-footer section {
+    padding: 1.2em 0;
+}
+
+.site-footer header {
+    padding-left: 4.5em;
+    margin-bottom: 0.8em;
+}
+
+.site-footer .about-team {
+    flex-basis: 50%;
+}
+
+.site-footer h5 {
+    color: #FFF;
+    text-transform: uppercase;
+    font-size: 1.4em;
+}
+
+.site-footer ul {
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.site-footer li {
+    list-style: none outside;
+    flex-basis: 50%;
+    margin-top: 0.4em;
+}
+
+.site-footer li a {
+    color: #FFF;
+}
+
+.site-footer li a:hover {
+    text-decoration: underline;
+}
+
+.site-footer .rights-reserved {
+    opacity: 0.7;
+    text-align: center;
+}
+
+.site-footer .rights-reserved>p {
+    padding-bottom: 0;
+}

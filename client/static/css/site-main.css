@@ -1,0 +1,293 @@
+.entry-content {
+    background: linear-gradient(to bottom, rgba(173, 216, 230, 0.1), rgba(253, 229, 198, 0.4)), url('../chess-background.jpg');
+    background-position: center center;
+    background-size: cover;
+}
+
+.entry-content .wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.entry-content p.entry-header {
+    text-shadow: 2px 2px 7px rgba(0, 0, 0, 0.9);
+    font-size: 4.6em;
+    text-align: center;
+    color: #FFF;
+    padding: 1.2em 0.3em 0.6em 0.3em;
+    font-style: italic;
+    letter-spacing: 2px;
+}
+
+.entry-content a {
+    padding: 0.8em 1em;
+    border: 1px solid rgb(207, 115, 35);
+    border-radius: 0.4em;
+    background-color: rgb(207, 115, 35);
+    color: #FFF;
+    font-size: 1.6em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 9em;
+    margin-bottom: 3.2em;
+    transition: transform 0.2s ease-in;
+}
+
+.entry-content a i.fas {
+    font-weight: 900;
+    font-size: 1.4em;
+    margin-right: 0.4em;
+}
+
+.entry-content a:hover {
+    border: 1px solid #FFF;
+    transform: scale(1.2);
+}
+
+.site-main {
+    background-color: rgb(255, 239, 226);
+    flex: 1;
+    position: relative;
+}
+
+.site-main .wrapper header>.section-title {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    font-size: 1.8em;
+    margin-bottom: 1em;
+}
+
+.site-main .wrapper header>h1.section-title {
+    font-size: 2.6em;
+}
+
+.site-main .wrapper header>.section-title::before,
+.site-main .wrapper header>.section-title::after {
+    display: block;
+    content: '';
+    flex-grow: 1;
+    height: 2px;
+    background-color: #000;
+    opacity: 0.5;
+}
+
+.site-main .wrapper header>.section-title::before {
+    margin-right: 1em;
+}
+
+.site-main .wrapper header>.section-title::after {
+    margin-left: 1em;
+}
+
+.site-main .chess-rules {
+    padding: 2em 0;
+}
+
+.site-main .chess-rules p:not(:last-child) {
+    padding-bottom: 1.2em;
+}
+
+.site-main .form,
+.site-main .game-room {
+    min-height: 42.7em;
+    padding: 5em 0;
+}
+
+.site-main .form {
+    max-width: 30%;
+}
+
+.site-main .form-title {
+    text-align: center;
+    font-size: 2.6em;
+    letter-spacing: 3px;
+    border-bottom: 4px solid rgb(207, 115, 35);
+    margin-bottom: 0.5em;
+    padding: 0.2em 0;
+}
+
+.site-main form .icon-field {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    position: relative;
+    margin-top: 1em;
+}
+
+.site-main form .icon-field label {
+    flex-basis: 100%;
+    font-size: 1.2em;
+    opacity: 0.9;
+    order: 1;
+    position: relative;
+    letter-spacing: 1px;
+}
+
+.site-main form label.required-field::before {
+    display: inline-block;
+    content: '*';
+    color: rgba(255, 0, 0, 0.699);
+    position: absolute;
+    top: 0;
+    left: -0.6em;
+}
+
+.site-main form .icon-field i {
+    position: absolute;
+    top: 2.7em;
+    left: 1.45em;
+    transform: translateX(-50%);
+    color: rgba(0, 0, 0, 0.678);
+    padding-right: 0.5em;
+    border-right: 1px solid rgba(0, 0, 0, 0.678);
+}
+
+.site-main form p.icon-field input {
+    order: 3;
+    flex-grow: 1;
+    font-size: 1em;
+    border: 1px solid #C2B9B9;
+    border-radius: 0.3em;
+    padding: 0.7em 0 0.7em 2.6em;
+    outline: none;
+    margin-top: 0.4em;
+}
+
+.site-main form .icon-field input:focus {
+    border-color: rgb(207, 115, 35);
+}
+
+.site-main form .icon-field input:focus+i {
+    color: rgb(207, 115, 35);
+}
+
+.site-main form input[type="submit"],
+.site-main .room-box .room-entrance-btn {
+    background-color: rgb(207, 115, 35);
+    border: 3px solid rgb(207, 115, 35);
+    border-radius: 0.2em;
+    color: #FFF;
+    padding: 0.6em;
+    font-size: 1.4em;
+    cursor: pointer;
+    outline: none;
+    width: 50%;
+    margin-top: 1.4em;
+    transition: background-color 0.2s, color 0.2s ease-in;
+}
+
+.site-main form input[type="submit"]:not(#chat-button):hover,
+.site-main .room-box .room-entrance-btn:hover {
+    background-color: transparent;
+    color: rgb(207, 115, 35);
+}
+
+.site-main form .submit-input {
+    text-align: center;
+}
+
+.site-main .room-actions {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 3em;
+}
+
+.site-main .room-actions section {
+    flex-basis: 30%;
+}
+
+.site-main .room-actions section h2 {
+    text-align: center;
+    margin-bottom: 1em;
+}
+
+.site-main .room-actions form input[type="submit"],
+.site-main .room-box .room-entrance-btn {
+    width: 100%;
+    font-size: 1em;
+    margin-top: 1em;
+    border-width: 2px;
+}
+
+.site-main .room-actions .join li {
+    list-style: none outside;
+    font-size: 1.2em;
+    margin-top: 0.6em;
+}
+
+.site-main .room-actions .join i {
+    margin-right: 0.4em;
+}
+
+.site-main .room-actions .join span {
+    position: relative;
+    padding-bottom: 0.3em;
+}
+
+.site-main .room-actions .join span::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: rgb(207, 115, 35);
+    transform: scaleX(0);
+    transform-origin: bottom left;
+
+    transition: transform 0.3s;
+}
+
+.site-main .room-actions .join a:hover span::after {
+    transform: scaleX(1);
+}
+
+.site-main .room-box {
+    display: flex;
+    box-shadow: 0px 0px 15px 0px rgb(0 0 0 / 55%);
+    min-height: 25vh;
+    margin: 4em 0;
+    border-radius: 0.3em;
+}
+
+.site-main .room-box .room-data {
+    flex-basis: 50%;
+    padding: 2em;
+}
+
+.site-main .room-box .room-data h2 {
+    text-align: center;
+}
+
+.site-main .room-box .room-data ul {
+    margin: 1em 0;
+    list-style: none;
+}
+
+.site-main .room-box .room-data li {
+    font-size: 1.1em;
+    margin-bottom: 0.4em;
+    display: flex;
+    align-items: center;
+}
+
+.site-main .room-box .room-data li i {
+    margin-right: 0.4em;
+}
+
+.site-main .room-box .room-entrance-btn {
+    display: inline-block;
+    text-align: center;
+}
+
+.site-main .room-box .media {
+    flex-grow: 1;
+    background: linear-gradient(to bottom, rgba(173, 216, 230, 0.1), rgba(253, 229, 198, 0.4)), url('../lobby-box-image.jpg');
+    background-position: left top;
+    background-size: cover;
+    border-top-right-radius: 0.3em;
+    border-bottom-right-radius: 0.3em;
+}
