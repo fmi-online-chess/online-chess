@@ -1,22 +1,32 @@
-import { createGame } from "../engine/index.js";
-import { getLobby } from "../data/rooms.js";
-import { html } from "../lib.js";
-import { log } from "../util/logger.js";
-import { showError } from "../util/notify.js";
+import {
+    createGame
+} from "../engine/index.js";
+import {
+    getLobby
+} from "../data/rooms.js";
+import {
+    html
+} from "../lib.js";
+import {
+    log
+} from "../util/logger.js";
+import {
+    showError
+} from "../util/notify.js";
 
 
-const pageTemplate = (board, players, history, onSubmit) => html `
+const pageTemplate = (board, players, history, onSubmit, onReady) => html `
 <div id="board-page">
     <div id="board-id">
     ${board}
     </div>
-    ${chatTemplate(history, players, onSubmit)}
+    ${chatTemplate(history, players, onSubmit, onReady)}
 </div>`;
 
-const chatTemplate = (history, players, onSubmit) => html `
+const chatTemplate = (history, players, onSubmit, onReady) => html `
 <div id="side-menu">
     <div id="timer-wrapper">
-    ${timerTemplate(players)}
+    ${timerTemplate(players, onReady)}
     </div>
     <div id="chat-menu">
         <textarea disabled .value=${history} id="chat-area"></textarea>
@@ -28,26 +38,28 @@ const chatTemplate = (history, players, onSubmit) => html `
 </div>`;
 
 
-const timerTemplate = (players) => html `
+const timerTemplate = (players, onReady) => html `
 <div id="timer-wrap">
     <div id="clock-wrap">
-        <div id="name-box">
+        <div id="name-box" class="player-1">
             ${players[0]}
         </div>
-        <div id="clock-box">
-        15:00
+        <div id="player__digits">
+        <span id="min1">10</span>:<span id="sec1">00</span>
         </div>
+        <button class="timer__start-bttn" type="button" onclick=${onReady}>READY</button>
     </div>
     <div id="two-point">
     :
     </div>
-    <div id="clock-wrap">
+    <div id="clock-wrap" class="player-2">
         <div id="name-box">
             ${players[1]}
         </div>
-        <div id="clock-box">
-        15:00
+        <div id="player__digits">
+        <span id="min2">10</span>:<span id="sec2">00</span>
         </div>
+        <button class="timer__start-bttn" type="button" onclick=${onReady}>READY</button>
     </div>
 </div>
 `;
@@ -102,10 +114,11 @@ async function createView(ctx) {
     return render();
 
     function render() {
-        view = pageTemplate(ctx.appState.game.canvas, 
-                            ctx.appState.game.players,
-                            ctx.appState.game.chat.map(toText).join("\n"), 
-                            onMessageSubmit);
+        view = pageTemplate(ctx.appState.game.canvas,
+            ctx.appState.game.players,
+            ctx.appState.game.chat.map(toText).join("\n"),
+            onMessageSubmit,
+            onReady);
         return view;
     }
 
@@ -134,5 +147,10 @@ async function createView(ctx) {
             event.target.reset();
             update();
         }
+    }
+
+    function onReady(event) {
+        event.preventDefault();
+        document.getElementById("player__digits").classList.add("active");
     }
 }

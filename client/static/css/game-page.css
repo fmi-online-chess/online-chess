@@ -3,7 +3,7 @@
     justify-content: center;
 }
 
-#board-page > div {
+#board-page>div {
     flex-basis: 28rem;
 }
 
@@ -65,7 +65,7 @@ canvas {
 
 #chat-area {
     width: 100%;
-    height: 300px;
+    height: 250px;
     resize: none;
     border: none;
     background: rgb(241, 206, 165);
@@ -76,7 +76,14 @@ canvas {
 
 #timer-wrap {
     display: flex;
+    border: solid black;
+    border-color: black;
+    border-width: 3px 4px 3px 5px;
+    border-radius: 95% 4% 92% 5%/4% 95% 6% 95%;
+    transform: rotate(2deg);
+
 }
+
 
 #clock-wrap {
     width: 100%;
@@ -87,8 +94,8 @@ canvas {
 }
 
 #name-box {
-    padding-bottom: 20px;
-    padding-top: 30px;
+    font-size: 30px;
+    padding-top: 15px;
 }
 
 #two-point {
@@ -97,11 +104,57 @@ canvas {
     align-items: center;
 }
 
-#clock-box {
-    width: 200px;
+#player__digits {
+    border-radius: 10px;
+    width: 100px;
     height: 60px;
-    border: 1px solid black;
+    font-size: 30px;
+    background: rgba(81, 75, 75, 1);
+    color: white;
+    font-family: 'Supermercado One', cursive;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+
+.active {
+    background-color: green;
+}
+
+.timer__start-bttn {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    background-color: #fbeee0;
+    border: 2px solid #422800;
+    border-radius: 30px;
+    box-shadow: #422800 4px 4px 0 0;
+    color: #422800;
+    cursor: pointer;
+    display: inline-block;
+    font-weight: 600;
+    font-size: 18px;
+    padding: 0 18px;
+    line-height: 50px;
+    text-align: center;
+    text-decoration: none;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+.button-74:hover {
+    background-color: #fff;
+}
+
+.button-74:active {
+    box-shadow: #422800 2px 2px 0 0;
+    transform: translate(2px, 2px);
+}
+
+@media (min-width: 768px) {
+    .button-74 {
+        min-width: 120px;
+        padding: 0 25px;
+    }
 }
