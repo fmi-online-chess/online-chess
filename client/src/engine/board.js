@@ -52,17 +52,17 @@ function deserializeBoard(board, state) {
 
 export function createController(onAction, onSelect) {
     const canvas = createCanvas();
-    const gfx = initRenderer(canvas, false, onAction, onSelectProxy);
+    const gfx = initRenderer(canvas, false, onActionProxy, onSelectProxy);
     gfx.render();
     
     const board = createBoard();
 
     const game = {
         onAction(move) {
-            const fromFile = index[move[0]];
-            const fromRank = index[move[1]];
-            const toFile = index[move[2]];
-            const toRank = index[move[3]];
+            const fromFile = index[move[2]];
+            const fromRank = index[move[3]];
+            const toFile = index[move[4]];
+            const toRank = index[move[5]];
 
             const piece = board[fromRank][fromFile];
             board[fromRank][fromFile] = "";
@@ -90,6 +90,11 @@ export function createController(onAction, onSelect) {
     };
 
     return game;
+
+    function onActionProxy(action) {
+        const piece = board[index[action[1]]][index[action[0]]];
+        onAction(piece + action);
+    }
 
     function onSelectProxy(position) {
         if (board[index[position[1]]][index[position[0]]] != "") {

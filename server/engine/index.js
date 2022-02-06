@@ -65,7 +65,7 @@ function onConnect(socket) {
  */
 function initGameAndHandlers(socket, player, room) {
     if (activeGames[room._id] == undefined) {
-        activeGames[room._id] = createGame(room.state);
+        activeGames[room._id] = createGame(room.state, room.history);
     }
     const game = activeGames[room._id];
     const roomId = room._id.toString();
@@ -84,6 +84,7 @@ function initGameAndHandlers(socket, player, room) {
         if (game.move(action)) {
             const newState = game.serialize();
             room.state = newState;
+            room.history.push(action);
             await room.save();
             socket.emit("action", action);
             socket.to(roomId).emit("action", action);

@@ -58,10 +58,10 @@ function deserializeBoard(board, state) {
 }
 
 function confirmMove(action, board) {
-    const fromFile = index[action[0]];
-    const fromRank = index[action[1]];
-    const toFile = index[action[2]];
-    const toRank = index[action[3]];
+    const fromFile = index[action[2]];
+    const fromRank = index[action[3]];
+    const toFile = index[action[4]];
+    const toRank = index[action[5]];
     const move = {
         fromFile,
         fromRank,
@@ -88,8 +88,9 @@ function confirmMove(action, board) {
     }
 }
 
-export function createGame(initialState) {
+export function createGame(initialState, initialHistory) {
     const board = createBoard(initialState);
+    const history = initialHistory.slice();
 
     return {
         serialize() {
@@ -104,19 +105,20 @@ export function createGame(initialState) {
             return state.join("");
         },
         move(action) {
-            const fromFile = index[action[0]];
-            const fromRank = index[action[1]];
-            const color = board[fromRank][fromFile][0];
+            const color = action[0];
             const propagated = copyBoard(board);
             confirmMove(action, propagated);
             if (inCheck(color, propagated)) {
                 return false;
+            } else if (confirmMove(action, board)) {
+                history.push(action);
+                return true;
             } else {
-                return confirmMove(action, board);
+                return false;
             }
         },
         validMoves(position) {
-            // TODO generate list of valid moves for starting position
+            // Generate list of valid moves for starting position
             // dumb way - iterate entire board
             // less dumb way - limit moves to directions
             // 200 IQ way - use an expanding mask to only generate valid moves
@@ -124,14 +126,14 @@ export function createGame(initialState) {
             const valid = [];
             for (let file of files) {
                 for (let rank of ranks) {
-                    const targetMove = position + file + rank;
-
-                    const fromFile = index[targetMove[0]];
-                    const fromRank = index[targetMove[1]];
-                    const toFile = index[targetMove[2]];
-                    const toRank = index[targetMove[3]];
+                    
+                    const fromFile = index[position[0]];
+                    const fromRank = index[position[1]];
+                    const toFile = index[file];
+                    const toRank = index[rank];
                     const piece = board[fromRank][fromFile];
                     const color = piece[0];
+                    const targetMove = piece + position + file + rank;
                     const move = {
                         fromFile,
                         fromRank,
@@ -149,7 +151,7 @@ export function createGame(initialState) {
                             } else if (piece[1] == "K" && castlingMove(color, move, board)) {
                                 special = (toFile == 2) ? "O" : "o";
                             }
-                            valid.push(targetMove + special);
+                            valid.push(targetMove.slice(2,6) + special);
                         }
                     }
                 }
