@@ -1,26 +1,5 @@
-import { ableMove, inCheck, castlingMove } from "./moves.js";
+import { index, files, ranks, ableMove, inCheck, castlingMove } from "./moves.js";
 
-const index = {
-    "a": 0,
-    "b": 1,
-    "c": 2,
-    "d": 3,
-    "e": 4,
-    "f": 5,
-    "g": 6,
-    "h": 7,
-    "1": 0,
-    "2": 1,
-    "3": 2,
-    "4": 3,
-    "5": 4,
-    "6": 5,
-    "7": 6,
-    "8": 7,
-};
-
-const ranks = ["1", "2", "3", "4", "5", "6", "7", "8"];
-const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
 function createBoard(state) {
     const board = [
@@ -57,7 +36,7 @@ function deserializeBoard(board, state) {
     }
 }
 
-function confirmMove(action, board) {
+function confirmMove(action, board, history) {
     const fromFile = index[action[2]];
     const fromRank = index[action[3]];
     const toFile = index[action[4]];
@@ -69,10 +48,10 @@ function confirmMove(action, board) {
         toRank
     };
 
-    if (ableMove(move, board)) {
+    if (ableMove(move, board, history)) {
         const piece = board[fromRank][fromFile];
 
-        if (piece[1] == "K" && castlingMove(piece[0], move, board)) {
+        if (piece[1] == "K" && castlingMove(piece[0], move, board, history)) {
             const rookFile = (toFile == 2) ? 0 : 7;
             const rookTo = (toFile == 2) ? 3 : 5;
             board[fromRank][rookFile] = "";
@@ -107,10 +86,10 @@ export function createGame(initialState, initialHistory) {
         move(action) {
             const color = action[0];
             const propagated = copyBoard(board);
-            confirmMove(action, propagated);
-            if (inCheck(color, propagated)) {
+            confirmMove(action, propagated, history);
+            if (inCheck(color, propagated, history)) {
                 return false;
-            } else if (confirmMove(action, board)) {
+            } else if (confirmMove(action, board, history)) {
                 history.push(action);
                 return true;
             } else {
@@ -141,14 +120,14 @@ export function createGame(initialState, initialHistory) {
                         toRank
                     };
 
-                    if (ableMove(move, board)) {
+                    if (ableMove(move, board, history)) {
                         const propagated = copyBoard(board);
-                        confirmMove(targetMove, propagated);
-                        if (inCheck(color, propagated) == false) {
+                        confirmMove(targetMove, propagated, history);
+                        if (inCheck(color, propagated, history) == false) {
                             let special = "";
                             if (board[toRank][toFile] != "") {
                                 special = "x";
-                            } else if (piece[1] == "K" && castlingMove(color, move, board)) {
+                            } else if (piece[1] == "K" && castlingMove(color, move, board, history)) {
                                 special = (toFile == 2) ? "O" : "o";
                             }
                             valid.push(targetMove.slice(2,6) + special);

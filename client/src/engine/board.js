@@ -69,10 +69,10 @@ export function createController(onAction, onSelect) {
             board[toRank][toFile] = piece;
 
             // Castling move
-            if (move[4] == "O") {
+            if (move[6] == "O") {
                 board[fromRank][0] = "";
                 board[fromRank][3] = piece[0] + "R";
-            } else if (move[4] == "o") {
+            } else if (move[6] == "o") {
                 board[fromRank][7] = "";
                 board[fromRank][5] = piece[0] + "R";
             }

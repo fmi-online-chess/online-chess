@@ -1,3 +1,25 @@
+const index = {
+    "a": 0,
+    "b": 1,
+    "c": 2,
+    "d": 3,
+    "e": 4,
+    "f": 5,
+    "g": 6,
+    "h": 7,
+    "1": 0,
+    "2": 1,
+    "3": 2,
+    "4": 3,
+    "5": 4,
+    "6": 5,
+    "7": 6,
+    "8": 7,
+};
+
+const ranks = ["1", "2", "3", "4", "5", "6", "7", "8"];
+const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
+
 const impossibleMoves = {
     "B": ["BR", "BN", "BB", "BQ", "BK", "BP"],
     "W": ["WR", "WN", "WB", "WQ", "WK", "WP"]
@@ -5,7 +27,7 @@ const impossibleMoves = {
 
 
 const moveset = {
-    "P": (color, move, board, target) => {
+    "P": (color, move, board, target, history) => {
         const startingRank = (color == "B") ? 6 : 1;
         const maxDelta = (move.fromRank == startingRank) ? 2 : 1;
 
@@ -25,8 +47,8 @@ const moveset = {
 
         return true;
     },
-    "K": (color, move, board, target) => {
-        if (castlingMove(color, move, board)) {
+    "K": (color, move, board, target, history) => {
+        if (castlingMove(color, move, board, history)) {
             return true;
         }
         if (Math.abs(move.fromRank - move.toRank) > 1 || Math.abs(move.fromFile - move.toFile) > 1) {
@@ -34,7 +56,7 @@ const moveset = {
         }
         return true;
     },
-    "N": (color, move, board, target) => {
+    "N": (color, move, board, target, history) => {
         if (!(Math.abs(move.fromFile - move.toFile) != Math.abs(move.fromRank - move.toRank) && Math.abs(move.fromFile - move.toFile) <= 2 &&
             Math.abs(move.fromFile - move.toFile) > 0 && Math.abs(move.fromRank - move.toRank) <= 2 &&
             Math.abs(move.fromRank - move.toRank) > 0)) {
@@ -42,19 +64,19 @@ const moveset = {
         }
         return true;
     },
-    "R": (color, move, board, target) => {
+    "R": (color, move, board, target, history) => {
         if (!clearMoveSliding(move, board)) {
             return false;
         }
         return true;
     },
-    "B": (color, move, board, target) => {
+    "B": (color, move, board, target, history) => {
         if (!clearMoveDiagonal(move, board)) {
             return false;
         }
         return true;
     },
-    "Q": (color, move, board, target) => {
+    "Q": (color, move, board, target, history) => {
         if (!(
             clearMoveDiagonal(move, board) ||
             clearMoveSliding(move, board)
@@ -66,11 +88,11 @@ const moveset = {
 };
 
 
-function isAttacked(color, board, toFile, toRank) {
+function isAttacked(color, board, toFile, toRank, history) {
     for (let rank = 0; rank <= 7; rank++) {
         for (let file = 0; file <= 7; file++) {
             const piece = board[rank][file];
-            if (piece[0] && piece[0] != color && ableMove({ fromRank: rank, fromFile: file, toRank, toFile }, board)) {
+            if (piece[0] && piece[0] != color && ableMove({ fromRank: rank, fromFile: file, toRank, toFile }, board, history)) {
                 return true;
             }
         }
@@ -78,9 +100,9 @@ function isAttacked(color, board, toFile, toRank) {
     return false;
 }
 
-function inCheck(color, board) {
+function inCheck(color, board, history) {
     const target = findKing(color, board);
-    return isAttacked(color, board, target.file, target.rank);
+    return isAttacked(color, board, target.file, target.rank, history);
 }
 
 function findKing(color, board) {
@@ -93,7 +115,11 @@ function findKing(color, board) {
     }
 }
 
-function castlingMove(color, { fromRank, fromFile, toRank, toFile }, board) {
+function castlingMove(color, { fromRank, fromFile, toRank, toFile }, board, history) {
+    if (history.find(m => m[0] == color && m[1] == "K") != undefined) {
+        return false; // King has moved
+    }
+
     const rank = (color == "B") ? 7 : 0;
     let path = [];
     if (toFile == 2) {
@@ -103,9 +129,15 @@ function castlingMove(color, { fromRank, fromFile, toRank, toFile }, board) {
     } else {
         return false;
     }
+
+    if (history.find(m => m[0] == color && m[1] == "R" && m[2] == files[path[0]]) != undefined) {
+        return false; // Rook has moved
+    }
+
+
     if (fromRank == rank && fromFile == 4 && toRank == rank && board[rank][path[0]] == (color + "R") &&
         !path.slice(1, -1).some(file => board[rank][file] != "") &&
-        !path.some(file => isAttacked(color, board, file, rank))) {
+        !path.some(file => isAttacked(color, board, file, rank, history))) {
         return true;
     }
     return false;
@@ -165,7 +197,7 @@ function clearMoveDiagonal({ fromRank, fromFile, toRank, toFile }, board) {
 }
 
 
-function ableMove(move, board) {
+function ableMove(move, board, history) {
     const piece = board[move.fromRank][move.fromFile];
     const color = piece[0];
     const target = board[move.toRank][move.toFile];
@@ -174,7 +206,7 @@ function ableMove(move, board) {
         return false;
     }
 
-    return moveset[piece[1]](color, move, board, target);
+    return moveset[piece[1]](color, move, board, target, history);
 }
 
 function possibleMove(color, target) {
@@ -194,6 +226,9 @@ function isSliding({ fromRank, fromFile, toRank, toFile }) {
 }
 
 export {
+    index,
+    ranks,
+    files,
     ableMove,
     inCheck,
     castlingMove
