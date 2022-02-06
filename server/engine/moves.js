@@ -199,8 +199,16 @@ function clearMoveDiagonal({ fromRank, fromFile, toRank, toFile }, board) {
 
 
 function ableMove(move, board, history) {
+    const lastMove = history[history.length - 1] || "";
     const piece = board[move.fromRank][move.fromFile];
     const color = piece[0];
+
+    if (color != "W" && lastMove == "") {
+        return false;
+    } else if (color == lastMove[0]) {
+        return false;
+    }
+
     const target = board[move.toRank][move.toFile];
 
     if (piece === "" || possibleMove(piece[0], target) == false) {

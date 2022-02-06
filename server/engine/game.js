@@ -24,11 +24,12 @@ function copyBoard(board) {
 
 
 function deserializeBoard(board, state) {
+    const positions = state.slice(2);
     for (let rank of board) {
         rank.fill("");
     }
-    for (let c = 0; c < state.length; c += 4) {
-        const token = state.slice(c, c + 4);
+    for (let c = 0; c < positions.length; c += 4) {
+        const token = positions.slice(c, c + 4);
         const file = index[token[0]];
         const rank = index[token[1]];
         const piece = token.slice(2);
@@ -84,7 +85,9 @@ export function createGame(initialState, initialHistory) {
                     }
                 }
             }
-            return state.join("");
+            const lastMove = history[history.length - 1];
+            const toMove = (lastMove == undefined || lastMove[0] == "B") ? "W" : "B";
+            return  toMove + ":" + state.join("");
         },
         move(action) {
             const color = action[0];

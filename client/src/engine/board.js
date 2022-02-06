@@ -38,11 +38,12 @@ function createBoard() {
 }
 
 function deserializeBoard(board, state) {
+    const positions = state.slice(2);
     for (let rank of board) {
         rank.fill("");
     }
-    for (let c = 0; c < state.length; c += 4) {
-        const token = state.slice(c, c + 4);
+    for (let c = 0; c < positions.length; c += 4) {
+        const token = positions.slice(c, c + 4);
         const file = index[token[0]];
         const rank = index[token[1]];
         const piece = token.slice(2);
@@ -50,9 +51,9 @@ function deserializeBoard(board, state) {
     }
 }
 
-export function createController(onAction, onSelect) {
+export function createController(onAction, onSelect, color) {
     const canvas = createCanvas();
-    const gfx = initRenderer(canvas, false, onActionProxy, onSelectProxy);
+    const gfx = initRenderer(canvas, color == "B", onActionProxy, onSelectProxy);
     gfx.render();
 
     const board = createBoard();
@@ -79,14 +80,17 @@ export function createController(onAction, onSelect) {
                 board[piece[0] == "B" ? 3 : 4][toFile] = "";
             }
 
-            gfx.setState(board);
+            const toMove = piece[0] == "B" ? "W" : "B";
+
+            gfx.setState(board, toMove);
         },
         onMoves(moves) {
             gfx.showMoves(moves);
         },
         setState(state) {
             deserializeBoard(board, state);
-            gfx.setState(board);
+            const toMove = state[0];
+            gfx.setState(board, toMove);
         },
         canvas: gfx.canvas
     };
@@ -95,11 +99,16 @@ export function createController(onAction, onSelect) {
 
     function onActionProxy(action) {
         const piece = board[index[action[1]]][index[action[0]]];
-        onAction(piece + action);
+        if (piece[0] != color) {
+            return;
+        } else {
+            onAction(piece + action);
+        }
     }
 
     function onSelectProxy(position) {
-        if (board[index[position[1]]][index[position[0]]] != "") {
+        const piece = board[index[position[1]]][index[position[0]]];
+        if (piece != "" && piece[0] == color) {
             onSelect(position);
             return true;
         } else {

@@ -34,6 +34,9 @@ export function initRenderer(canvas, reversed, onAction, onSelect) {
     const ctx = canvas.getContext("2d");
 
     canvas.addEventListener("click", (event) => {
+        if ((toMove == "W" && reversed) || (toMove =="B" && !reversed)) {
+            return;
+        }
         const rect = canvas.getBoundingClientRect();
         const x = Math.floor((event.clientX - rect.left - gridSize / 2) / gridSize);
         const y = Math.floor((event.clientY - rect.top - gridSize / 2) / gridSize);
@@ -78,11 +81,12 @@ export function initRenderer(canvas, reversed, onAction, onSelect) {
     let lastMoves = [];
     let oldSerializedState = null;
     let state = [];
+    let toMove = "W";
 
 
     return {
         canvas,
-        setState(serializedState) {
+        setState(serializedState, nextToMove) {
             // Ensure the state is not empty during the diff-check
             oldSerializedState = oldSerializedState || JSON.parse(JSON.stringify(serializedState));
 
@@ -91,6 +95,7 @@ export function initRenderer(canvas, reversed, onAction, onSelect) {
             // There is unexpected behaviour when assigning a reference from the function parameter to a variable in the scope
             // It appears the parsing engine maintains the same address in memory and will place the paramter data inside the local variable
             oldSerializedState = JSON.parse(JSON.stringify(serializedState));
+            toMove = nextToMove;
             render();
         },
         showMoves(moves) {

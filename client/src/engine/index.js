@@ -26,7 +26,7 @@ export function createGame(userData, secondPlayer, roomId, onUpdate) {
 async function initGame(game, userData, roomId, readyState) {
     try {
         const connection = await connect(roomId, userData);
-        const board = createController(connection.action, connection.select);
+        const board = createController(connection.action, connection.select, connection.color);
 
         connection.onAction = (data) => {
             board.onAction(data);

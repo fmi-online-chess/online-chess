@@ -50,7 +50,8 @@ function onConnect(socket) {
         const player = room.players.find(p => p._id == userData._id);
         if (player) {
             const state = initGameAndHandlers(socket, player, room);
-            socket.emit("auth", true);
+            const playerColor = room.players[room.white].id == userData._id ? "W" : "B";
+            socket.emit("auth", playerColor);
             socket.emit("history", room.chatHistory);
             socket.emit("state", state);
         } else {

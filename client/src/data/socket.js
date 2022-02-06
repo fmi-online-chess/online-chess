@@ -36,9 +36,10 @@ export async function connect(roomId, userData) {
 
         const socket = io("http://localhost:5000");
 
-        socket.on("auth", (success) => {
-            if (success) {
-                log("Authorized with server");
+        socket.on("auth", (color) => {
+            if (color) {
+                log("Authorized with server", color);
+                connection.color = color;
                 authorized = true;
                 resolve(connection);
             } else {
