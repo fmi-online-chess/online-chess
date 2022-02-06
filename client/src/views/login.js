@@ -26,16 +26,18 @@ const loginTemplate = (submitForm) => html`
 
 
 export function loginPage(ctx) {
-    if (ctx.appState.user) {
+    if (ctx.query.error == "token") {
+        delete ctx.appState.user;
+    } else if (ctx.appState.user) {
         ctx.page.redirect("/");
     }
 
     return loginTemplate(createSubmitHandler(onSubmit));
 
-    async function onSubmit({username, password}) {
+    async function onSubmit({ username, password }) {
         const result = await login(username, password);
 
-        showInfo("Logged in successfully!")
+        showInfo("Logged in successfully!");
 
         ctx.appState.user = result;
 

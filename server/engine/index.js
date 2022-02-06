@@ -44,7 +44,7 @@ function onConnect(socket) {
             userData = socket.request.auth.parseToken(token);
         } catch (err) {
             socket.emit("auth", false);
-            socket.disconnect();
+            return socket.disconnect();
         }
         const room = await getRoomDetails(roomId);
         const player = room.players.find(p => p._id == userData._id);
@@ -55,7 +55,7 @@ function onConnect(socket) {
             socket.emit("state", state);
         } else {
             socket.emit("auth", false);
-            socket.disconnect();
+            return socket.disconnect();
         }
     });
 }

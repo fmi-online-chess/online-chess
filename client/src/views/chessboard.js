@@ -106,7 +106,12 @@ async function createView(ctx) {
     }
 
     const secondPlayer = roomData.players.filter(p => p.username !== ctx.appState.user.username)[0];
+    // eslint-disable-next-line require-atomic-updates
     ctx.appState.game = createGame(ctx.appState.user, secondPlayer, roomId, update);
+    ctx.appState.game.contentReady.catch(() => {
+        delete ctx.appState.game;
+        ctx.page.redirect("/rooms");
+    });
 
     // Redraw chat on every update - new messages are displayed via update
     // Cache game screen indefinetly - its contents are controlled via Canvas

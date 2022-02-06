@@ -13,7 +13,7 @@ export async function request(url, options) {
             const err = await response.json();
             if (err.code == INVALID_TOKEN) {
                 clearUserData();
-                page.redirect("/login");
+                page.redirect("/login?error=token");
             }
             throw err;
         }

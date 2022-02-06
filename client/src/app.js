@@ -11,7 +11,7 @@ export  function createApp(container, initialState = {}) {
         await logout();
         delete state.user;
 
-        showInfo("Logged out successfully.")
+        showInfo("Logged out successfully.");
         update();
     };
     const user = getUserData();

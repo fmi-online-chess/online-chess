@@ -57,7 +57,8 @@ async function initGame(game, userData, roomId, readyState) {
         readyState.resolve();
         game.update();
     } catch (err) {
-        showError(err.message);
+        const message = typeof err == "string" ? err : err.message;
+        showError(message);
         readyState.reject(err);
     }
 }
