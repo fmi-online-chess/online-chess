@@ -1,4 +1,4 @@
-import { index, files, ranks, ableMove, inCheck, castlingMove } from "./moves.js";
+import { index, files, ranks, ableMove, inCheck, castlingMove, isEnPassant } from "./moves.js";
 
 
 function createBoard(state) {
@@ -56,6 +56,9 @@ function confirmMove(action, board, history) {
             const rookTo = (toFile == 2) ? 3 : 5;
             board[fromRank][rookFile] = "";
             board[fromRank][rookTo] = piece[0] + "R";
+        } else if (piece[1] == "P" && isEnPassant(move, history[history.length - 1])) {
+            const lastMove = history[history.length - 1];
+            board[index[lastMove[5]]][index[lastMove[4]]] = "";
         }
 
         board[fromRank][fromFile] = "";
@@ -105,7 +108,7 @@ export function createGame(initialState, initialHistory) {
             const valid = [];
             for (let file of files) {
                 for (let rank of ranks) {
-                    
+
                     const fromFile = index[position[0]];
                     const fromRank = index[position[1]];
                     const toFile = index[file];
@@ -127,10 +130,12 @@ export function createGame(initialState, initialHistory) {
                             let special = "";
                             if (board[toRank][toFile] != "") {
                                 special = "x";
+                            } else if (isEnPassant(move, history[history.length - 1])) {
+                                special = "s";
                             } else if (piece[1] == "K" && castlingMove(color, move, board, history)) {
                                 special = (toFile == 2) ? "O" : "o";
                             }
-                            valid.push(targetMove.slice(2,6) + special);
+                            valid.push(targetMove.slice(2, 6) + special);
                         }
                     }
                 }

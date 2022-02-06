@@ -30,13 +30,14 @@ const moveset = {
     "P": (color, move, board, target, history) => {
         const startingRank = (color == "B") ? 6 : 1;
         const maxDelta = (move.fromRank == startingRank) ? 2 : 1;
+        const lastMove = history[history.length - 1];
 
         if (!isForward(color, move)) {
             return false;
         } else if (
             isDiagonal(move) &&
             Math.abs(move.fromRank - move.toRank) == 1 &&
-            target != ""
+            (target != "" || isEnPassant(move, lastMove))
         ) {
             return true; // Capture move
         } else if (move.fromFile != move.toFile || target != "") {
@@ -225,11 +226,33 @@ function isSliding({ fromRank, fromFile, toRank, toFile }) {
     return (fromRank == toRank) || (fromFile == toFile);
 }
 
+function isEnPassant(move, lastMove) {
+    if (!lastMove) {
+        return false;
+    }
+
+    const lastFile = index[lastMove[2]];
+    const lastFromRank = index[lastMove[3]];
+    const lastToRank = index[lastMove[5]];
+    const vulnerableEnemy = lastMove[1] == "P" && Math.abs(lastFromRank - lastToRank) == 2;
+
+    if (!vulnerableEnemy) {
+        return false;
+    } else if (lastFile != move.toFile) {
+        return false;
+    } else if (move.toRank != ((lastFromRank + lastToRank) / 2)) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
 export {
     index,
     ranks,
     files,
     ableMove,
     inCheck,
-    castlingMove
+    castlingMove,
+    isEnPassant
 };

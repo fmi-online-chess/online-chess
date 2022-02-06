@@ -67,6 +67,7 @@ function initGameAndHandlers(socket, player, room) {
     if (activeGames[room._id] == undefined) {
         activeGames[room._id] = createGame(room.state, room.history);
     }
+
     const game = activeGames[room._id];
     const roomId = room._id.toString();
     socket.join(roomId);

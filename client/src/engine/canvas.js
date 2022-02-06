@@ -97,7 +97,7 @@ export function initRenderer(canvas, reversed, onAction, onSelect) {
             validMoves = moves;
             for (let move of moves) {
                 let tint = drawSemi;
-                if (move[4] == "x") {
+                if (move[4] == "x" || move[4] == "s") {
                     tint = drawAttack;
                 } else if (move[4] == "o") {
                     tint = drawCastle;
@@ -218,6 +218,9 @@ export function initRenderer(canvas, reversed, onAction, onSelect) {
     }
 
     function drawTint(selected, color) {
+        if (files.indexOf(selected[0]) == -1 || ranks.indexOf(selected[1]) == -1) {
+            return;
+        }
         ctx.save();
         ctx.fillStyle = color;
 

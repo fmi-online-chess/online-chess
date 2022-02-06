@@ -54,7 +54,7 @@ export function createController(onAction, onSelect) {
     const canvas = createCanvas();
     const gfx = initRenderer(canvas, false, onActionProxy, onSelectProxy);
     gfx.render();
-    
+
     const board = createBoard();
 
     const game = {
@@ -68,13 +68,15 @@ export function createController(onAction, onSelect) {
             board[fromRank][fromFile] = "";
             board[toRank][toFile] = piece;
 
-            // Castling move
-            if (move[6] == "O") {
+            // Special moves
+            if (move[6] == "O") {           // Long castle
                 board[fromRank][0] = "";
                 board[fromRank][3] = piece[0] + "R";
-            } else if (move[6] == "o") {
+            } else if (move[6] == "o") {    // Short castle
                 board[fromRank][7] = "";
                 board[fromRank][5] = piece[0] + "R";
+            } else if (move[6] == "s") {    // En passant
+                board[piece[0] == "B" ? 3 : 4][toFile] = "";
             }
 
             gfx.setState(board);
