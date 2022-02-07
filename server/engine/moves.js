@@ -138,7 +138,7 @@ function castlingMove(color, { fromRank, fromFile, toRank, toFile }, board, hist
 
     if (fromRank == rank && fromFile == 4 && toRank == rank && board[rank][path[0]] == (color + "R") &&
         !path.slice(1, -1).some(file => board[rank][file] != "") &&
-        !path.some(file => isAttacked(color, board, file, rank, history))) {
+        !path.some(file => isAttacked(color, board, file, rank, []))) {
         return true;
     }
     return false;

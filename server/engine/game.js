@@ -97,7 +97,7 @@ export function createGame(room) {
             const color = action[0];
             const propagated = copyBoard(board);
             confirmMove(action, propagated, history);
-            if (inCheck(color, propagated, history)) {
+            if (inCheck(color, propagated, [...history, action])) {
                 return false;
             } else if (confirmMove(action, board, history)) {
                 history.push(action);
@@ -133,7 +133,7 @@ export function createGame(room) {
                     if (ableMove(move, board, history)) {
                         const propagated = copyBoard(board);
                         confirmMove(targetMove, propagated, history);
-                        if (inCheck(color, propagated, history) == false) {
+                        if (inCheck(color, propagated, [...history, targetMove]) == false) {
                             let special = "";
                             if (board[toRank][toFile] != "") {
                                 special = "x";
