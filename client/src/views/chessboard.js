@@ -22,7 +22,18 @@ const pageTemplate = (board, players, history, onSubmit, time, onReady) => html`
         ${board}
     </div>
     ${chatTemplate(history, players, onSubmit, time, onReady)}
-</div>`;
+</div>
+<section class="modal">
+    <section class="dialog-container">
+        <section id="dialog">
+            <h1 class="title"></h1>
+            <p class="info"></p>
+            <div class="buttons">
+                <a href="/rooms">Play again</a>
+            </div>
+        </section>
+    </section>
+</section>`;
 
 const chatTemplate = (history, players, onSubmit, time, onReady) => html`
 <div id="side-menu">
@@ -35,7 +46,6 @@ const chatTemplate = (history, players, onSubmit, time, onReady) => html`
         </form>
     </div>
 </div>`;
-
 
 
 let view = null;
