@@ -3,7 +3,7 @@ import { createController } from "./board.js";
 import { showError } from "../util/notify.js";
 
 
-export function createGame(userData, secondPlayer, roomId, onUpdate) {
+export function createGame(userData, secondPlayer, roomId, onUpdate, updateTimer) {
     const readyState = {};
 
     const game = {
@@ -16,7 +16,8 @@ export function createGame(userData, secondPlayer, roomId, onUpdate) {
         }),
         chat: [],
         update: onUpdate,
-        canvas: null
+        canvas: null,
+        updateTimer
     };
 
     initGame(game, userData, roomId, readyState);
@@ -26,7 +27,7 @@ export function createGame(userData, secondPlayer, roomId, onUpdate) {
 async function initGame(game, userData, roomId, readyState) {
     try {
         const connection = await connect(roomId, userData);
-        const board = createController(connection.action, connection.select, connection.color);
+        const board = createController(connection.action, connection.select, connection.color, game.updateTimer);
 
         connection.onAction = (data) => {
             board.onAction(data);

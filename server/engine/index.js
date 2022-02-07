@@ -66,7 +66,8 @@ function onConnect(socket) {
  */
 function initGameAndHandlers(socket, player, room) {
     if (activeGames[room._id] == undefined) {
-        activeGames[room._id] = createGame(room.state, room.history);
+        console.log("setting up room in memory");
+        activeGames[room._id] = createGame(room);
     }
 
     const game = activeGames[room._id];
@@ -87,9 +88,26 @@ function initGameAndHandlers(socket, player, room) {
             const newState = game.serialize();
             room.state = newState;
             room.history.push(action);
+
+            if (game.started == null) {
+                console.log("starting timers");
+
+                game.started = Date.now();
+                game.remainingWhite = 900000;
+                game.remainingBlack = 900000;
+                game.lastMoved = Date.now();
+
+                room.started = game.started;
+                room.remainingWhite = game.remainingWhite;
+                room.remainingBlack = game.remainingBlack;
+                room.lastMoved = game.lastMoved;
+            }
+            const timerAsString = applyTimer(room, game, action[0]);
+
             await room.save();
-            socket.emit("action", action);
-            socket.to(roomId).emit("action", action);
+
+            socket.emit("action", timerAsString + action);
+            socket.to(roomId).emit("action", timerAsString + action);
         }
     });
 
@@ -98,5 +116,32 @@ function initGameAndHandlers(socket, player, room) {
         socket.emit("moves", game.validMoves(position));
     });
 
-    return game.serialize();
+    const currentState = game.serialize();
+    const timerAsString = applyTimer(room, game, currentState[0]);
+
+    return timerAsString + currentState;
+}
+
+function applyTimer(room, game, action) {
+    const now = Date.now();
+    let result = "";
+
+    if (game.started != null) {
+        const delta = now - game.lastMoved;
+        if (action[0] == "B") {
+            game.remainingBlack -= delta;
+        } else {
+            game.remainingWhite -= delta;
+        }
+        result = `${Math.round(game.remainingWhite / 1000)}:${Math.round(game.remainingBlack / 1000)}:`;
+    }
+    // console.log(`White: ${game.remainingWhite}\nBlack: ${game.remainingBlack}`);
+
+    game.lastMoved = now;
+
+    room.remainingWhite = game.remainingWhite;
+    room.remainingBlack = game.remainingBlack;
+    room.lastMoved = game.lastMoved;
+
+    return result;
 }

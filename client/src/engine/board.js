@@ -51,7 +51,7 @@ function deserializeBoard(board, state) {
     }
 }
 
-export function createController(onAction, onSelect, color) {
+export function createController(onAction, onSelect, color, updateTimers) {
     const canvas = createCanvas();
     const gfx = initRenderer(canvas, color == "B", onActionProxy, onSelectProxy);
     gfx.render();
@@ -59,7 +59,9 @@ export function createController(onAction, onSelect, color) {
     const board = createBoard();
 
     const game = {
-        onAction(move) {
+        onAction(moveData) {
+            const tokens = moveData.split(":");
+            const move = tokens.slice(-1)[0];
             const fromFile = index[move[2]];
             const fromRank = index[move[3]];
             const toFile = index[move[4]];
@@ -83,14 +85,24 @@ export function createController(onAction, onSelect, color) {
             const toMove = piece[0] == "B" ? "W" : "B";
 
             gfx.setState(board, toMove);
+            if (tokens.length > 1) {
+                // Received color indicates who moved last
+                updateTimers([Number(tokens[0]), Number(tokens[1]), tokens[2][0] == "W" ? "black" : "white", color == "B"]);
+            }
         },
         onMoves(moves) {
             gfx.showMoves(moves);
         },
         setState(state) {
-            deserializeBoard(board, state);
-            const toMove = state[0];
+            const tokens = state.split(":");
+            const boardState = tokens.slice(-2).join(":");
+            deserializeBoard(board, boardState);
+            const toMove = boardState[0];
             gfx.setState(board, toMove);
+            if (tokens.length > 2) {
+                // Received color indicates who is to move
+                updateTimers([Number(tokens[0]), Number(tokens[1]), tokens[2] == "B" ? "black" : "white", color == "B"]);
+            }
         },
         canvas: gfx.canvas
     };

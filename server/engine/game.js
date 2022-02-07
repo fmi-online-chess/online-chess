@@ -71,11 +71,15 @@ function confirmMove(action, board, history) {
     }
 }
 
-export function createGame(initialState, initialHistory) {
-    const board = createBoard(initialState);
-    const history = initialHistory.slice();
+export function createGame(room) {
+    const board = createBoard(room.state);
+    const history = room.history.slice();
 
     return {
+        started: room.started,
+        remainingWhite: room.remainingWhite,
+        remainingBlack: room.remainingBlack,
+        lastMoved: room.lastMoved,
         serialize() {
             const state = [];
             for (let rank = 0; rank < 8; rank++) {

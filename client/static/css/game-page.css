@@ -85,7 +85,7 @@ canvas {
 }
 
 
-#clock-wrap {
+.clock-wrap {
     width: 100%;
     height: 200px;
     display: flex;
@@ -93,7 +93,7 @@ canvas {
     align-items: center;
 }
 
-#name-box {
+.name-box {
     font-size: 30px;
     padding-top: 15px;
 }
@@ -104,7 +104,7 @@ canvas {
     align-items: center;
 }
 
-#player__digits {
+.player__digits {
     border-radius: 10px;
     width: 100px;
     height: 60px;

@@ -13,21 +13,20 @@ import {
 import {
     showError
 } from "../util/notify.js";
+import { createTimer } from "./common/timer.js";
 
 
-const pageTemplate = (board, players, history, onSubmit, onReady) => html `
+const pageTemplate = (board, players, history, onSubmit, time, onReady) => html`
 <div id="board-page">
     <div id="board-id">
-    ${board}
+        ${board}
     </div>
-    ${chatTemplate(history, players, onSubmit, onReady)}
+    ${chatTemplate(history, players, onSubmit, time, onReady)}
 </div>`;
 
-const chatTemplate = (history, players, onSubmit, onReady) => html `
+const chatTemplate = (history, players, onSubmit, time, onReady) => html`
 <div id="side-menu">
-    <div id="timer-wrapper">
-    ${timerTemplate(players, onReady)}
-    </div>
+    ${createTimer(players, time, onReady)}
     <div id="chat-menu">
         <textarea disabled .value=${history} id="chat-area"></textarea>
         <form @submit=${onSubmit} id="chat-form">
@@ -37,32 +36,6 @@ const chatTemplate = (history, players, onSubmit, onReady) => html `
     </div>
 </div>`;
 
-
-const timerTemplate = (players, onReady) => html `
-<div id="timer-wrap">
-    <div id="clock-wrap">
-        <div id="name-box" class="player-1">
-            ${players[0]}
-        </div>
-        <div id="player__digits">
-        <span id="min1">10</span>:<span id="sec1">00</span>
-        </div>
-        <button class="timer__start-bttn" type="button" onclick=${onReady}>READY</button>
-    </div>
-    <div id="two-point">
-    :
-    </div>
-    <div id="clock-wrap" class="player-2">
-        <div id="name-box">
-            ${players[1]}
-        </div>
-        <div id="player__digits">
-        <span id="min2">10</span>:<span id="sec2">00</span>
-        </div>
-        <button class="timer__start-bttn" type="button" onclick=${onReady}>READY</button>
-    </div>
-</div>
-`;
 
 
 let view = null;
@@ -80,7 +53,7 @@ export function chessboard(ctx) {
 function validateGame(ctx, roomId) {
     if ((view == null) || !ctx.appState.game) {
         log("- no view or game not initialized");
-        view = createView(ctx);
+        createView(ctx);
     } else if (ctx.appState.game.roomId != roomId) {
         log("- game ID mismatch");
         const oldGame = ctx.appState.game;
@@ -88,7 +61,7 @@ function validateGame(ctx, roomId) {
         oldGame.contentReady.then(() => {
             oldGame.disconnect();
         });
-        view = createView(ctx);
+        createView(ctx);
     }
 }
 
@@ -99,15 +72,15 @@ async function createView(ctx) {
 
     if (roomData.players.length < 2) {
         showError(`Room "${roomData.name}" has less than 2 players.`);
-        return ctx.page.redirect("/");
+        return ctx.page.redirect("/rooms");
     } else if (!isUserPartOfRoom) {
         showError(`You are not joined to room "${roomData.name}".`);
-        return ctx.page.redirect("/");
+        return ctx.page.redirect("/rooms");
     }
 
     const secondPlayer = roomData.players.filter(p => p.username !== ctx.appState.user.username)[0];
     // eslint-disable-next-line require-atomic-updates
-    ctx.appState.game = createGame(ctx.appState.user, secondPlayer, roomId, update);
+    ctx.appState.game = createGame(ctx.appState.user, secondPlayer, roomId, update, updateTimer);
     ctx.appState.game.contentReady.catch(() => {
         delete ctx.appState.game;
         ctx.page.redirect("/rooms");
@@ -116,13 +89,29 @@ async function createView(ctx) {
     // Redraw chat on every update - new messages are displayed via update
     // Cache game screen indefinetly - its contents are controlled via Canvas
 
+    const time = {
+        white: 900,
+        black: 900,
+        current: null,
+        localBlack: false
+    };
+
     return render();
+
+    function updateTimer([white, black, current, localBlack]) {
+        time.white = white;
+        time.black = black;
+        time.current = current;
+        time.localBlack = localBlack;
+        update();
+    }
 
     function render() {
         view = pageTemplate(ctx.appState.game.canvas,
             ctx.appState.game.players,
             ctx.appState.game.chat.map(toText).join("\n"),
             onMessageSubmit,
+            time,
             onReady);
         return view;
     }
