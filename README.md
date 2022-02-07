@@ -89,12 +89,12 @@ The server can send the following packet types:
 
 The client acts as a **thin terminal** where all game logic is performed on the server and the client only displays the current state and transmits player actions.
 
-Actions are sent as a string in a format similar to standard FIDE long algebraic notation, containing the starting file and rank and ending file and rank (piece type is omitted). ***Examples:*** `a2a4` - moving from **a2** to **a4**; `c1f4` - moving from **c1** to **f4**.
+Actions are sent as a string in a format similar to standard FIDE long algebraic notation, containing the color and piece, starting file and rank and ending file and rank. ***Examples:*** `WPa2a4` - **W**hite **P**awn moving from **a2** to **a4**; `WBc1f4` - **W**hite **B**ishop moving from **c1** to **f4**.
 
 #### Data Persistance
 
 The game data structure contains information about the players, their assigned color, the chat history, the current state of the board and a history of the moves. The last part is required to validate moves that require a particular state to be performed (castling, en-passant).
 
-The board state is **serialized** as a single string, containing 4-character-long codes of the piece color, type, file and rank. ***Examples:*** `WKe1` - **W**hite **K**ing on **e1**; `BPe7` - **B**lack **P**awn on **e7**. Empty tiles are omitted. This is also the format in which the initial game state is transmitted to the clients when they first connect.
+The board state is **serialized** as a single string, containing 4-character-long codes of the piece color, type, file and rank. ***Examples:*** `e1WK` - **W**hite **K**ing on **e1**; `e7BP` - **B**lack **P**awn on **e7**. Empty tiles are omitted. This is also the format in which the initial game state is transmitted to the clients when they first connect.
 
 To **deserialize** the board, the string containing the state is iterated with a step size of 4 and each piece is placed in the board data structure.
