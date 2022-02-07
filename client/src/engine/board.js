@@ -60,6 +60,11 @@ export function createController(onAction, onSelect, color, updateTimers) {
 
     const game = {
         onAction(moveData) {
+            if (moveData.includes("-")) {
+                updateTimers([0, 0, null, color == "B"]);
+                return gfx.setState(board, null);
+            }
+
             const tokens = moveData.split(":");
             const move = tokens.slice(-1)[0];
             const fromFile = index[move[2]];

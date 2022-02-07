@@ -71,6 +71,63 @@ function confirmMove(action, board, history) {
     }
 }
 
+function findValidMoves(board, position, history) {
+    // Generate list of valid moves for starting position
+    // dumb way - iterate entire board
+    // less dumb way - limit moves to directions
+    // 200 IQ way - use an expanding mask to only generate valid moves
+
+    const valid = [];
+    for (let file of files) {
+        for (let rank of ranks) {
+
+            const fromFile = index[position[0]];
+            const fromRank = index[position[1]];
+            const toFile = index[file];
+            const toRank = index[rank];
+            const piece = board[fromRank][fromFile];
+            const color = piece[0];
+            const targetMove = piece + position + file + rank;
+            const move = {
+                fromFile,
+                fromRank,
+                toFile,
+                toRank
+            };
+
+            if (ableMove(move, board, history)) {
+                const propagated = copyBoard(board);
+                confirmMove(targetMove, propagated, history);
+                if (inCheck(color, propagated, [...history, targetMove]) == false) {
+                    let special = "";
+                    if (board[toRank][toFile] != "") {
+                        special = "x";
+                    } else if (isEnPassant(move, history[history.length - 1])) {
+                        special = "s";
+                    } else if (piece[1] == "K" && castlingMove(color, move, board, history)) {
+                        special = (toFile == 2) ? "O" : "o";
+                    }
+                    valid.push(targetMove.slice(2, 6) + special);
+                }
+            }
+        }
+    }
+    return valid;
+}
+
+function countMoves(board, color, history) {
+    let moves = 0;
+    for (let file of files) {
+        for (let rank of ranks) {
+            const piece = board[index[rank]][index[file]];
+            if (piece && piece[0] == color) {
+                moves += findValidMoves(board, file + rank, history).length;
+            }
+        }
+    }
+    return moves;
+}
+
 export function createGame(room) {
     const board = createBoard(room.state);
     const history = room.history.slice();
@@ -91,7 +148,7 @@ export function createGame(room) {
             }
             const lastMove = history[history.length - 1];
             const toMove = (lastMove == undefined || lastMove[0] == "B") ? "W" : "B";
-            return  toMove + ":" + state.join("");
+            return toMove + ":" + state.join("");
         },
         move(action) {
             const color = action[0];
@@ -107,47 +164,19 @@ export function createGame(room) {
             }
         },
         validMoves(position) {
-            // Generate list of valid moves for starting position
-            // dumb way - iterate entire board
-            // less dumb way - limit moves to directions
-            // 200 IQ way - use an expanding mask to only generate valid moves
-
-            const valid = [];
-            for (let file of files) {
-                for (let rank of ranks) {
-
-                    const fromFile = index[position[0]];
-                    const fromRank = index[position[1]];
-                    const toFile = index[file];
-                    const toRank = index[rank];
-                    const piece = board[fromRank][fromFile];
-                    const color = piece[0];
-                    const targetMove = piece + position + file + rank;
-                    const move = {
-                        fromFile,
-                        fromRank,
-                        toFile,
-                        toRank
-                    };
-
-                    if (ableMove(move, board, history)) {
-                        const propagated = copyBoard(board);
-                        confirmMove(targetMove, propagated, history);
-                        if (inCheck(color, propagated, [...history, targetMove]) == false) {
-                            let special = "";
-                            if (board[toRank][toFile] != "") {
-                                special = "x";
-                            } else if (isEnPassant(move, history[history.length - 1])) {
-                                special = "s";
-                            } else if (piece[1] == "K" && castlingMove(color, move, board, history)) {
-                                special = (toFile == 2) ? "O" : "o";
-                            }
-                            valid.push(targetMove.slice(2, 6) + special);
-                        }
-                    }
+            return findValidMoves(board, position, history);
+        },
+        playerStatus(color) {
+            const moves = countMoves(board, color, history);
+            if (moves == 0) {
+                if (inCheck(color, board, history)) {
+                    return "check mate";
+                } else {
+                    return "stalemate";
                 }
+            } else {
+                return "ok";
             }
-            return valid;
         }
     };
 }

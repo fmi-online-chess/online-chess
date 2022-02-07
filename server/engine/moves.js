@@ -138,7 +138,7 @@ function castlingMove(color, { fromRank, fromFile, toRank, toFile }, board, hist
 
     if (fromRank == rank && fromFile == 4 && toRank == rank && board[rank][path[0]] == (color + "R") &&
         !path.slice(1, -1).some(file => board[rank][file] != "") &&
-        !path.some(file => isAttacked(color, board, file, rank, []))) {
+        !path.some(file => isAttacked(color, board, file, rank, [color]))) {
         return true;
     }
     return false;
@@ -203,11 +203,13 @@ function ableMove(move, board, history) {
     const piece = board[move.fromRank][move.fromFile];
     const color = piece[0];
 
+    /*
     if (color != "W" && lastMove == "") {
         return false;
     } else if (color == lastMove[0]) {
         return false;
     }
+    */
 
     const target = board[move.toRank][move.toFile];
 

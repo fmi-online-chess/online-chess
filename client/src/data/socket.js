@@ -6,6 +6,7 @@ export async function connect(roomId, userData) {
     return new Promise((resolve, reject) => {
         const token = userData.accessToken;
         let authorized = false;
+        let initialized = false;
 
         const connection = {
             sendMessage(data) {
@@ -25,6 +26,7 @@ export async function connect(roomId, userData) {
             onState: null,
             onMessage: null,
             onHistory: null,
+            onConclusion: null,
             onError: null
         };
         bufferedEventListener(connection, "onAction");
@@ -32,6 +34,7 @@ export async function connect(roomId, userData) {
         bufferedEventListener(connection, "onState");
         bufferedEventListener(connection, "onMessage");
         bufferedEventListener(connection, "onHistory");
+        bufferedEventListener(connection, "onConclusion");
         bufferedEventListener(connection, "onError");
 
         const socket = io("http://localhost:5000");
@@ -64,6 +67,7 @@ export async function connect(roomId, userData) {
         socket.on("state", (data) => {
             log(authorized, data);
             if (authorized) {
+                initialized = true;
                 connection.onState(data);
             }
         });
@@ -79,6 +83,15 @@ export async function connect(roomId, userData) {
             log(authorized, data);
             if (authorized) {
                 connection.onHistory(data);
+            }
+        });
+
+        socket.on("conclusion", (data) => {
+            log("Game has concluded", data);
+            if (initialized) {
+                connection.onConclusion(data);
+            } else {
+                reject("Game has concluded: " + data);
             }
         });
 

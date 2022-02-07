@@ -47,10 +47,18 @@ function onConnect(socket) {
             return socket.disconnect();
         }
         const room = await getRoomDetails(roomId);
+
+        // Game has already concluded
+        const lastMove = room.history[room.history.length - 1];
+        if (lastMove && lastMove.includes("-")) {
+            socket.emit("conclusion", lastMove);
+            return socket.disconnect();
+        }
+
         const player = room.players.find(p => p._id == userData._id);
         if (player) {
-            const state = initGameAndHandlers(socket, player, room);
             const playerColor = room.players[room.white].id == userData._id ? "W" : "B";
+            const state = initGameAndHandlers(socket, player, playerColor, room);
             socket.emit("auth", playerColor);
             socket.emit("history", room.chatHistory);
             socket.emit("state", state);
@@ -64,7 +72,7 @@ function onConnect(socket) {
 /**
  * @param {import('../node_modules/socket.io/dist/socket').Socket} socket Connection socket
  */
-function initGameAndHandlers(socket, player, room) {
+function initGameAndHandlers(socket, player, playerColor, room) {
     if (activeGames[room._id] == undefined) {
         console.log("setting up room in memory");
         activeGames[room._id] = createGame(room);
@@ -73,6 +81,8 @@ function initGameAndHandlers(socket, player, room) {
     const game = activeGames[room._id];
     const roomId = room._id.toString();
     socket.join(roomId);
+
+    console.log(playerColor, "Player status: " + game.playerStatus(playerColor));
 
     socket.on("message", (message) => {
         console.log(player.username, ">>>", message);
@@ -84,30 +94,36 @@ function initGameAndHandlers(socket, player, room) {
 
     socket.on("action", async (action) => {
         console.log(player.username, ">>>", action);
-        if (game.move(action)) {
+        const currentState = game.serialize();
+        if (action[0] != playerColor || currentState[0] != playerColor) {
+            return;
+        } else if (game.move(action)) {
             const newState = game.serialize();
             room.state = newState;
             room.history.push(action);
 
-            if (game.started == null) {
-                console.log("starting timers");
-
-                game.started = Date.now();
-                game.remainingWhite = 900000;
-                game.remainingBlack = 900000;
-                game.lastMoved = Date.now();
-
-                room.started = game.started;
-                room.remainingWhite = game.remainingWhite;
-                room.remainingBlack = game.remainingBlack;
-                room.lastMoved = game.lastMoved;
-            }
             const timerAsString = applyTimer(room, game, action[0]);
 
             await room.save();
 
             socket.emit("action", timerAsString + action);
             socket.to(roomId).emit("action", timerAsString + action);
+
+            const opponentStatus = game.playerStatus(action[0] == "B" ? "W" : "B");
+            if (opponentStatus != "ok") {
+                let status;
+                if (opponentStatus == "check mate") {
+                    status = action[0] == "B" ? "0-1" : "1-0";
+                } else if (opponentStatus == "stalemate") {
+                    status = "1/2-1/2";
+                }
+
+                room.history.push(status);
+                await room.save();
+
+                socket.emit("conclusion", status);
+                socket.to(roomId).emit("conclusion", status);
+            }
         }
     });
 
@@ -123,6 +139,17 @@ function initGameAndHandlers(socket, player, room) {
 }
 
 function applyTimer(room, game, action) {
+    if (game.started == null) {
+        console.log("starting timers");
+
+        game.started = Date.now();
+        game.remainingWhite = 900000;
+        game.remainingBlack = 900000;
+        game.lastMoved = Date.now();
+
+        room.started = game.started;
+    }
+
     const now = Date.now();
     let result = "";
 

@@ -1,6 +1,6 @@
 import { connect } from "../data/socket.js";
 import { createController } from "./board.js";
-import { showError } from "../util/notify.js";
+import { showError, showInfo } from "../util/notify.js";
 
 
 export function createGame(userData, secondPlayer, roomId, onUpdate, updateTimer) {
@@ -44,6 +44,20 @@ async function initGame(game, userData, roomId, readyState) {
         };
         connection.onHistory = (data) => {
             game.chat = data;
+            game.update();
+        };
+        connection.onConclusion = (data) => {
+            let message = "";
+            if (data == "1-0") {
+                message = "White player wins via checkmate";
+            } else if (data == "0-1") {
+                message = "Black player wins via checkmate";
+            } else if (data == "1/2-1/2") {
+                message = "Game ends in stalemate";
+            }
+            showInfo(message);
+            board.onAction(data);
+            game.chat.push({username: "Conclusion", message: data});
             game.update();
         };
 

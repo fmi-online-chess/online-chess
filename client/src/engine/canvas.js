@@ -34,7 +34,7 @@ export function initRenderer(canvas, reversed, onAction, onSelect) {
     const ctx = canvas.getContext("2d");
 
     canvas.addEventListener("click", (event) => {
-        if ((toMove == "W" && reversed) || (toMove =="B" && !reversed)) {
+        if (!((toMove == "W" && !reversed) || (toMove == "B" && reversed))) {
             return;
         }
         const rect = canvas.getBoundingClientRect();
@@ -124,7 +124,7 @@ export function initRenderer(canvas, reversed, onAction, onSelect) {
             drawHighlight(selected);
         } else {
             for (let move of lastMoves) {
-                let {oldFile, oldRank, newFile, newRank} = move;
+                let { oldFile, oldRank, newFile, newRank } = move;
                 if (reversed) {
                     oldFile = 7 - oldFile;
                     newFile = 7 - newFile;
@@ -137,7 +137,7 @@ export function initRenderer(canvas, reversed, onAction, onSelect) {
                 drawHighlight([files[newFile], ranks[newRank]]);
             }
         }
-        
+
         for (let piece of state) {
             drawPiece(piece);
             if (piece.isMoving) {
