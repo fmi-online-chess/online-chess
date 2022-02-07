@@ -1,14 +1,15 @@
 import { connect } from "../data/socket.js";
 import { createController } from "./board.js";
 import { showError, showInfo } from "../util/notify.js";
+import { showModal } from "../util/modal.js";
 
 
-export function createGame(userData, secondPlayer, roomId, onUpdate, updateTimer) {
+export function createGame(userData, opponent, roomId, onUpdate, updateTimer) {
     const readyState = {};
 
     const game = {
         roomId,
-        players: [ userData.username, secondPlayer.username ],
+        players: [ userData.username, opponent.username ],
         ready: false,
         contentReady: new Promise((resolve, reject) => {
             readyState.resolve = resolve;
@@ -20,11 +21,11 @@ export function createGame(userData, secondPlayer, roomId, onUpdate, updateTimer
         updateTimer
     };
 
-    initGame(game, userData, roomId, readyState);
+    initGame(game, userData, opponent, roomId, readyState);
     return game;
 }
 
-async function initGame(game, userData, roomId, readyState) {
+async function initGame(game, userData, opponent, roomId, readyState) {
     try {
         const connection = await connect(roomId, userData);
         const board = createController(connection.action, connection.select, connection.color, game.updateTimer);
@@ -47,15 +48,7 @@ async function initGame(game, userData, roomId, readyState) {
             game.update();
         };
         connection.onConclusion = (data) => {
-            let message = "";
-            if (data == "1-0") {
-                message = "White player wins via checkmate";
-            } else if (data == "0-1") {
-                message = "Black player wins via checkmate";
-            } else if (data == "1/2-1/2") {
-                message = "Game ends in stalemate";
-            }
-            showInfo(message);
+            showModal(data, connection.color, opponent.username);
             board.onAction(data);
             game.chat.push({username: "Conclusion", message: data});
             game.update();
