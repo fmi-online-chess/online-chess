@@ -5,25 +5,27 @@ let ticker = null;
 const root = document.createElement("div");
 root.id = "timer-wrapper";
 
-const timer = (name, time) => html`<div class="clock-wrap">
+const timer = (name, time, onReady) => html`<div class="clock-wrap">
     <div class="name-box">
         ${name}
     </div>
     <div class="player__digits">
         <span>${Math.trunc(time / 60)}</span>:<span>${pad(time % 60)}</span>
     </div>
-    <button class="timer__start-bttn" type="button">READY</button>
+    <button class="timer__start-bttn" type="button" @click=${onReady}>READY</button>
 </div>`;
 
-const group = (players, time) => html`<div id="timer-wrap">
-    ${timer(players[0], time.localBlack ? time.black : time.white)}
+const group = (players, time, onReady) => html`<div id="timer-wrap">
+    ${timer(players[0], time.localBlack ? time.black : time.white, onReady)}
     <div id="two-point">
         :
     </div>
-    ${timer(players[1], time.localBlack ? time.white : time.black)}
+    ${timer(players[1], time.localBlack ? time.white : time.black, onReady)}
 </div>`;
 
+
 export function createTimer(players, time, onReady) {
+    console.log(time.playersReady);
     update();
     if (ticker != null) {
         clearInterval(ticker);
@@ -33,7 +35,7 @@ export function createTimer(players, time, onReady) {
     return root;
 
     function update() {
-        render(group(players, time), root);
+        render(group(players, time, onReady), root);
     }
 
     function tick() {

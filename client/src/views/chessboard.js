@@ -93,16 +93,23 @@ async function createView(ctx) {
         white: 900,
         black: 900,
         current: null,
-        localBlack: false
+        localBlack: false,
+        playersReady: new Set()
     };
 
     return render();
 
-    function updateTimer([white, black, current, localBlack]) {
-        time.white = white;
-        time.black = black;
-        time.current = current;
-        time.localBlack = localBlack;
+    function updateTimer(packet) {
+        if (typeof packet == "string") {
+            time.playersReady.add(packet);
+        } else {
+            const [white, black, current, localBlack] = packet;
+            time.white = white;
+            time.black = black;
+            time.current = current;
+            time.localBlack = localBlack;
+        }
+
         update();
     }
 
@@ -145,6 +152,7 @@ async function createView(ctx) {
 
     function onReady(event) {
         event.preventDefault();
-        document.getElementById("player__digits").classList.add("active");
+        time.playersReady.add(ctx.appState.game.color);
+        ctx.appState.game.onPlayerReady();
     }
 }

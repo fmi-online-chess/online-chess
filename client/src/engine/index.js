@@ -9,6 +9,7 @@ export function createGame(userData, secondPlayer, roomId, onUpdate, updateTimer
     const game = {
         roomId,
         players: [ userData.username, secondPlayer.username ],
+        color: null,
         ready: false,
         contentReady: new Promise((resolve, reject) => {
             readyState.resolve = resolve;
@@ -17,7 +18,8 @@ export function createGame(userData, secondPlayer, roomId, onUpdate, updateTimer
         chat: [],
         update: onUpdate,
         canvas: null,
-        updateTimer
+        updateTimer,
+        onPlayerReady: () => {}
     };
 
     initGame(game, userData, roomId, readyState);
@@ -60,14 +62,21 @@ async function initGame(game, userData, roomId, readyState) {
             game.chat.push({username: "Conclusion", message: data});
             game.update();
         };
+        connection.onPlayerReady = (color) => {
+            game.updateTimer(color);
+        };
 
         game.sendMessage = (message) => {
             game.chat.push(message);
             connection.sendMessage(message.message);
         };
+        game.onPlayerReady = () => {
+            connection.ready();
+        };
         game.disconnect = connection.disconnect;
-        game.canvas = board.canvas;
 
+        game.color = connection.color;
+        game.canvas = board.canvas;
         game.ready = true;
         readyState.resolve();
         game.update();

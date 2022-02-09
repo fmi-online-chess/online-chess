@@ -132,11 +132,12 @@ export function createGame(room) {
     const board = createBoard(room.state);
     const history = room.history.slice();
 
-    return {
+    const game = {
         started: room.started,
         remainingWhite: room.remainingWhite,
         remainingBlack: room.remainingBlack,
         lastMoved: room.lastMoved,
+        playersReady: room.playersReady,
         serialize() {
             const state = [];
             for (let rank = 0; rank < 8; rank++) {
@@ -146,8 +147,12 @@ export function createGame(room) {
                     }
                 }
             }
+
             const lastMove = history[history.length - 1];
-            const toMove = (lastMove == undefined || lastMove[0] == "B") ? "W" : "B";
+            let toMove = "X";
+            if (game.started) {
+                toMove = (lastMove == undefined || lastMove[0] == "B") ? "W" : "B";
+            }
             return toMove + ":" + state.join("");
         },
         move(action) {
@@ -179,4 +184,6 @@ export function createGame(room) {
             }
         }
     };
+
+    return game;
 }

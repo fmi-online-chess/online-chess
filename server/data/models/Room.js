@@ -11,7 +11,8 @@ const schema = new mongoose.Schema({
     started: { type: Number, default: null },
     remainingWhite: { type: Number, default: null },
     remainingBlack: { type: Number, default: null },
-    lastMoved: { type: Number, default: null }
+    lastMoved: { type: Number, default: null },
+    playersReady: { type: [String], default: [] }
 });
 
 export default mongoose.model("Room", schema);

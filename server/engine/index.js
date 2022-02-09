@@ -132,6 +132,35 @@ function initGameAndHandlers(socket, player, playerColor, room) {
         socket.emit("moves", game.validMoves(position));
     });
 
+    socket.on("ready", async () => {
+        if (game.playersReady.includes(playerColor) == false) {
+            console.log("Player ready", playerColor);
+            game.playersReady.push(playerColor);
+            room.playersReady.push(playerColor);
+            socket.to(roomId).emit("playerReady", playerColor);
+            console.log(game.playersReady);
+        }
+        if (game.playersReady.length >= 2 && game.started == null) {
+            console.log("starting timers");
+
+            game.started = Date.now();
+            game.remainingWhite = 900000;
+            game.remainingBlack = 900000;
+            game.lastMoved = game.started;
+
+            room.started = game.started;
+
+            const currentState = game.serialize();
+            const timerAsString = applyTimer(room, game, currentState[0]);
+
+            socket.emit("state", timerAsString + currentState);
+            socket.to(roomId).emit("state", timerAsString + currentState);
+        }
+        if (room.isModified()) {
+            await room.save();
+        }
+    });
+
     const currentState = game.serialize();
     const timerAsString = applyTimer(room, game, currentState[0]);
 
@@ -139,17 +168,6 @@ function initGameAndHandlers(socket, player, playerColor, room) {
 }
 
 function applyTimer(room, game, action) {
-    if (game.started == null) {
-        console.log("starting timers");
-
-        game.started = Date.now();
-        game.remainingWhite = 900000;
-        game.remainingBlack = 900000;
-        game.lastMoved = Date.now();
-
-        room.started = game.started;
-    }
-
     const now = Date.now();
     let result = "";
 

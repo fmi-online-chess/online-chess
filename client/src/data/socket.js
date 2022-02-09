@@ -18,6 +18,9 @@ export async function connect(roomId, userData) {
             select(position) {
                 socket.emit("select", position);
             },
+            ready() {
+                socket.emit("ready", true);
+            },
             disconnect() {
                 socket.disconnect();
             },
@@ -27,6 +30,7 @@ export async function connect(roomId, userData) {
             onMessage: null,
             onHistory: null,
             onConclusion: null,
+            onPlayerReady: null,
             onError: null
         };
         bufferedEventListener(connection, "onAction");
@@ -35,6 +39,7 @@ export async function connect(roomId, userData) {
         bufferedEventListener(connection, "onMessage");
         bufferedEventListener(connection, "onHistory");
         bufferedEventListener(connection, "onConclusion");
+        bufferedEventListener(connection, "onPlayerReady");
         bufferedEventListener(connection, "onError");
 
         const socket = io("http://localhost:5000");
@@ -92,6 +97,13 @@ export async function connect(roomId, userData) {
                 connection.onConclusion(data);
             } else {
                 reject("Game has concluded: " + data);
+            }
+        });
+
+        socket.on("playerReady", (data) => {
+            log(authorized, data);
+            if (authorized) {
+                connection.onPlayerReady(data);
             }
         });
 

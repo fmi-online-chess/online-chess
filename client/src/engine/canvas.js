@@ -81,7 +81,7 @@ export function initRenderer(canvas, reversed, onAction, onSelect) {
     let lastMoves = [];
     let oldSerializedState = null;
     let state = [];
-    let toMove = "W";
+    let toMove = null;
 
 
     return {
