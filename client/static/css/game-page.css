@@ -1,3 +1,5 @@
+@import url("./game-page-modal.css");
+
 #board-page {
     display: flex;
     justify-content: center;

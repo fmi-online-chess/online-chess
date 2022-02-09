@@ -52,7 +52,8 @@
     position: relative;
 }
 
-.site-main .wrapper header>.section-title {
+.site-main .wrapper header>.section-title,
+.site-main .modal .title {
     display: flex;
     align-items: center;
     flex-shrink: 0;
@@ -65,7 +66,9 @@
 }
 
 .site-main .wrapper header>.section-title::before,
-.site-main .wrapper header>.section-title::after {
+.site-main .wrapper header>.section-title::after,
+.site-main .modal .title::before,
+.site-main .modal .title::after {
     display: block;
     content: '';
     flex-grow: 1;
@@ -74,11 +77,13 @@
     opacity: 0.5;
 }
 
-.site-main .wrapper header>.section-title::before {
+.site-main .wrapper header>.section-title::before,
+.site-main .modal .title::before {
     margin-right: 1em;
 }
 
-.site-main .wrapper header>.section-title::after {
+.site-main .wrapper header>.section-title::after,
+.site-main .modal .title::after {
     margin-left: 1em;
 }
 
@@ -175,7 +180,8 @@
 }
 
 .site-main form input[type="submit"],
-.site-main .room-box .room-entrance-btn {
+.site-main .room-box .room-entrance-btn,
+.site-main .modal .buttons a {
     background-color: rgb(207, 115, 35);
     border: 3px solid rgb(207, 115, 35);
     border-radius: 0.2em;
@@ -190,7 +196,8 @@
 }
 
 .site-main form input[type="submit"]:not(#chat-button):hover,
-.site-main .room-box .room-entrance-btn:hover {
+.site-main .room-box .room-entrance-btn:hover,
+.site-main .modal .buttons a:hover {
     background-color: transparent;
     color: rgb(207, 115, 35);
 }
