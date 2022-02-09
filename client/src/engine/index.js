@@ -64,7 +64,7 @@ async function initGame(game, userData, opponent, roomId, readyState) {
             connection.sendMessage(message.message);
         };
         game.onPlayerReady = () => {
-            connection.ready();
+            connection.sendReady();
         };
         game.disconnect = connection.disconnect;
 

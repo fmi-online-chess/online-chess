@@ -9,6 +9,7 @@ export async function connect(roomId, userData) {
         let initialized = false;
 
         const connection = {
+            color: null,
             sendMessage(data) {
                 socket.emit("message", data);
             },
@@ -18,7 +19,7 @@ export async function connect(roomId, userData) {
             select(position) {
                 socket.emit("select", position);
             },
-            ready() {
+            sendReady() {
                 socket.emit("ready", true);
             },
             disconnect() {

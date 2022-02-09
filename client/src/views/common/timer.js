@@ -5,22 +5,26 @@ let ticker = null;
 const root = document.createElement("div");
 root.id = "timer-wrapper";
 
-const timer = (name, time, onReady) => html`<div class="clock-wrap">
+const timer = ({ name, time, isReady, isBlack }, onReady) => html`<div class="clock-wrap">
     <div class="name-box">
         ${name}
     </div>
     <div class="player__digits">
         <span>${Math.trunc(time / 60)}</span>:<span>${pad(time % 60)}</span>
     </div>
-    <button class="timer__start-bttn" type="button" @click=${onReady}>READY</button>
+    ${isReady ?
+        html`<img class="avatar" src=${isBlack ? "/static/bk.png" : "/static/wk.png"}>` :
+        html`<button class="timer__start-bttn" type="button" @click=${onReady}>READY</button>`
+    }
+
 </div>`;
 
-const group = (players, time, onReady) => html`<div id="timer-wrap">
-    ${timer(players[0], time.localBlack ? time.black : time.white, onReady)}
+const group = (playerModels, localBlack, onReady) => html`<div id="timer-wrap">
+    ${timer(localBlack ? playerModels.black : playerModels.white, onReady)}
     <div id="two-point">
         :
     </div>
-    ${timer(players[1], time.localBlack ? time.white : time.black, onReady)}
+    ${timer(localBlack ? playerModels.white : playerModels.black, onReady)}
 </div>`;
 
 
@@ -35,7 +39,22 @@ export function createTimer(players, time, onReady) {
     return root;
 
     function update() {
-        render(group(players, time, onReady), root);
+        const playerModels = {
+            white: {
+                name: time.localBlack ? players[1] : players[0],
+                time: time.white,
+                isReady: time.playersReady.has("W") || time.current != null,
+                isBlack: false
+            },
+            black: {
+                name: time.localBlack ? players[0] : players[1],
+                time: time.black,
+                isReady: time.playersReady.has("B") || time.current != null,
+                isBlack: true
+            }
+        };
+
+        render(group(playerModels, time.localBlack, onReady), root);
     }
 
     function tick() {

@@ -111,6 +111,7 @@ async function createView(ctx) {
 
     function updateTimer(packet) {
         if (typeof packet == "string") {
+            time.localBlack = ctx.appState.game.color == "B";
             time.playersReady.add(packet);
         } else {
             const [white, black, current, localBlack] = packet;
@@ -162,7 +163,6 @@ async function createView(ctx) {
 
     function onReady(event) {
         event.preventDefault();
-        time.playersReady.add(ctx.appState.game.color);
         ctx.appState.game.onPlayerReady();
     }
 }

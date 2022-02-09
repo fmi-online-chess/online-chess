@@ -134,11 +134,13 @@ function initGameAndHandlers(socket, player, playerColor, room) {
 
     socket.on("ready", async () => {
         if (game.playersReady.includes(playerColor) == false) {
-            console.log("Player ready", playerColor);
             game.playersReady.push(playerColor);
             room.playersReady.push(playerColor);
+            
+            socket.emit("playerReady", playerColor);
             socket.to(roomId).emit("playerReady", playerColor);
-            console.log(game.playersReady);
+
+            console.log("Player ready", game.playersReady);
         }
         if (game.playersReady.length >= 2 && game.started == null) {
             console.log("starting timers");

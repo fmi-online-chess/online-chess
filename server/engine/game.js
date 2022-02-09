@@ -137,7 +137,7 @@ export function createGame(room) {
         remainingWhite: room.remainingWhite,
         remainingBlack: room.remainingBlack,
         lastMoved: room.lastMoved,
-        playersReady: room.playersReady,
+        playersReady: room.playersReady.slice(),
         serialize() {
             const state = [];
             for (let rank = 0; rank < 8; rank++) {
