@@ -9,12 +9,12 @@ const timer = ({ name, time, isReady, isBlack }, onReady) => html`<div class="cl
     <div class="name-box">
         ${name}
     </div>
-    <div class="player__digits">
+    <div class="player-digits">
         <span>${Math.trunc(time / 60)}</span>:<span>${pad(time % 60)}</span>
     </div>
     ${isReady ?
         html`<img class="avatar" src=${isBlack ? "/static/bk.png" : "/static/wk.png"}>` :
-        html`<button class="timer__start-bttn" type="button" @click=${onReady}>READY</button>`
+        html`<button class="timer-start-btn" type="button" @click=${onReady}>READY</button>`
     }
 
 </div>`;
