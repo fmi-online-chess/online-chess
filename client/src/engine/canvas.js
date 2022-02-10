@@ -22,7 +22,7 @@ export function createCanvas() {
     return canvas;
 }
 
-export function initRenderer(canvas, reversed, onAction, onSelect) {
+export function initRenderer(canvas, reversed, onAction, onSelect, isSpectator = false) {
     const sprites = new Image();
     sprites.onload = () => {
         log("Assets ready");
@@ -95,7 +95,7 @@ export function initRenderer(canvas, reversed, onAction, onSelect) {
             // There is unexpected behaviour when assigning a reference from the function parameter to a variable in the scope
             // It appears the parsing engine maintains the same address in memory and will place the paramter data inside the local variable
             oldSerializedState = JSON.parse(JSON.stringify(serializedState));
-            toMove = nextToMove;
+            toMove = isSpectator ? null : nextToMove;
             render();
         },
         showMoves(moves) {

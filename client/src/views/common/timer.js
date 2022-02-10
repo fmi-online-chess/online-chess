@@ -14,7 +14,7 @@ const timer = ({ name, time, isReady, isBlack }, onReady) => html`<div class="cl
     </div>
     ${isReady ?
         html`<img class="avatar" src=${isBlack ? "/static/bk.png" : "/static/wk.png"}>` :
-        html`<button class="timer-start-btn" type="button" @click=${onReady}>READY</button>`
+        onReady == null ? null : html`<button class="timer-start-btn" type="button" @click=${onReady}>READY</button>`
     }
 
 </div>`;

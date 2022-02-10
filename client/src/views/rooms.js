@@ -114,7 +114,7 @@ async function loadLobby(ctx, roomId) {
     }
 
     async function onSpectate() {
-        showInfo("Spectator mode.");
+        ctx.page.redirect(`/rooms/${roomId}/spectate`)
     }
 
     async function onResume() {

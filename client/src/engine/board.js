@@ -51,9 +51,9 @@ function deserializeBoard(board, state) {
     }
 }
 
-export function createController(onAction, onSelect, color, updateTimers) {
+export function createController(onAction, onSelect, color, updateTimers, isSpectator) {
     const canvas = createCanvas();
-    const gfx = initRenderer(canvas, color == "B", onActionProxy, onSelectProxy);
+    const gfx = initRenderer(canvas, color == "B", onActionProxy, onSelectProxy, isSpectator);
     gfx.render();
 
     const board = createBoard();

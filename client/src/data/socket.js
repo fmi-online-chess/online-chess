@@ -2,9 +2,9 @@ import { io } from "http://localhost:5000/socket.io/socket.io.esm.min.js";
 import { log } from "../util/logger.js";
 
 
-export async function connect(roomId, userData) {
+export async function connect(roomId, userData, isSpectator) {
     return new Promise((resolve, reject) => {
-        const token = userData.accessToken;
+        const token = isSpectator ? null : userData.accessToken;
         let authorized = false;
         let initialized = false;
 
@@ -58,7 +58,7 @@ export async function connect(roomId, userData) {
 
         socket.on("action", (data) => {
             log(authorized, data);
-            if (authorized) {
+            if (authorized || isSpectator) {
                 connection.onAction(data);
             }
         });
@@ -72,7 +72,7 @@ export async function connect(roomId, userData) {
 
         socket.on("state", (data) => {
             log(authorized, data);
-            if (authorized) {
+            if (authorized || isSpectator) {
                 initialized = true;
                 connection.onState(data);
             }
@@ -80,14 +80,14 @@ export async function connect(roomId, userData) {
 
         socket.on("message", (data) => {
             log(authorized, data);
-            if (authorized) {
+            if (authorized || isSpectator) {
                 connection.onMessage(data);
             }
         });
 
         socket.on("history", (data) => {
             log(authorized, data);
-            if (authorized) {
+            if (authorized || isSpectator) {
                 connection.onHistory(data);
             }
         });
@@ -103,7 +103,7 @@ export async function connect(roomId, userData) {
 
         socket.on("playerReady", (data) => {
             log(authorized, data);
-            if (authorized) {
+            if (authorized || isSpectator) {
                 connection.onPlayerReady(data);
             }
         });
@@ -116,10 +116,16 @@ export async function connect(roomId, userData) {
         // Bind this last, to avoid some exotic race conditions
         socket.on("connect", () => {
             log("Connected");
-            socket.emit("auth", {
-                roomId,
-                token
-            });
+
+            if (isSpectator) {
+                socket.emit("spectate", roomId);
+                resolve(connection);
+            } else {
+                socket.emit("auth", {
+                    roomId,
+                    token
+                });
+            }
         });
     });
 }

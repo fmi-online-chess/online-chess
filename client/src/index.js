@@ -4,6 +4,7 @@ import { registerPage } from "./views/register.js";
 import { loginPage } from "./views/login.js";
 import { lobbyPage, roomsPage } from "./views/rooms.js";
 import { chessboard } from "./views/chessboard.js";
+import { spectateGame } from "./views/spectate.js";
 
 
 const app = createApp(document.getElementById("container"));
@@ -14,5 +15,6 @@ app.view("/login", loginPage);
 app.view("/rooms", roomsPage);
 app.view("/rooms/:id", lobbyPage);
 app.view("/rooms/:id/board", chessboard);
+app.view("/rooms/:id/spectate", spectateGame);
 
 app.start();

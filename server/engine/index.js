@@ -39,6 +39,8 @@ function onConnect(socket) {
 
     console.log("a user connected");
     socket.on("auth", async ({ roomId, token }) => {
+        // socket.off("spectate");
+
         let userData = null;
         try {
             userData = socket.request.auth.parseToken(token);
@@ -66,6 +68,22 @@ function onConnect(socket) {
             socket.emit("auth", false);
             return socket.disconnect();
         }
+    });
+
+    socket.on("spectate", async (roomId) => {
+        // socket.off("auth");
+
+        const room = await getRoomDetails(roomId);
+
+        const lastMove = room.history[room.history.length - 1];
+        if (lastMove && lastMove.includes("-")) {
+            socket.emit("conclusion", lastMove);
+            return socket.disconnect();
+        }
+
+        const state = initSpectatorHandlers(socket, room);
+        socket.emit("history", room.chatHistory);
+        socket.emit("state", state);
     });
 }
 
@@ -111,18 +129,7 @@ function initGameAndHandlers(socket, player, playerColor, room) {
 
             const opponentStatus = game.playerStatus(action[0] == "B" ? "W" : "B");
             if (opponentStatus != "ok") {
-                let status;
-                if (opponentStatus == "check mate") {
-                    status = action[0] == "B" ? "0-1" : "1-0";
-                } else if (opponentStatus == "stalemate") {
-                    status = "1/2-1/2";
-                }
-
-                room.history.push(status);
-                await room.save();
-
-                socket.emit("conclusion", status);
-                socket.to(roomId).emit("conclusion", status);
+                await endGame(opponentStatus, action);
             }
         }
     });
@@ -162,6 +169,42 @@ function initGameAndHandlers(socket, player, playerColor, room) {
             await room.save();
         }
     });
+
+    const currentState = game.serialize();
+    const timerAsString = applyTimer(room, game, currentState[0]);
+
+    return timerAsString + currentState;
+
+    async function endGame(opponentStatus, action) {
+        let status;
+        if (opponentStatus == "check mate") {
+            status = action[0] == "B" ? "0-1" : "1-0";
+        } else if(opponentStatus == "timeout") {
+            status = action[0] == "B" ? "0-1 timeout" : "1-0 timeout";
+        } else if (opponentStatus == "stalemate") {
+            status = "1/2-1/2";
+        }
+
+        room.history.push(status);
+        await room.save();
+
+        socket.emit("conclusion", status);
+        socket.to(roomId).emit("conclusion", status);
+    }
+}
+
+/**
+ * @param {import('../node_modules/socket.io/dist/socket').Socket} socket Connection socket
+ */
+function initSpectatorHandlers(socket, room) {
+    if (activeGames[room._id] == undefined) {
+        console.log("setting up room in memory");
+        activeGames[room._id] = createGame(room);
+    }
+
+    const game = activeGames[room._id];
+    const roomId = room._id.toString();
+    socket.join(roomId);
 
     const currentState = game.serialize();
     const timerAsString = applyTimer(room, game, currentState[0]);
