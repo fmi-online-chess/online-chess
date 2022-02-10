@@ -77,7 +77,13 @@ export function lobbyPage(ctx) {
 }
 
 async function loadLobby(ctx, roomId) {
-    const roomData = await getLobby(roomId);
+    let roomData;
+    
+    try {
+        roomData = await getLobby(roomId);
+    } catch(err) {
+        return ctx.page.redirect("/rooms");
+    }
 
     const hasLoggedUser = ctx.appState.user !== undefined;
     const canResume = hasLoggedUser && roomData.players.find(p => p._id == ctx.appState.user?._id) != undefined;

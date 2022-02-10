@@ -77,7 +77,13 @@ function validateGame(ctx, roomId) {
 
 async function createView(ctx) {
     const roomId = ctx.params.id;
-    const roomData = await getLobby(roomId);
+    let roomData;
+    
+    try {
+        roomData = await getLobby(roomId);
+    } catch(err) {
+        return ctx.page.redirect("/rooms");
+    }
     const isUserPartOfRoom = roomData.players.filter(p => p.username === ctx.appState.user.username)[0] !== undefined;
 
     if (roomData.players.length < 2) {

@@ -33,14 +33,21 @@ roomController.post("/", authCheck(), async (req, res) => {
 
 roomController.get("/:id", async (req, res) => {
     const roomId = req.params.id;
-    const room = await getRoomById(roomId);
 
-    if (room == undefined) {
+    try {
+        const room = await getRoomById(roomId);
+        
+        if (room == undefined) {
+            res.status(400).json({
+                message: "Room not found"
+            });
+        } else {
+            res.json(room);
+        }
+    } catch(err) {
         res.status(400).json({
-            message: "Room not found"
+            message: "Room does not exist!"
         });
-    } else {
-        res.json(room);
     }
 });
 
