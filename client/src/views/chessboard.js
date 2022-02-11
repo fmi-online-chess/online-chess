@@ -1,18 +1,8 @@
-import {
-    createGame
-} from "../engine/index.js";
-import {
-    getLobby
-} from "../data/rooms.js";
-import {
-    html
-} from "../lib.js";
-import {
-    log
-} from "../util/logger.js";
-import {
-    showError
-} from "../util/notify.js";
+import { html } from "../lib.js";
+import { log } from "../util/logger.js";
+import { showError } from "../util/notify.js";
+import { getLobby } from "../data/rooms.js";
+import { createGame } from "../engine/index.js";
 import { createTimer } from "./common/timer.js";
 
 
@@ -38,13 +28,14 @@ const pageTemplate = (board, players, history, onSubmit, time, onReady) => html`
 const chatTemplate = (history, players, onSubmit, time, onReady) => html`
 <div id="side-menu">
     ${createTimer(players, time, onReady)}
+    ${onSubmit == null ? null : html`
     <div id="chat-menu">
         <textarea disabled .value=${history} id="chat-area"></textarea>
         <form @submit=${onSubmit} id="chat-form">
             <input type="text" name="message" id="chat-message" placeholder="Aa" autocomplete="off" />
             <input type="submit" value="Send" id="chat-button" />
         </form>
-    </div>
+    </div>`}
 </div>`;
 
 
@@ -52,18 +43,19 @@ let view = null;
 
 export function chessboard(ctx) {
     const roomId = ctx.params.id;
-    if (!ctx.appState.user) {
+    const isSpectator = ctx.query.spectate != undefined;
+    if (!isSpectator && !ctx.appState.user) {
         return ctx.page.redirect(`/login?origin=/rooms/${roomId}/board`);
     }
-    validateGame(ctx, roomId);
+    validateGame(ctx, roomId, isSpectator);
 
     return view;
 }
 
-function validateGame(ctx, roomId) {
+function validateGame(ctx, roomId, isSpectator) {
     if ((view == null) || !ctx.appState.game) {
         log("- no view or game not initialized");
-        createView(ctx);
+        createView(ctx, isSpectator);
     } else if (ctx.appState.game.roomId != roomId) {
         log("- game ID mismatch");
         const oldGame = ctx.appState.game;
@@ -71,32 +63,36 @@ function validateGame(ctx, roomId) {
         oldGame.contentReady.then(() => {
             oldGame.disconnect();
         });
-        createView(ctx);
+        createView(ctx, isSpectator);
     }
 }
 
-async function createView(ctx) {
+async function createView(ctx, isSpectator) {
     const roomId = ctx.params.id;
     let roomData;
-    
+
     try {
         roomData = await getLobby(roomId);
-    } catch(err) {
+    } catch (err) {
         return ctx.page.redirect("/rooms");
     }
-    const isUserPartOfRoom = roomData.players.filter(p => p.username === ctx.appState.user.username)[0] !== undefined;
+    const isUserPartOfRoom = ctx.appState.user !== undefined &&
+        roomData.players.filter(p => p.username === ctx.appState.user.username)[0] !== undefined;
 
     if (roomData.players.length < 2) {
         showError(`Room "${roomData.name}" has less than 2 players.`);
-        return ctx.page.redirect("/rooms");
-    } else if (!isUserPartOfRoom) {
+        return ctx.page.redirect(`/rooms/${roomId}`);
+    } else if (!isSpectator && !isUserPartOfRoom) {
         showError(`You are not joined to room "${roomData.name}".`);
         return ctx.page.redirect("/rooms");
+    } else if (isSpectator && isUserPartOfRoom) {
+        showError("You cannot spectate a game you are playing.");
+        return ctx.page.redirect(`/rooms/${roomId}`);
     }
 
-    const secondPlayer = roomData.players.filter(p => p.username !== ctx.appState.user.username)[0];
+    const playerNames = roomData.players.map(p => p.username);
     // eslint-disable-next-line require-atomic-updates
-    ctx.appState.game = createGame(ctx.appState.user, secondPlayer, roomId, update, updateTimer);
+    ctx.appState.game = createGame(ctx.appState.user, playerNames, roomId, update, updateTimer, isSpectator);
     ctx.appState.game.contentReady.catch(() => {
         delete ctx.appState.game;
         ctx.page.redirect("/rooms");
@@ -123,7 +119,7 @@ async function createView(ctx) {
             const [white, black, current, localBlack] = packet;
             time.white = white;
             time.black = black;
-            time.current = current;
+            time.current = isSpectator ? null : current;
             time.localBlack = localBlack;
         }
 
@@ -134,9 +130,9 @@ async function createView(ctx) {
         view = pageTemplate(ctx.appState.game.canvas,
             ctx.appState.game.players,
             ctx.appState.game.chat.map(toText).join("\n"),
-            onMessageSubmit,
+            isSpectator ? null : onMessageSubmit,
             time,
-            onReady);
+            isSpectator ? null : onReady);
         return view;
     }
 
@@ -145,11 +141,8 @@ async function createView(ctx) {
         ctx.update();
     }
 
-    function toText({
-        username,
-        message
-    }) {
-        return `${username == ctx.appState.user.username ? "You" : username}: ${message}`;
+    function toText({ username, message }) {
+        return `${(ctx.appState.user && username == ctx.appState.user.username) ? "You" : username}: ${message}`;
     }
 
     function onMessageSubmit(event) {

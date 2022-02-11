@@ -1,8 +1,8 @@
-import { createGame } from "../engine/index.js";
-import { getLobby } from "../data/rooms.js";
 import { html } from "../lib.js";
 import { log } from "../util/logger.js";
 import { showError } from "../util/notify.js";
+import { getLobby } from "../data/rooms.js";
+import { createGame } from "../engine/index.js";
 import { createTimer } from "./common/timer.js";
 
 
@@ -79,9 +79,9 @@ async function createView(ctx) {
         return ctx.page.redirect(`/rooms/${roomId}`);
     }
 
-    const players = roomData.players;
+    const playerNames = roomData.players.map(p => p.username);
     // eslint-disable-next-line require-atomic-updates
-    ctx.appState.game = createGame(...players, roomId, update, updateTimer, true);
+    ctx.appState.game = createGame(null, playerNames, roomId, update, updateTimer, true);
     ctx.appState.game.contentReady.catch(() => {
         delete ctx.appState.game;
         ctx.page.redirect("/rooms");
