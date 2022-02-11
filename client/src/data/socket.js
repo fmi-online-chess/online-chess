@@ -56,6 +56,11 @@ export async function connect(roomId, userData, isSpectator) {
             }
         });
 
+        socket.on("auth-spectate", () => {
+            connection.color = "W";
+            resolve(connection);
+        });
+
         socket.on("action", (data) => {
             log(authorized, data);
             if (authorized || isSpectator) {
@@ -119,8 +124,6 @@ export async function connect(roomId, userData, isSpectator) {
 
             if (isSpectator) {
                 socket.emit("spectate", roomId);
-                connection.color = "W";
-                resolve(connection);
             } else {
                 socket.emit("auth", {
                     roomId,

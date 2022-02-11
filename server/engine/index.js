@@ -1,3 +1,4 @@
+import { EventEmitter } from "events";
 import { Server } from "socket.io";
 
 import { ioWrap } from "./util.js";
@@ -6,6 +7,7 @@ import { getRoomDetails } from "../services/roomService.js";
 import { createGame } from "./game.js";
 
 
+const lobbies = {};
 const activeGames = {};
 
 export default function setupEngine(server) {
@@ -57,13 +59,23 @@ function onConnect(socket) {
             return socket.disconnect();
         }
 
+        const lobby = lobbies[room._id] || new EventEmitter();
+        lobby.players = lobby.players || new Set();
+        lobbies[room._id] = lobby;
+
         const player = room.players.find(p => p._id == userData._id);
         if (player) {
-            const playerColor = room.players[room.white].id == userData._id ? "W" : "B";
-            const state = initGameAndHandlers(socket, player, playerColor, room);
-            socket.emit("auth", playerColor);
-            socket.emit("history", room.chatHistory);
-            socket.emit("state", state);
+            if (lobby.players.size == 2) {
+                sendInitPackets(room, socket, userData, player);
+            } else {
+                lobby.on("player_connected", (id) => {
+                    lobby.players.add(id);
+                    if (lobby.players.size == 2) {
+                        sendInitPackets(room, socket, userData, player);
+                    }
+                });
+                lobby.emit("player_connected", userData._id);
+            }
         } else {
             socket.emit("auth", false);
             return socket.disconnect();
@@ -81,10 +93,34 @@ function onConnect(socket) {
             return socket.disconnect();
         }
 
-        const state = initSpectatorHandlers(socket, room);
-        socket.emit("history", room.chatHistory);
-        socket.emit("state", state);
+        const lobby = lobbies[room._id] || new EventEmitter();
+        lobby.players = lobby.players || new Set();
+        lobbies[room._id] = lobby;
+
+        if (lobby.players.size == 2) {
+            const state = initSpectatorHandlers(socket, room);
+            socket.emit("auth-spectate", null);
+            socket.emit("history", room.chatHistory);
+            socket.emit("state", state);
+        } else {
+            lobby.on("player_connected", () => {
+                if (lobby.players.size == 2) {
+                    const state = initSpectatorHandlers(socket, room);
+                    socket.emit("auth-spectate", null);
+                    socket.emit("history", room.chatHistory);
+                    socket.emit("state", state);
+                }
+            });
+        }
     });
+}
+
+function sendInitPackets(room, socket, userData, player) {
+    const playerColor = room.players[room.white].id == userData._id ? "W" : "B";
+    const state = initGameAndHandlers(socket, player, playerColor, room);
+    socket.emit("auth", playerColor);
+    socket.emit("history", room.chatHistory);
+    socket.emit("state", state);
 }
 
 /**
@@ -102,6 +138,9 @@ function initGameAndHandlers(socket, player, playerColor, room) {
 
     console.log(playerColor, "Player status: " + game.playerStatus(playerColor));
 
+    const currentState = game.serialize();
+    const timerAsString = applyTimer(room, game, currentState[0]);
+
     socket.on("message", (message) => {
         console.log(player.username, ">>>", message);
         const data = { username: player.username, message };
@@ -115,7 +154,7 @@ function initGameAndHandlers(socket, player, playerColor, room) {
         if (game.concluded) {
             return;
         }
-        
+
         const timerAsString = applyTimer(room, game, action[0]);
         if (game.remainingWhite <= 0) {
             return await endGame("timeout", "B");
@@ -154,7 +193,7 @@ function initGameAndHandlers(socket, player, playerColor, room) {
         if (game.playersReady.includes(playerColor) == false) {
             game.playersReady.push(playerColor);
             room.playersReady.push(playerColor);
-            
+
             socket.emit("playerReady", playerColor);
             socket.to(roomId).emit("playerReady", playerColor);
 
@@ -181,16 +220,13 @@ function initGameAndHandlers(socket, player, playerColor, room) {
         }
     });
 
-    const currentState = game.serialize();
-    const timerAsString = applyTimer(room, game, currentState[0]);
-
     return timerAsString + currentState;
 
     async function endGame(opponentStatus, action) {
         let status;
         if (opponentStatus == "check mate") {
             status = action[0] == "B" ? "0-1" : "1-0";
-        } else if(opponentStatus == "timeout") {
+        } else if (opponentStatus == "timeout") {
             status = action[0] == "B" ? "0-1 timeout" : "1-0 timeout";
         } else if (opponentStatus == "stalemate") {
             status = "1/2-1/2";

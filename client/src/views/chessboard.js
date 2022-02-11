@@ -50,7 +50,13 @@ export function chessboard(ctx) {
     }
     validateGame(ctx, roomId, isSpectator);
 
-    return view;
+    return view || html`
+    <div id="board-page">
+        <div id="board-id">
+            <p>Waiting for players &hellip;</p>
+            <p><a href="/rooms/${roomId}">Back to lobby</a></p>
+        </div>
+    </div>`;
 }
 
 function validateGame(ctx, roomId, isSpectator) {
@@ -59,6 +65,7 @@ function validateGame(ctx, roomId, isSpectator) {
         createView(ctx, isSpectator);
     } else if (ctx.appState.game.roomId != roomId) {
         log("- game ID mismatch");
+        view = null;
         const oldGame = ctx.appState.game;
         // Wait for this promise to ensure a connection was established in the first place
         oldGame.contentReady.then(() => {
@@ -80,10 +87,7 @@ async function createView(ctx, isSpectator) {
     const isUserPartOfRoom = ctx.appState.user !== undefined &&
         roomData.players.filter(p => p.username === ctx.appState.user.username)[0] !== undefined;
 
-    if (roomData.players.length < 2) {
-        showError(`Room "${roomData.name}" has less than 2 players.`);
-        return ctx.page.redirect(`/rooms/${roomId}`);
-    } else if (!isSpectator && !isUserPartOfRoom) {
+    if (!isSpectator && !isUserPartOfRoom) {
         showError(`You are not joined to room "${roomData.name}".`);
         return ctx.page.redirect(`/rooms/${roomId}`);
     } else if (isSpectator && isUserPartOfRoom) {

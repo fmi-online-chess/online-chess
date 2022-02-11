@@ -80,7 +80,7 @@ export function roomsPage(ctx) {
 
         showInfo(`Room ${name} created successfully!`);
 
-        ctx.page.redirect(`/rooms/${result._id}`);
+        ctx.page.redirect(`/rooms/${result._id}/board`);
     }
 }
 
@@ -142,10 +142,6 @@ async function loadLobby(ctx, roomId) {
     }
 
     async function onResume() {
-        if (roomData.players.length === 2) {
-            ctx.page.redirect(`/rooms/${roomId}/board`);
-        } else {
-            showError("Waiting for an opponent to join.");
-        }
+        ctx.page.redirect(`/rooms/${roomId}/board`);
     }
 }
