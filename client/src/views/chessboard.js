@@ -103,8 +103,8 @@ async function createView(ctx, isSpectator) {
     // Cache game screen indefinetly - its contents are controlled via Canvas
 
     const time = {
-        white: 900,
-        black: 900,
+        white: Math.round(roomData.startingTime / 1000),
+        black: Math.round(roomData.startingTime / 1000),
         current: null,
         localBlack: false,
         playersReady: new Set()

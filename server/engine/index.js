@@ -164,8 +164,8 @@ function initGameAndHandlers(socket, player, playerColor, room) {
             console.log("starting timers");
 
             game.started = Date.now();
-            game.remainingWhite = 900000;
-            game.remainingBlack = 900000;
+            game.remainingWhite = room.startingTime;
+            game.remainingBlack = room.startingTime;
             game.lastMoved = game.started;
 
             room.started = game.started;

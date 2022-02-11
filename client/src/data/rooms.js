@@ -19,6 +19,6 @@ export async function joinRoom(roomId) {
     return api.post(endpoints.joinRoomById(roomId));
 }
 
-export async function createRoom(name) {
-    return api.post(endpoints.allRooms, { name });
+export async function createRoom(name, time, color) {
+    return api.post(endpoints.allRooms, { name, time, color });
 }

@@ -9,6 +9,7 @@ const schema = new mongoose.Schema({
     state: { type: String, default: "" },
     history: { type: [String], default: [] },
     started: { type: Number, default: null },
+    startingTime: { type: Number, default: 900000 },
     remainingWhite: { type: Number, default: null },
     remainingBlack: { type: Number, default: null },
     lastMoved: { type: Number, default: null },

@@ -2,19 +2,29 @@ import Room from "../data/models/Room.js";
 
 
 async function getRooms() {
-    return Room.find({}).select(["_id", "name"]);
+    return Room.find({ concluded: false }).select(["_id", "name"]);
 }
 
 async function getRoomById(id) {
-    return Room.findById(id).select(["_id", "name", "players"]).populate("players", ["_id", "username"]);
+    return Room.findById(id).select(["_id", "name", "players", "startingTime"]).populate("players", ["_id", "username"]);
 }
 
 async function getRoomDetails(id) {
     return Room.findById(id).populate("players", ["_id", "username"]);
 }
 
-async function createRoom(name) {
-    const room = new Room({ name });
+async function createRoom(name, time, color) {
+    const model = { name };
+    if (color == "white") {
+        model.white = 0;
+    } else if (color == "black") {
+        model.white = 1;
+    }
+    if (time) {
+        model.startingTime = Number(time) * 60000;
+    }
+
+    const room = new Room(model);
 
     await room.save();
 

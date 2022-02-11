@@ -11,7 +11,7 @@ roomController.get("/", async (req, res) => {
 });
 
 roomController.post("/", authCheck(), async (req, res) => {
-    const { name } = req.body;
+    const { name, time, color } = req.body;
 
     if (!name) {
         return res.status(400).json({
@@ -20,7 +20,7 @@ roomController.post("/", authCheck(), async (req, res) => {
     }
 
     try {
-        const room = await createRoom(name);
+        const room = await createRoom(name, time, color);
         await joinRoom(room._id, req.user._id);
 
         res.json(room);

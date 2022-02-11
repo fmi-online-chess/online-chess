@@ -160,7 +160,7 @@
     border-right: 1px solid rgba(0, 0, 0, 0.678);
 }
 
-.site-main form p.icon-field input {
+.site-main form p.icon-field input, .site-main form p.icon-field select {
     order: 3;
     flex-grow: 1;
     font-size: 1em;

@@ -19,6 +19,25 @@ const roomsTemplate = (roomsPromise, onCreateSubmit) => html`
                     <input name="name" id="name" type="text" required placeholder="Room 1" />
                     <i class="fas fa-chess-board"></i>
                 </p>
+                <p class="icon-field">
+                    <label for="time" class="required-field">Time limit:</label>
+                    <select name="time" id="time" required .value=${"15"}>
+                        <option value="5">5 min</option>
+                        <option value="10">10 min</option>
+                        <option value="15">15 min</option>
+                        <option value="30">30 min</option>
+                        <option value="60">60 min</option>
+                        <option value="90">90 min</option>
+                    </select>
+                </p>
+                <p class="icon-field">
+                    <label for="color" class="required-field">Prefered color:</label>
+                    <select name="color" id="color" required>
+                        <option value="random">Random</option>
+                        <option value="white">White</option>
+                        <option value="black">Black</option>
+                    </select>
+                </p>
                 <p class="submit-input">
                     <input value="Create room" type="submit" />
                 </p>
@@ -34,16 +53,21 @@ const roomsTemplate = (roomsPromise, onCreateSubmit) => html`
     </div>
 </div>`;
 
+const roomTemplate = room => html`
+<li>
+    <a href="/rooms/${room._id}"><i class="fas fa-greater-than"></i> <span>${room.name}<span></a>
+</li>`;
+
 const lobbyTemplate = (roomDataPromise) => html`
 <div class="wrapper form">
     <h1 class="form-title">Lobby</h1>
-    ${until(roomDataPromise, spinner())}        
+    ${until(roomDataPromise, spinner())}
 </div>`;
 
 export function roomsPage(ctx) {
     return roomsTemplate(loadRooms(), createSubmitHandler(onCreateSubmit));
 
-    async function onCreateSubmit({ name }) {
+    async function onCreateSubmit({ name, time, color }) {
         if (!name) {
             return void showError("Name cannot be empty!");
         }
@@ -52,7 +76,7 @@ export function roomsPage(ctx) {
             return void showError("You have to login before creating a room.");
         }
 
-        const result = await createRoom(name);
+        const result = await createRoom(name, time, color);
 
         showInfo(`Room ${name} created successfully!`);
 
@@ -66,7 +90,7 @@ async function loadRooms() {
     if (rooms.length == 0) {
         return html`<p>No available rooms.</p>`;
     } else {
-        return rooms.map(r => html`<li><a href="/rooms/${r._id}"><i class="fas fa-greater-than"></i> <span>${r.name}<span></a></li>`);
+        return rooms.map(roomTemplate);
     }
 }
 
@@ -78,10 +102,10 @@ export function lobbyPage(ctx) {
 
 async function loadLobby(ctx, roomId) {
     let roomData;
-    
+
     try {
         roomData = await getLobby(roomId);
-    } catch(err) {
+    } catch (err) {
         return ctx.page.redirect("/rooms");
     }
 
