@@ -20,6 +20,7 @@ const pageTemplate = (board, players, history, onSubmit, time, onReady) => html`
             <p class="info"></p>
             <div class="buttons">
                 <a href="/rooms">Play again</a>
+                <a href="javascript:void(0)" class="modal-close">See board</a>
             </div>
         </section>
     </section>

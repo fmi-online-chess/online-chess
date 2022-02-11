@@ -24,6 +24,9 @@ function setModalStyles(modalElement, players, winner, reason, isSpectator) {
 
 export function showModal(data, userColor, players, isSpectator) {
     const modalElement = document.getElementsByClassName("modal")[0];
+    modalElement.querySelector(".modal-close").addEventListener("click", () => {
+        modalElement.style.display = "none";
+    });
 
     let reason = "checkmate";
     let winner = "";
