@@ -134,6 +134,7 @@ export function createGame(room) {
 
     const game = {
         started: room.started,
+        concluded: room.concluded,
         remainingWhite: room.remainingWhite,
         remainingBlack: room.remainingBlack,
         lastMoved: room.lastMoved,

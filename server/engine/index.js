@@ -112,7 +112,19 @@ function initGameAndHandlers(socket, player, playerColor, room) {
 
     socket.on("action", async (action) => {
         console.log(player.username, ">>>", action);
+        if (game.concluded) {
+            return;
+        }
+        
+        const timerAsString = applyTimer(room, game, action[0]);
+        if (game.remainingWhite <= 0) {
+            return await endGame("timeout", "B");
+        } else if (game.remainingBlack <= 0) {
+            return await endGame("timeout", "W");
+        }
+
         const currentState = game.serialize();
+
         if (action[0] != playerColor || currentState[0] != playerColor) {
             return;
         } else if (game.move(action)) {
@@ -120,7 +132,6 @@ function initGameAndHandlers(socket, player, playerColor, room) {
             room.state = newState;
             room.history.push(action);
 
-            const timerAsString = applyTimer(room, game, action[0]);
 
             await room.save();
 
@@ -186,6 +197,8 @@ function initGameAndHandlers(socket, player, playerColor, room) {
         }
 
         room.history.push(status);
+        room.concluded = true;
+        game.concluded = true;
         await room.save();
 
         socket.emit("conclusion", status);
