@@ -51,7 +51,7 @@ async function initGame(game, userData, roomId, readyState, isSpectator) {
             game.update();
         };
         connection.onConclusion = (data) => {
-            showModal(data, connection.color, game.players[1]); // TODO improve modal
+            showModal(data, game.color, game.players, isSpectator);
             board.onAction(data);
             game.chat.push({ username: "Conclusion", message: data });
             game.update();

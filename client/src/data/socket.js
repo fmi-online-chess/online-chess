@@ -119,6 +119,7 @@ export async function connect(roomId, userData, isSpectator) {
 
             if (isSpectator) {
                 socket.emit("spectate", roomId);
+                connection.color = "W";
                 resolve(connection);
             } else {
                 socket.emit("auth", {

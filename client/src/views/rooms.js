@@ -114,7 +114,7 @@ async function loadLobby(ctx, roomId) {
     }
 
     async function onSpectate() {
-        ctx.page.redirect(`/rooms/${roomId}/spectate`)
+        ctx.page.redirect(`/rooms/${roomId}/board?spectate=1`);
     }
 
     async function onResume() {

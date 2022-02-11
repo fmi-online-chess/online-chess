@@ -84,7 +84,7 @@ async function createView(ctx, isSpectator) {
         return ctx.page.redirect(`/rooms/${roomId}`);
     } else if (!isSpectator && !isUserPartOfRoom) {
         showError(`You are not joined to room "${roomData.name}".`);
-        return ctx.page.redirect("/rooms");
+        return ctx.page.redirect(`/rooms/${roomId}`);
     } else if (isSpectator && isUserPartOfRoom) {
         showError("You cannot spectate a game you are playing.");
         return ctx.page.redirect(`/rooms/${roomId}`);
@@ -119,7 +119,7 @@ async function createView(ctx, isSpectator) {
             const [white, black, current, localBlack] = packet;
             time.white = white;
             time.black = black;
-            time.current = isSpectator ? null : current;
+            time.current = current;
             time.localBlack = localBlack;
         }
 
