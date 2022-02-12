@@ -79,6 +79,9 @@ async function initGame(game, userData, roomId, readyState, isSpectator) {
 
         game.disconnect = connection.disconnect;
 
+        if (game.players.length < 2) {
+            game.players = connection.playerNames.slice();
+        }
         game.color = isSpectator ? "W" : connection.color;
         if (game.color == "B") {
             game.players.reverse();

@@ -40,85 +40,84 @@ function onConnect(socket) {
     // - if no, respond with error
 
     console.log("a user connected");
-    socket.on("auth", async ({ roomId, token }) => {
-        // socket.off("spectate");
 
+    // Player mode
+    socket.on("auth", async ({ roomId, token }) => {
         let userData = null;
         try {
             userData = socket.request.auth.parseToken(token);
         } catch (err) {
-            socket.emit("auth", false);
+            socket.emit("auth", { color: false });
             return socket.disconnect();
         }
         const room = await getRoomDetails(roomId);
-
-        // Game has already concluded
-        const lastMove = room.history[room.history.length - 1];
-        if (lastMove && lastMove.includes("-")) {
-            socket.emit("conclusion", lastMove);
-            return socket.disconnect();
-        }
-
-        const lobby = lobbies[room._id] || new EventEmitter();
-        lobby.players = lobby.players || new Set();
-        lobbies[room._id] = lobby;
-
         const player = room.players.find(p => p._id == userData._id);
-        if (player) {
-            if (lobby.players.size == 2) {
-                sendInitPackets(room, socket, userData, player);
+
+        if (isGameGoing(room, socket)) {
+            if (player) {
+                joinWaitingLobby(room._id, userData._id, () => sendPlayerPackets(room, socket, userData, player));
             } else {
-                lobby.on("player_connected", (id) => {
-                    lobby.players.add(id);
-                    if (lobby.players.size == 2) {
-                        sendInitPackets(room, socket, userData, player);
-                    }
-                });
-                lobby.emit("player_connected", userData._id);
+                socket.emit("auth", { color: false });
+                return socket.disconnect();
             }
-        } else {
-            socket.emit("auth", false);
-            return socket.disconnect();
         }
     });
 
+    // Spectator mode
     socket.on("spectate", async (roomId) => {
-        // socket.off("auth");
-
         const room = await getRoomDetails(roomId);
 
-        const lastMove = room.history[room.history.length - 1];
-        if (lastMove && lastMove.includes("-")) {
-            socket.emit("conclusion", lastMove);
-            return socket.disconnect();
-        }
-
-        const lobby = lobbies[room._id] || new EventEmitter();
-        lobby.players = lobby.players || new Set();
-        lobbies[room._id] = lobby;
-
-        if (lobby.players.size == 2) {
-            const state = initSpectatorHandlers(socket, room);
-            socket.emit("auth-spectate", null);
-            socket.emit("history", room.chatHistory);
-            socket.emit("state", state);
-        } else {
-            lobby.on("player_connected", () => {
-                if (lobby.players.size == 2) {
-                    const state = initSpectatorHandlers(socket, room);
-                    socket.emit("auth-spectate", null);
-                    socket.emit("history", room.chatHistory);
-                    socket.emit("state", state);
-                }
-            });
+        if (isGameGoing(room, socket)) {
+            joinWaitingLobby(room._id, null, () => sendSpectatorPackets(room, socket));
         }
     });
 }
 
-function sendInitPackets(room, socket, userData, player) {
+function isGameGoing(room, socket) {
+    const lastMove = room.history[room.history.length - 1];
+    if (lastMove && lastMove.includes("-")) {
+        socket.emit("conclusion", lastMove);
+        socket.disconnect();
+        return false;
+    } else {
+        return true;
+    }
+}
+
+function joinWaitingLobby(roomId, playerId, callback) {
+    if (lobbies[roomId] == undefined) {
+        console.log("Creating waiting lobby");
+        lobbies[roomId] = new EventEmitter();
+        lobbies[roomId].players = new Set();
+    }
+    const lobby = lobbies[roomId];
+
+    if (lobby.players.size == 2) {
+        callback();
+    } else {
+        lobby.on("player_connected", () => {
+            if (lobby.players.size == 2) {
+                callback();
+            }
+        });
+        if (playerId) {
+            lobby.players.add(playerId);
+            lobby.emit("player_connected", playerId);
+        }
+    }
+}
+
+function sendPlayerPackets(room, socket, userData, player) {
     const playerColor = room.players[room.white].id == userData._id ? "W" : "B";
     const state = initGameAndHandlers(socket, player, playerColor, room);
-    socket.emit("auth", playerColor);
+    socket.emit("auth", { color: playerColor, playerNames: room.players.map(p => p.username) });
+    socket.emit("history", room.chatHistory);
+    socket.emit("state", state);
+}
+
+function sendSpectatorPackets(room, socket) {
+    const state = initSpectatorHandlers(socket, room);
+    socket.emit("auth-spectate", { playerNames: room.players.map(p => p.username) });
     socket.emit("history", room.chatHistory);
     socket.emit("state", state);
 }

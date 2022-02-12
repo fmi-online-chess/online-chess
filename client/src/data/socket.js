@@ -14,6 +14,7 @@ export async function connect(roomId, userData, isSpectator) {
         let initialized = false;
 
         const connection = {
+            playerNames: [],
             color: null,
             sendMessage(data) {
                 socket.emit("message", data);
@@ -50,9 +51,10 @@ export async function connect(roomId, userData, isSpectator) {
 
         const socket = ioModule(hostname);
 
-        socket.on("auth", (color) => {
+        socket.on("auth", ({ color, playerNames }) => {
             if (color) {
                 log("Authorized with server", color);
+                connection.playerNames = playerNames;
                 connection.color = color;
                 authorized = true;
                 resolve(connection);
@@ -61,7 +63,8 @@ export async function connect(roomId, userData, isSpectator) {
             }
         });
 
-        socket.on("auth-spectate", () => {
+        socket.on("auth-spectate", ({ playerNames }) => {
+            connection.playerNames = playerNames;
             connection.color = "W";
             resolve(connection);
         });
