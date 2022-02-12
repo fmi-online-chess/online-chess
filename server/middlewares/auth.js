@@ -1,13 +1,10 @@
-import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import * as userService from "../services/userService.js";
 import { INVALID_TOKEN } from "../services/errors.js";
 
 
-const {
-    SECRET_KEY
-} = dotenv.config().parsed;
+const SECRET_KEY = process.env.SECRET_KEY || "s3cr3t_k3y";
 
 export default function initialize() {
     return (req, res, next) => {
