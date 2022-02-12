@@ -1,10 +1,11 @@
+/* globals env */
 import { page } from "../lib.js";
 import { clearUserData, getUserData } from "../util/userData.js";
 import { INVALID_TOKEN } from "./errors.js";
 import { showInfo, showError } from "../util/notify.js";
 
 
-const hostname = "http://localhost:5000";
+const hostname = env?.hostname || "http://localhost:5000";
 
 export async function request(url, options) {
     try {

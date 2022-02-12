@@ -1,8 +1,13 @@
-import { io } from "http://localhost:5000/socket.io/socket.io.esm.min.js";
+/* globals env */
 import { log } from "../util/logger.js";
 
 
+const hostname = env?.hostname || "http://localhost:5000";
+const io = import(`${hostname}/socket.io/socket.io.esm.min.js`);
+
 export async function connect(roomId, userData, isSpectator) {
+    const ioModule = (await io).default;
+
     return new Promise((resolve, reject) => {
         const token = isSpectator ? null : userData.accessToken;
         let authorized = false;
@@ -43,7 +48,7 @@ export async function connect(roomId, userData, isSpectator) {
         bufferedEventListener(connection, "onPlayerReady");
         bufferedEventListener(connection, "onError");
 
-        const socket = io("http://localhost:5000");
+        const socket = ioModule(hostname);
 
         socket.on("auth", (color) => {
             if (color) {
