@@ -13,7 +13,7 @@ const activeGames = {};
 export default function setupEngine(server) {
     const io = new Server(server, {
         cors: {
-            origin: ["http://localhost:8080", "http://127.0.0.1:8080"],
+            origin: ["http://localhost:8080", "http://127.0.0.1:8080", "https://fmi-online-chess.github.io"],
             methods: ["GET", "POST"],
         }
     });
