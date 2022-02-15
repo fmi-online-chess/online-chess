@@ -49,7 +49,7 @@ const roomsTemplate = (roomsPromise, onCreateSubmit) => html`
         <section class="join">
             <h2>Join Room</h2>
             <ul>
-                ${until(roomsPromise, spinner())}
+                ${until(roomsPromise, spinner("Loading rooms"))}
             </ul>
         </section>
     </div>
@@ -63,7 +63,7 @@ const roomTemplate = room => html`
 const lobbyTemplate = (roomDataPromise) => html`
 <div class="wrapper form">
     <h1 class="form-title">Lobby</h1>
-    ${until(roomDataPromise, spinner())}
+    ${until(roomDataPromise, spinner("Loading"))}
 </div>`;
 
 export function roomsPage(ctx) {

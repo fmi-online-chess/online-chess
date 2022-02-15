@@ -1,0 +1,20 @@
+.spinner-wrapper {
+    text-align: center;
+}
+
+.spinner-wrapper .spinner {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(207, 115, 35, .3);
+    border-radius: 50%;
+    border-top-color: rgb(207, 115, 35);
+    animation: spin 1s ease-in-out infinite;
+    margin-top: 1em;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
