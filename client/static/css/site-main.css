@@ -186,7 +186,8 @@
 
 .site-main form input[type="submit"],
 .site-main .room-box .room-entrance-btn,
-.site-main .modal .buttons a {
+.site-main .modal .buttons a,
+.site-main #board-page .waiting-opponent button {
     background-color: rgb(207, 115, 35);
     border: 3px solid rgb(207, 115, 35);
     border-radius: 0.2em;
@@ -202,7 +203,8 @@
 
 .site-main form input[type="submit"]:not(#chat-button):hover,
 .site-main .room-box .room-entrance-btn:hover,
-.site-main .modal .buttons a:hover {
+.site-main .modal .buttons a:hover,
+.site-main #board-page .waiting-opponent button:hover {
     background-color: transparent;
     color: rgb(207, 115, 35);
 }

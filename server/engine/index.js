@@ -108,7 +108,7 @@ function joinWaitingLobby(roomId, playerId, callback) {
 }
 
 function sendPlayerPackets(room, socket, userData, player) {
-    const playerColor = room.players[room.white].id == userData._id ? "W" : "B";
+    const playerColor = room.players[room.white]?.id == userData._id ? "W" : "B";
     const state = initGameAndHandlers(socket, player, playerColor, room);
     socket.emit("auth", { color: playerColor, playerNames: room.players.map(p => p.username) });
     socket.emit("history", room.chatHistory);

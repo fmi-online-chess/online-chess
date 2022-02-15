@@ -22,6 +22,31 @@
     margin: 100px;
 }
 
+#board-id.waiting-opponent {
+    text-align: center;
+    margin-top: 12vh;
+    margin-bottom: 12vh;
+}
+
+#board-id.waiting-opponent img {
+    width: 150px;
+    height: auto;
+}
+
+#board-id.waiting-opponent .spinner-wrapper {
+    margin: 3em 0;
+}
+
+#board-id.waiting-opponent .spinner-message {
+    font-size: 1.8em;
+}
+
+.site-main #board-page .waiting-opponent button {
+    width: 40%;
+    font-size: 1.2em;
+    margin-top: 0;
+}
+
 canvas {
     box-shadow: 0px 0px 15px 1px #000000;
 }

@@ -3,7 +3,7 @@ import { html } from "../../lib.js";
 
 const spinner = (message) => html`
     <div class="spinner-wrapper">
-        <p>${message}&hellip;</p>
+        <p class="spinner-message">${message}&hellip;</p>
         <div class="spinner"></div>
     </div>
 `;

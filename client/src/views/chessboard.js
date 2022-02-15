@@ -4,6 +4,7 @@ import { showError } from "../util/notify.js";
 import { getLobby } from "../data/rooms.js";
 import { createGame } from "../engine/index.js";
 import { createTimer } from "./common/timer.js";
+import spinner from "./common/spinner.js";
 
 
 const pageTemplate = (board, players, history, onSubmit, time, onReady) => html`
@@ -52,11 +53,16 @@ export function chessboard(ctx) {
 
     return view || html`
     <div id="board-page">
-        <div id="board-id">
-            <p>Waiting for players &hellip;</p>
-            <p><a href="/rooms/${roomId}">Back to lobby</a></p>
+        <div id="board-id" class="waiting-opponent">
+            <img src="/static/icon.png" alt="Chess Knight Icon" />
+            ${spinner("Waiting for opponent to join")}
+            <button @click=${onReturnToLobby}>Back to lobby</button>
         </div>
     </div>`;
+
+    async function onReturnToLobby() {
+        ctx.page.redirect(`/rooms/${roomId}`);
+    }
 }
 
 function validateGame(ctx, roomId, isSpectator) {
