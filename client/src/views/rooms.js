@@ -29,6 +29,7 @@ const roomsTemplate = (roomsPromise, onCreateSubmit) => html`
                         <option value="60">60 min</option>
                         <option value="90">90 min</option>
                     </select>
+                    <i class="fas fa-solid fa-chess-clock"></i>
                 </p>
                 <p class="icon-field">
                     <label for="color" class="required-field">Prefered color:</label>
@@ -37,6 +38,7 @@ const roomsTemplate = (roomsPromise, onCreateSubmit) => html`
                         <option value="white">White</option>
                         <option value="black">Black</option>
                     </select>
+                    <i class="fas fa-solid fa-chess-pawn"></i>
                 </p>
                 <p class="submit-input">
                     <input value="Create room" type="submit" />

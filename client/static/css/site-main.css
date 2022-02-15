@@ -158,24 +158,29 @@
     color: rgba(0, 0, 0, 0.678);
     padding-right: 0.5em;
     border-right: 1px solid rgba(0, 0, 0, 0.678);
+    min-width: 20px;
 }
 
-.site-main form p.icon-field input, .site-main form p.icon-field select {
+.site-main form .icon-field input, 
+.site-main form .icon-field select {
     order: 3;
     flex-grow: 1;
     font-size: 1em;
     border: 1px solid #C2B9B9;
     border-radius: 0.3em;
-    padding: 0.7em 0 0.7em 2.6em;
+    padding: 0.7em;
+    padding-left: 2.6em;
     outline: none;
     margin-top: 0.4em;
 }
 
-.site-main form .icon-field input:focus {
+.site-main form .icon-field input:focus,
+.site-main form .icon-field select:focus {
     border-color: rgb(207, 115, 35);
 }
 
-.site-main form .icon-field input:focus+i {
+.site-main form .icon-field input:focus+i,
+.site-main form .icon-field select:focus+i {
     color: rgb(207, 115, 35);
 }
 
