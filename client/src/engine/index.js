@@ -83,9 +83,6 @@ async function initGame(game, userData, roomId, readyState, isSpectator) {
             game.players = connection.playerNames.slice();
         }
         game.color = isSpectator ? "W" : connection.color;
-        if (game.color == "B") {
-            game.players.reverse();
-        }
         game.canvas = board.canvas;
         game.ready = true;
         readyState.resolve();

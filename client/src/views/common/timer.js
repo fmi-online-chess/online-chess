@@ -19,12 +19,12 @@ const timer = ({ name, time, isReady, isBlack }, onReady) => html`<div class="cl
 
 </div>`;
 
-const group = (playerModels, localBlack, onReady) => html`<div id="timer-wrap">
-    ${timer(localBlack ? playerModels.black : playerModels.white, onReady)}
+const group = (playerModels, onReady) => html`<div id="timer-wrap">
+    ${timer(playerModels.white, onReady)}
     <div id="two-point">
         :
     </div>
-    ${timer(localBlack ? playerModels.white : playerModels.black, onReady)}
+    ${timer(playerModels.black, onReady)}
 </div>`;
 
 
@@ -41,20 +41,20 @@ export function createTimer(players, time, onReady) {
     function update() {
         const playerModels = {
             white: {
-                name: time.localBlack ? players[1] : players[0],
+                name: players[0],
                 time: time.white,
                 isReady: time.playersReady.has("W") || time.current != null,
                 isBlack: false
             },
             black: {
-                name: time.localBlack ? players[0] : players[1],
+                name: players[1],
                 time: time.black,
                 isReady: time.playersReady.has("B") || time.current != null,
                 isBlack: true
             }
         };
 
-        render(group(playerModels, time.localBlack, onReady), root);
+        render(group(playerModels, onReady), root);
     }
 
     function tick() {

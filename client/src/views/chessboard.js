@@ -102,6 +102,9 @@ async function createView(ctx, isSpectator) {
     }
 
     const playerNames = roomData.players.map(p => p.username);
+    if (roomData.white == 1) {
+        playerNames.reverse();
+    }
     // eslint-disable-next-line require-atomic-updates
     ctx.appState.game = createGame(ctx.appState.user, playerNames, roomId, update, updateTimer, isSpectator);
     ctx.appState.game.contentReady.catch(() => {

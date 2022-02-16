@@ -6,7 +6,7 @@ async function getRooms() {
 }
 
 async function getRoomById(id) {
-    return Room.findById(id).select(["_id", "name", "players", "startingTime"]).populate("players", ["_id", "username"]);
+    return Room.findById(id).select(["_id", "name", "players", "startingTime", "white"]).populate("players", ["_id", "username"]);
 }
 
 async function getRoomDetails(id) {
