@@ -55,7 +55,7 @@ function onConnect(socket) {
 
         if (isGameGoing(room, socket)) {
             if (player) {
-                joinWaitingLobby(room._id, userData._id, () => sendPlayerPackets(room, socket, userData, player));
+                joinWaitingLobby(room._id, userData._id, () => sendPlayerPackets(roomId, socket, userData, player));
             } else {
                 socket.emit("auth", { color: false });
                 return socket.disconnect();
@@ -107,7 +107,8 @@ function joinWaitingLobby(roomId, playerId, callback) {
     }
 }
 
-function sendPlayerPackets(room, socket, userData, player) {
+async function sendPlayerPackets(roomId, socket, userData, player) {
+    const room = await getRoomDetails(roomId);
     const playerColor = room.players[room.white]?.id == userData._id ? "W" : "B";
     const state = initGameAndHandlers(socket, player, playerColor, room);
     const playerNames = room.players.map(p => p.username);
