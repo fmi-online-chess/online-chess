@@ -75,21 +75,27 @@ The elements are of **type String** where an empty string means and unoccupied t
 
 The following packet types can be send by the client:
 * `auth(roomId, token)` - sent when the client first initiates a connection; unauthenticated clients cannot access any of the other packet types;
+* `spectate(roomId)` - sent when the client first initiates a connection as a spectator; the server will send limited information to spectators;
+* `ready()` - informs the server that the player is ready to start their timer;
 * `message(content)` - transmits a chat message;
+* `select(position)` - asks for the valid moves for a given piece;
 * `action(action)` - signals the intent to move a piece on the board.
 
 The server can send the following packet types:
-* `auth(success)` - sent in response to an authentication packet from the client; will be `true` if the client is recognized as a participant for the requested room;
+* `auth(playerData)` - sent in response to an authentication packet from the client; will be `false` if the client is not recognized as a participant for the requested room;
+* `auth-spectate(playerData)` - sent in response to a spectate request from the client;
+* `moves(list)` - indicates what moves are valid for the given position of a piece;
 * `action(action)` - informs the client that a piece has been moved on the board, regardless of initiator; when the client requests to move a piece, the confirmation from the server will come via this packet;
 * `state(state)` - transmits the state of the entire board; sent when the connection is initially established;
 * `message(content)` - informs the client of a chat message;
-* `history(history)` - transmits the entire chat history; sent when the connection is initially established.
+* `history(history)` - transmits the entire chat history; sent when the connection is initially established;
+* `conclusion(result)` - indicates that the game has ended.
 
 #### Player Interaction
 
 The client acts as a **thin terminal** where all game logic is performed on the server and the client only displays the current state and transmits player actions.
 
-Actions are sent as a string in a format similar to standard FIDE long algebraic notation, containing the color and piece, starting file and rank and ending file and rank. ***Examples:*** `WPa2a4` - **W**hite **P**awn moving from **a2** to **a4**; `WBc1f4` - **W**hite **B**ishop moving from **c1** to **f4**.
+Actions are sent as a string in a format similar to standard FIDE long algebraic notation, containing the color and piece, starting file and rank and ending file and rank. ***Examples:*** `WPa2a4` - **W**hite **P**awn moving from **a2** to **a4**; `WBc1f4` - **W**hite **B**ishop moving from **c1** to **f4**. Certain moves will have a suffix that is used by the client to improve the feedback to the user (capture moves, castling, etc.)
 
 #### Data Persistance
 
